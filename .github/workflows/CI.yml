@@ -1,0 +1,103 @@
+name: "CI"
+on:
+  push:
+    branches: "*"
+  pull_request:
+
+env:
+  cache-version: 1
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v4
+        with:
+          path: "~/.npm"
+          key: npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+          restore-keys: |
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm ci
+
+      - name: "Build"
+        run: |
+          npm run build
+
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        versions: [
+          {vitest: "2"},
+          {vitest: "3"},
+        ]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4.1.1
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.versions.node }}
+          cache: 'npm'
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm install
+
+      - name: "Install vitest"
+        run: |
+          npm install vitest@${{ matrix.versions.vitest }}
+
+      - name: "Run tests"
+        run: |
+          npm run test-coverage
+
+      - name: "Upload coverage results"
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          parallel: true
+
+  close-coverage:
+    name: "Close parallel coverage"
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: "Close parallel coverage"
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          parallel-finished: true
+
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v4
+        with:
+          path: "~/.npm"
+          key: npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+          restore-keys: |
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm ci
+
+      - name: "Lint"
+        run: |
+          npm run lint
