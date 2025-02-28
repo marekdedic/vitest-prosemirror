@@ -1,0 +1,71 @@
+{
+  "name": "vitest-prosemirror",
+  "version": "0.1.0",
+  "description": "A plugin for Vitest that enables you to write tests using the ProseMirror editor",
+  "keywords": [
+    "vitest",
+    "prosemirror",
+    "testing"
+  ],
+  "homepage": "https://github.com/marekdedic/vitest-prosemirror",
+  "bugs": {
+    "url": "https://github.com/marekdedic/vitest-prosemirror/issues"
+  },
+  "license": "MIT",
+  "author": "Marek Dědič",
+  "type": "module",
+  "module": "dist/vitest-prosemirror.js",
+  "types": "dist/vitest-prosemirror.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vitest-prosemirror.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marekdedic/vitest-prosemirror.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "prebuild": "npm run clean",
+    "build": "vite build",
+    "lint": "eslint --color 'src/**/*.ts' '*.config.{js,ts}'"
+  },
+  "peerDependencies": {
+    "vitest": "^2.1.9 || ^3.0.7"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "prosemirror-model": "^1.24.1",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-view": "^1.38.0",
+    "stringify-object": "^5.0.0",
+    "test-keyboard": "^2.0.7"
+  },
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.4.0",
+    "@eslint/js": "^9.9.1",
+    "@microsoft/api-extractor": "^7.47.2",
+    "@types/stringify-object": "^4.0.5",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-perfectionist": "^4.1.2",
+    "eslint-plugin-prefer-arrow-functions": "^3.4.0 <3.7",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.3.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.2.0",
+    "vite": "^6.0.2",
+    "vite-plugin-dts": "^4.5.1"
+  }
+}
