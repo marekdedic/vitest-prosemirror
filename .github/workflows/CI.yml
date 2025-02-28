@@ -57,7 +57,7 @@ jobs:
 
       - name: "Install vitest"
         run: |
-          npm install vitest@${{ matrix.versions.vitest }}
+          npm install vitest@${{ matrix.versions.vitest }} @vitest/coverage-v8@${{ matrix.versions.vitest }}
 
       - name: "Run tests"
         run: |
