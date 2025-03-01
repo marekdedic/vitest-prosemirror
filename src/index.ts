@@ -6,7 +6,7 @@ import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export { ProseMirrorTester } from "./ProseMirrorTester";
 
-interface CustomMatchers<R = unknown> {
+export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
 }
 
