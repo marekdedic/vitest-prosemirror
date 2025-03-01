@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from "fs";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
@@ -22,7 +23,17 @@ export default defineConfig({
     },
     sourcemap: true,
   },
-  plugins: [dts({ rollupTypes: true })],
+  plugins: [
+    dts({ rollupTypes: true }),
+    {
+      closeBundle: (): void => {
+        let file = readFileSync("dist/vitest-prosemirror.d.ts", "utf8");
+        file = `import 'vitest';\n${file}`;
+        writeFileSync("dist/vitest-prosemirror.d.ts", file, "utf8");
+      },
+      name: "pure-import-fixer",
+    },
+  ],
   test: {
     environment: "jsdom",
     mockReset: true,
