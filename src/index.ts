@@ -4,7 +4,7 @@ import { expect } from "vitest";
 
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
-export { ProseMirrorTester } from "./ProseMirrorTester";
+export { ProseMirrorTester, type TesterSelection } from "./ProseMirrorTester";
 
 export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;

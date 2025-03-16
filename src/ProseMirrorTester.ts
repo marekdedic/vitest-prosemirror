@@ -14,7 +14,7 @@ interface Options {
   plugins: Array<Plugin>;
 }
 
-type TesterSelection =
+export type TesterSelection =
   | "all"
   | "end"
   | "start"
