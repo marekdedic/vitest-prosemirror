@@ -10,11 +10,11 @@ import {
 import { EditorView } from "prosemirror-view";
 import { Keyboard } from "test-keyboard";
 
-interface Options {
+export interface Options {
   plugins: Array<Plugin>;
 }
 
-type TesterSelection =
+export type TesterSelection =
   | "all"
   | "end"
   | "start"
