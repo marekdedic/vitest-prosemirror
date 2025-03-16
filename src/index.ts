@@ -9,6 +9,7 @@ export {
   ProseMirrorTester,
   type TesterSelection,
 } from "./ProseMirrorTester";
+export { trimProseMirrorNode } from "./trimProseMirrorNode";
 
 export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
