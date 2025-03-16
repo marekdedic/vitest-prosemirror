@@ -35,6 +35,7 @@
     "clean": "rimraf dist/*",
     "prebuild": "npm run clean",
     "build": "vite build",
+    "start": "vite build --watch",
     "lint": "eslint --color 'src/**/*.ts' 'tests/**/*.ts' '*.config.{js,ts}'",
     "test": "vitest",
     "test-coverage": "vitest run --coverage"
