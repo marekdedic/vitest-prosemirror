@@ -1,5 +1,8 @@
 import { Fragment, type Node } from "prosemirror-model";
 
+/**
+ * @public
+ */
 export function trimProseMirrorNode(node: Node): Node {
   let start = 0;
   let end = node.children.length;
