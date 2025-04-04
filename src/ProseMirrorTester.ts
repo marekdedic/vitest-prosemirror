@@ -55,18 +55,27 @@ export class ProseMirrorTester {
       target: this.view.dom,
     }).start();
 
-    let pos = this.view.state.selection.from;
     for (const character of text) {
       keys.char({ text: character, typing: true });
 
       if (
         this.view.someProp("handleTextInput", (f) =>
-          f(this.view, pos, pos, character),
-        ) === undefined
+          f(
+            this.view,
+            this.view.state.selection.from,
+            this.view.state.selection.from,
+            character,
+          ),
+        ) !== true
       ) {
-        this.view.dispatch(this.view.state.tr.insertText(character, pos, pos));
+        this.view.dispatch(
+          this.view.state.tr.insertText(
+            character,
+            this.view.state.selection.from,
+            this.view.state.selection.from,
+          ),
+        );
       }
-      pos = this.view.state.selection.anchor;
     }
     keys.end();
   }
