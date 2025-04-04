@@ -1,6 +1,6 @@
 {
   "name": "vitest-prosemirror",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A plugin for Vitest that enables you to write tests using the ProseMirror editor",
   "keywords": [
     "vitest",
