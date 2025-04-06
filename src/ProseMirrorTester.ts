@@ -92,7 +92,7 @@ export class ProseMirrorTester {
       target: this.view.dom,
     })
       .start()
-      .mod({ text })
+      .mod({ text: text.replace(/Enter$/u, "\n") })
       .forEach(({ event }) => {
         this.view.dispatchEvent(event);
       })
