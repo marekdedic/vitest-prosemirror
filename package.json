@@ -52,8 +52,7 @@
     "prosemirror-model": "^1.24.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.38.0",
-    "stringify-object": "^5.0.0",
-    "test-keyboard": "^2.0.7"
+    "stringify-object": "^5.0.0"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.4.0",
