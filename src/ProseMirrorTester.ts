@@ -9,7 +9,7 @@ import {
 } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { escapeKey, tokenizeKeyboardInput } from "./utils/keyboardInput";
+import { tokenizeKeyboardInput } from "./utils/keyboardInput";
 
 export interface Options {
   plugins: Array<Plugin>;

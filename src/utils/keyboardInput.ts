@@ -1,19 +1,3 @@
-export function escapeKey(key: string): string {
-  if (key === "[") {
-    return "[[";
-  }
-  if (key === "{") {
-    return "{{";
-  }
-  if (key.length === 1) {
-    return key;
-  }
-  if (key.includes("}") && !key.includes("]")) {
-    return `[${key}]`;
-  }
-  return `{${key.replace("}", "\\}")}}`;
-}
-
 export function tokenizeKeyboardInput(input: string): Array<string> {
   const output = [];
 
