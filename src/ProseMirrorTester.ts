@@ -8,7 +8,8 @@ import {
   TextSelection,
 } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Keyboard } from "test-keyboard";
+
+import { escapeKey, tokenizeKeyboardInput } from "./utils/keyboardInput";
 
 export interface Options {
   plugins: Array<Plugin>;
@@ -50,13 +51,37 @@ export class ProseMirrorTester {
     });
   }
 
-  public insertText(text: string): void {
-    const keys = Keyboard.create({
-      target: this.view.dom,
-    }).start();
+  public insertText(text: string, modifiers?: Array<string>): void {
+    for (let character of tokenizeKeyboardInput(text)) {
+      this.view.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          ctrlKey: modifiers?.includes("Control") ?? false,
+          key: character,
+        }),
+      );
+      this.view.dispatchEvent(
+        new KeyboardEvent("keypress", {
+          bubbles: true,
+          ctrlKey: modifiers?.includes("Control") ?? false,
+          key: character,
+        }),
+      );
+      this.view.dispatchEvent(
+        new KeyboardEvent("keyup", {
+          bubbles: true,
+          ctrlKey: modifiers?.includes("Control") ?? false,
+          key: character,
+        }),
+      );
 
-    for (const character of text) {
-      keys.char({ text: character, typing: true });
+      if (modifiers !== undefined && modifiers.length > 0) {
+        continue;
+      }
+
+      if (character === "Enter") {
+        character = "\n";
+      }
 
       if (
         this.view.someProp("handleTextInput", (f) =>
@@ -77,26 +102,12 @@ export class ProseMirrorTester {
         );
       }
     }
-    keys.end();
   }
 
   public selectText(selection: TesterSelection): void {
     this.view.dispatch(
       this.view.state.tr.setSelection(this.getSelection(selection)),
     );
-  }
-
-  public shortcut(text: string): void {
-    Keyboard.create({
-      batch: true,
-      target: this.view.dom,
-    })
-      .start()
-      .mod({ text: text.replace(/Enter$/u, "\n") })
-      .forEach(({ event }) => {
-        this.view.dispatchEvent(event);
-      })
-      .end();
   }
 
   private getSelection(selection: TesterSelection): Selection {
