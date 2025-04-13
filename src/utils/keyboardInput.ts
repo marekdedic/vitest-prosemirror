@@ -36,7 +36,14 @@ export function tokenizeKeyboardInput(input: string): Array<string> {
     }
   }
 
+  output.forEach(assertSupported);
   return output;
+}
+
+function assertSupported(character: string): never | void {
+  if (/^\/.+/u.exec(character) || /.+>[\d]*\/?$/u.exec(character)) {
+    throw new Error("Unsupported keyboard input");
+  }
 }
 
 function matchingBrace(opener: "[" | "{"): "]" | "}" {
