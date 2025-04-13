@@ -11,6 +11,13 @@ import { EditorView } from "prosemirror-view";
 
 import { tokenizeKeyboardInput } from "./utils/keyboardInput";
 
+export interface KeyboardModifiers {
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
 export interface Options {
   plugins: Array<Plugin>;
 }
@@ -51,31 +58,36 @@ export class ProseMirrorTester {
     });
   }
 
-  public insertText(text: string, modifiers?: Array<string>): void {
+  public insertText(text: string, modifiers?: KeyboardModifiers): void {
     for (let character of tokenizeKeyboardInput(text)) {
       this.view.dispatchEvent(
         new KeyboardEvent("keydown", {
           bubbles: true,
-          ctrlKey: modifiers?.includes("Control") ?? false,
+          ...modifiers,
           key: character,
         }),
       );
       this.view.dispatchEvent(
         new KeyboardEvent("keypress", {
           bubbles: true,
-          ctrlKey: modifiers?.includes("Control") ?? false,
+          ...modifiers,
           key: character,
         }),
       );
       this.view.dispatchEvent(
         new KeyboardEvent("keyup", {
           bubbles: true,
-          ctrlKey: modifiers?.includes("Control") ?? false,
+          ...modifiers,
           key: character,
         }),
       );
 
-      if (modifiers !== undefined && modifiers.length > 0) {
+      if (
+        modifiers?.altKey === true ||
+        modifiers?.ctrlKey === true ||
+        modifiers?.metaKey === true ||
+        modifiers?.shiftKey === true
+      ) {
         continue;
       }
 
