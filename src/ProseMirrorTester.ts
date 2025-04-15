@@ -59,26 +59,23 @@ export class ProseMirrorTester {
   }
 
   public insertText(text: string, modifiers?: KeyboardModifiers): void {
-    for (let character of tokenizeKeyboardInput(text)) {
+    for (const key of tokenizeKeyboardInput(text)) {
+      const character = keyToChar(key);
+
       this.view.dispatchEvent(
         new KeyboardEvent("keydown", {
           bubbles: true,
+          charCode: character.charCodeAt(0),
+          key,
           ...modifiers,
-          key: character,
         }),
       );
       this.view.dispatchEvent(
         new KeyboardEvent("keypress", {
           bubbles: true,
+          charCode: character.charCodeAt(0),
+          key,
           ...modifiers,
-          key: character,
-        }),
-      );
-      this.view.dispatchEvent(
-        new KeyboardEvent("keyup", {
-          bubbles: true,
-          ...modifiers,
-          key: character,
         }),
       );
 
@@ -91,11 +88,8 @@ export class ProseMirrorTester {
         continue;
       }
 
-      if (character === "Enter") {
-        character = "\n";
-      }
-
       if (
+        character !== "\t" &&
         this.view.someProp("handleTextInput", (f) =>
           f(
             this.view,
@@ -113,6 +107,15 @@ export class ProseMirrorTester {
           ),
         );
       }
+
+      this.view.dispatchEvent(
+        new KeyboardEvent("keyup", {
+          bubbles: true,
+          charCode: character.charCodeAt(0),
+          key,
+          ...modifiers,
+        }),
+      );
     }
   }
 
@@ -157,4 +160,14 @@ export class ProseMirrorTester {
 
     return TextSelection.near(this.doc.resolve(pos));
   }
+}
+
+function keyToChar(key: string): string {
+  if (key === "Enter") {
+    return "\n";
+  }
+  if (key === "Tab") {
+    return "\t";
+  }
+  return key;
 }
