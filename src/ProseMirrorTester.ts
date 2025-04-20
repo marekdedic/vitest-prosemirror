@@ -30,6 +30,58 @@ export type TesterSelection =
   | Selection
   | number;
 
+type UsableMutationRecord = Omit<
+  MutationRecord,
+  "addedNodes" | "removedNodes"
+> & {
+  addedNodes: Array<Node>;
+  removedNodes: Array<Node>;
+};
+
+class MutationObserverMock {
+  private static readonly activeObservers: Map<Node, MutationObserverMock> =
+    new Map<Node, MutationObserverMock>();
+
+  private readonly callback: MutationCallback;
+  private target: Node | undefined;
+
+  public constructor(callback: MutationCallback) {
+    this.callback = callback;
+    this.target = undefined;
+  }
+
+  public static createMutation(
+    target: Node,
+    mutationRecords: Array<UsableMutationRecord>,
+  ): void {
+    const observer = MutationObserverMock.activeObservers.get(target);
+    if (observer === undefined) {
+      return;
+    }
+    observer.callback(
+      mutationRecords as unknown as Array<MutationRecord>,
+      observer,
+    );
+  }
+
+  public disconnect(): void {
+    if (this.target !== undefined) {
+      MutationObserverMock.activeObservers.delete(this.target);
+    }
+    this.target = undefined;
+  }
+
+  public observe(target: Node): void {
+    this.target = target;
+    MutationObserverMock.activeObservers.set(target, this);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- Mocking another method
+  public takeRecords(): Array<MutationRecord> {
+    return [];
+  }
+}
+
 export class ProseMirrorTester {
   public get doc(): ProseMirrorNode {
     return this.view.state.doc;
@@ -56,6 +108,9 @@ export class ProseMirrorTester {
       doc: documentRoot,
       plugins: options.plugins ?? [],
     });
+
+    global.MutationObserver = MutationObserverMock;
+
     this.view = new EditorView(element, {
       state,
     });
@@ -73,42 +128,80 @@ export class ProseMirrorTester {
           ...modifiers,
         }),
       );
+
+      if (key === "Enter") {
+        continue;
+      }
+
       this.view.dispatchEvent(
         new KeyboardEvent("keypress", {
           bubbles: true,
           charCode: character.charCodeAt(0),
           key,
+          keyCode: character.charCodeAt(0),
           ...modifiers,
         }),
       );
 
+      const domNode = this.view.domAtPos(this.view.state.selection.from).node;
       if (
-        modifiers?.altKey === true ||
-        modifiers?.ctrlKey === true ||
-        modifiers?.metaKey === true ||
-        modifiers?.shiftKey === true
+        domNode.childNodes.length === 1 &&
+        domNode.firstChild instanceof HTMLBRElement &&
+        domNode.firstChild.classList.contains("ProseMirror-trailingBreak")
       ) {
-        continue;
-      }
-
-      if (
-        character !== "\t" &&
-        this.view.someProp("handleTextInput", (f) =>
-          f(
-            this.view,
-            this.view.state.selection.from,
-            this.view.state.selection.from,
-            character,
-          ),
-        ) !== true
-      ) {
-        this.view.dispatch(
-          this.view.state.tr.insertText(
-            character,
-            this.view.state.selection.from,
-            this.view.state.selection.from,
-          ),
-        );
+        const brNode = domNode.firstChild;
+        const textNode = new Text(character);
+        domNode.removeChild(brNode);
+        domNode.appendChild(textNode);
+        MutationObserverMock.createMutation(this.view.dom, [
+          {
+            addedNodes: [textNode],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: brNode,
+            oldValue: null,
+            previousSibling: null,
+            removedNodes: [],
+            target: domNode,
+            type: "childList",
+          },
+          {
+            addedNodes: [],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue: null,
+            previousSibling: textNode,
+            removedNodes: [brNode],
+            target: domNode,
+            type: "childList",
+          },
+        ]);
+      } else {
+        const target = findLastCharacterDataNode(domNode);
+        if (target === null) {
+          continue;
+        }
+        const oldValue = target.data;
+        const domOffset =
+          this.view.state.selection.from - this.view.posAtDOM(target, 0);
+        target.data =
+          target.data.slice(0, domOffset) +
+          character +
+          target.data.slice(domOffset);
+        MutationObserverMock.createMutation(this.view.dom, [
+          {
+            addedNodes: [],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue,
+            previousSibling: null,
+            removedNodes: [],
+            target,
+            type: "characterData",
+          },
+        ]);
       }
 
       this.view.dispatchEvent(
@@ -116,6 +209,7 @@ export class ProseMirrorTester {
           bubbles: true,
           charCode: character.charCodeAt(0),
           key,
+          keyCode: character.charCodeAt(0),
           ...modifiers,
         }),
       );
@@ -163,6 +257,19 @@ export class ProseMirrorTester {
 
     return TextSelection.near(this.doc.resolve(pos));
   }
+}
+
+function findLastCharacterDataNode(node: Node): CharacterData | null {
+  if (node instanceof CharacterData) {
+    return node;
+  }
+  for (const child of Array.from(node.childNodes).reverse()) {
+    const textNode = findLastCharacterDataNode(child);
+    if (textNode !== null) {
+      return textNode;
+    }
+  }
+  return null;
 }
 
 function keyToChar(key: string): string {
