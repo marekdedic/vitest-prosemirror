@@ -1,4 +1,4 @@
-import type { Node, Schema } from "prosemirror-model";
+import type { Node as ProseMirrorNode, Schema } from "prosemirror-model";
 
 import {
   AllSelection,
@@ -31,7 +31,7 @@ export type TesterSelection =
   | number;
 
 export class ProseMirrorTester {
-  public get doc(): Node {
+  public get doc(): ProseMirrorNode {
     return this.view.state.doc;
   }
 
@@ -41,7 +41,10 @@ export class ProseMirrorTester {
 
   private readonly view: EditorView;
 
-  public constructor(documentRoot: Node, options: Partial<Options> = {}) {
+  public constructor(
+    documentRoot: ProseMirrorNode,
+    options: Partial<Options> = {},
+  ) {
     if (typeof document === "undefined") {
       throw new Error("TODO");
     }
