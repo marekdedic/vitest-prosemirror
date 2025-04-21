@@ -5,6 +5,7 @@ import { expect } from "vitest";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export {
+  type KeyboardModifiers,
   type Options,
   ProseMirrorTester,
   type TesterSelection,

@@ -1,4 +1,4 @@
-import type { Node, Schema } from "prosemirror-model";
+import type { Node as ProseMirrorNode, Schema } from "prosemirror-model";
 
 import {
   AllSelection,
@@ -8,7 +8,15 @@ import {
   TextSelection,
 } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Keyboard } from "test-keyboard";
+
+import { tokenizeKeyboardInput } from "./utils/keyboardInput";
+
+export interface KeyboardModifiers {
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
 
 export interface Options {
   plugins: Array<Plugin>;
@@ -22,8 +30,77 @@ export type TesterSelection =
   | Selection
   | number;
 
+type UsableMutationRecord = Omit<
+  MutationRecord,
+  "addedNodes" | "removedNodes"
+> & {
+  addedNodes: Array<Node>;
+  removedNodes: Array<Node>;
+};
+
+class KeyboardEventMock extends KeyboardEvent {
+  private readonly onPreventDefault: () => void;
+
+  public constructor(
+    onPreventDefault: () => void,
+    type: string,
+    eventInitDict?: KeyboardEventInit,
+  ) {
+    super(type, eventInitDict);
+    this.onPreventDefault = onPreventDefault;
+  }
+  public override preventDefault(): void {
+    super.preventDefault();
+    this.onPreventDefault();
+  }
+}
+
+class MutationObserverMock {
+  private static readonly activeObservers: Map<Node, MutationObserverMock> =
+    new Map<Node, MutationObserverMock>();
+
+  private readonly callback: MutationCallback;
+  private target: Node | undefined;
+
+  public constructor(callback: MutationCallback) {
+    this.callback = callback;
+    this.target = undefined;
+  }
+
+  public static createMutation(
+    target: Node,
+    mutationRecords: Array<UsableMutationRecord>,
+  ): void {
+    const observer = MutationObserverMock.activeObservers.get(target);
+    if (observer === undefined) {
+      return;
+    }
+    observer.callback(
+      mutationRecords as unknown as Array<MutationRecord>,
+      observer,
+    );
+  }
+
+  public disconnect(): void {
+    if (this.target !== undefined) {
+      MutationObserverMock.activeObservers.delete(this.target);
+    }
+    this.target = undefined;
+  }
+
+  public observe(target: Node): void {
+    this.target = target;
+    MutationObserverMock.activeObservers.set(target, this);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- Mocking another method
+  public takeRecords(): Array<MutationRecord> {
+    return [];
+  }
+}
+
 export class ProseMirrorTester {
-  public get doc(): Node {
+  public get doc(): ProseMirrorNode {
     return this.view.state.doc;
   }
 
@@ -33,7 +110,10 @@ export class ProseMirrorTester {
 
   private readonly view: EditorView;
 
-  public constructor(documentRoot: Node, options: Partial<Options> = {}) {
+  public constructor(
+    documentRoot: ProseMirrorNode,
+    options: Partial<Options> = {},
+  ) {
     if (typeof document === "undefined") {
       throw new Error("TODO");
     }
@@ -45,58 +125,126 @@ export class ProseMirrorTester {
       doc: documentRoot,
       plugins: options.plugins ?? [],
     });
+
+    global.MutationObserver = MutationObserverMock;
+
     this.view = new EditorView(element, {
       state,
     });
   }
 
-  public insertText(text: string): void {
-    const keys = Keyboard.create({
-      target: this.view.dom,
-    }).start();
+  public insertText(text: string, modifiers?: KeyboardModifiers): void {
+    for (const key of tokenizeKeyboardInput(text)) {
+      const character = keyToChar(key);
 
-    for (const character of text) {
-      keys.char({ text: character, typing: true });
+      let keydownPrevented = false;
+      this.view.dispatchEvent(
+        new KeyboardEventMock(
+          () => {
+            keydownPrevented = true;
+          },
+          "keydown",
+          {
+            bubbles: true,
+            charCode: character.charCodeAt(0),
+            key,
+            ...modifiers,
+          },
+        ),
+      );
 
-      if (
-        this.view.someProp("handleTextInput", (f) =>
-          f(
-            this.view,
-            this.view.state.selection.from,
-            this.view.state.selection.from,
-            character,
-          ),
-        ) !== true
-      ) {
-        this.view.dispatch(
-          this.view.state.tr.insertText(
-            character,
-            this.view.state.selection.from,
-            this.view.state.selection.from,
-          ),
-        );
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- False positive due to the value being set in a callback
+      if (keydownPrevented) {
+        continue;
       }
+
+      this.view.dispatchEvent(
+        new KeyboardEvent("keypress", {
+          bubbles: true,
+          charCode: character.charCodeAt(0),
+          key,
+          keyCode: character.charCodeAt(0),
+          ...modifiers,
+        }),
+      );
+
+      const domNode = this.view.domAtPos(this.view.state.selection.from).node;
+      if (
+        domNode.childNodes.length === 1 &&
+        domNode.firstChild instanceof HTMLBRElement &&
+        domNode.firstChild.classList.contains("ProseMirror-trailingBreak")
+      ) {
+        const brNode = domNode.firstChild;
+        const textNode = new Text(character);
+        domNode.removeChild(brNode);
+        domNode.appendChild(textNode);
+        MutationObserverMock.createMutation(this.view.dom, [
+          {
+            addedNodes: [textNode],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: brNode,
+            oldValue: null,
+            previousSibling: null,
+            removedNodes: [],
+            target: domNode,
+            type: "childList",
+          },
+          {
+            addedNodes: [],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue: null,
+            previousSibling: textNode,
+            removedNodes: [brNode],
+            target: domNode,
+            type: "childList",
+          },
+        ]);
+      } else {
+        const target = findLastCharacterDataNode(domNode);
+        if (target === null) {
+          continue;
+        }
+        const oldValue = target.data;
+        const domOffset =
+          this.view.state.selection.from - this.view.posAtDOM(target, 0);
+        target.data =
+          target.data.slice(0, domOffset) +
+          character +
+          target.data.slice(domOffset);
+        MutationObserverMock.createMutation(this.view.dom, [
+          {
+            addedNodes: [],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue,
+            previousSibling: null,
+            removedNodes: [],
+            target,
+            type: "characterData",
+          },
+        ]);
+      }
+
+      this.view.dispatchEvent(
+        new KeyboardEvent("keyup", {
+          bubbles: true,
+          charCode: character.charCodeAt(0),
+          key,
+          keyCode: character.charCodeAt(0),
+          ...modifiers,
+        }),
+      );
     }
-    keys.end();
   }
 
   public selectText(selection: TesterSelection): void {
     this.view.dispatch(
       this.view.state.tr.setSelection(this.getSelection(selection)),
     );
-  }
-
-  public shortcut(text: string): void {
-    Keyboard.create({
-      batch: true,
-      target: this.view.dom,
-    })
-      .start()
-      .mod({ text: text.replace(/Enter$/u, "\n") })
-      .forEach(({ event }) => {
-        this.view.dispatchEvent(event);
-      })
-      .end();
   }
 
   private getSelection(selection: TesterSelection): Selection {
@@ -134,4 +282,27 @@ export class ProseMirrorTester {
 
     return TextSelection.near(this.doc.resolve(pos));
   }
+}
+
+function findLastCharacterDataNode(node: Node): CharacterData | null {
+  if (node instanceof CharacterData) {
+    return node;
+  }
+  for (const child of Array.from(node.childNodes).reverse()) {
+    const textNode = findLastCharacterDataNode(child);
+    if (textNode !== null) {
+      return textNode;
+    }
+  }
+  return null;
+}
+
+function keyToChar(key: string): string {
+  if (key === "Enter") {
+    return "\n";
+  }
+  if (key === "Tab") {
+    return "\t";
+  }
+  return key;
 }
