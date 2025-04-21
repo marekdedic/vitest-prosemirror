@@ -38,6 +38,23 @@ type UsableMutationRecord = Omit<
   removedNodes: Array<Node>;
 };
 
+class KeyboardEventMock extends KeyboardEvent {
+  private readonly onPreventDefault: () => void;
+
+  public constructor(
+    onPreventDefault: () => void,
+    type: string,
+    eventInitDict?: KeyboardEventInit,
+  ) {
+    super(type, eventInitDict);
+    this.onPreventDefault = onPreventDefault;
+  }
+  public override preventDefault(): void {
+    super.preventDefault();
+    this.onPreventDefault();
+  }
+}
+
 class MutationObserverMock {
   private static readonly activeObservers: Map<Node, MutationObserverMock> =
     new Map<Node, MutationObserverMock>();
@@ -120,16 +137,24 @@ export class ProseMirrorTester {
     for (const key of tokenizeKeyboardInput(text)) {
       const character = keyToChar(key);
 
+      let keydownPrevented = false;
       this.view.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          bubbles: true,
-          charCode: character.charCodeAt(0),
-          key,
-          ...modifiers,
-        }),
+        new KeyboardEventMock(
+          () => {
+            keydownPrevented = true;
+          },
+          "keydown",
+          {
+            bubbles: true,
+            charCode: character.charCodeAt(0),
+            key,
+            ...modifiers,
+          },
+        ),
       );
 
-      if (key === "Enter") {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- False positive due to the value being set in a callback
+      if (keydownPrevented) {
         continue;
       }
 
