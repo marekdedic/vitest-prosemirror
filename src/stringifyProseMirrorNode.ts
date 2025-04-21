@@ -68,5 +68,5 @@ export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
       : "";
   const postfix = content.length > 0 ? `\n${indentation}` : "";
 
-  return `${indentation}${type}(${prefix}${content.join(joiner)}${postfix})`;
+  return `${indentation}${type}(${prefix}${content.join(joiner)},${postfix})`;
 }
