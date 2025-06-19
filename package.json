@@ -11,42 +11,34 @@
   "bugs": {
     "url": "https://github.com/marekdedic/vitest-prosemirror/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marekdedic/vitest-prosemirror.git"
+  },
   "license": "MIT",
   "author": "Marek Dědič",
+  "sideEffects": true,
   "type": "module",
-  "module": "dist/vitest-prosemirror.js",
-  "types": "dist/vitest-prosemirror.d.ts",
   "exports": {
     ".": {
       "import": "./dist/vitest-prosemirror.js"
     }
   },
-  "sideEffects": true,
+  "module": "dist/vitest-prosemirror.js",
+  "types": "dist/vitest-prosemirror.d.ts",
   "files": [
     "dist",
     "LICENSE",
     "README.md"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/marekdedic/vitest-prosemirror.git"
-  },
   "scripts": {
-    "clean": "rimraf dist/*",
     "prebuild": "npm run clean",
     "build": "vite build",
-    "start": "vite build --watch",
+    "clean": "rimraf dist/*",
     "lint": "eslint",
+    "start": "vite build --watch",
     "test": "vitest",
     "test-coverage": "vitest run --coverage"
-  },
-  "peerDependencies": {
-    "vitest": "^2.1.9 || ^3.0.7"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
   },
   "dependencies": {
     "prosemirror-model": "^1.24.1",
@@ -77,5 +69,13 @@
     "typescript-eslint": "^8.2.0",
     "vite": "^6.0.2",
     "vite-plugin-dts": "^4.5.1"
+  },
+  "peerDependencies": {
+    "vitest": "^2.1.9 || ^3.0.7"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
   }
 }
