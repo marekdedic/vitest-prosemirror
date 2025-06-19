@@ -36,7 +36,7 @@
     "prebuild": "npm run clean",
     "build": "vite build",
     "start": "vite build --watch",
-    "lint": "eslint --color 'src/**/*.ts' 'tests/**/*.ts' '*.config.{js,ts}'",
+    "lint": "eslint",
     "test": "vitest",
     "test-coverage": "vitest run --coverage"
   },
