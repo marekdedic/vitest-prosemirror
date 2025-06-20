@@ -32,41 +32,31 @@ const renamedTypes: Record<string, string> = {
 };
 
 export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
-  const nextIndentation = `${indentation}  `;
-
   if (node.type.name === "text") {
     return `${indentation}${getMarks(node.marks, node.text ?? "")}`;
   }
 
   const type = renamedTypes[node.type.name] ?? node.type.name;
   const content: Array<string> = [];
-  const hasAttrs = Object.keys(node.attrs).length > 0;
+  const nextIndentation = `${indentation}  `;
 
-  if (hasAttrs) {
+  if (Object.keys(node.attrs).length > 0) {
     content.push(
-      stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 }),
+      `${nextIndentation}${stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 })},`,
     );
   }
 
   node.content.forEach((item) => {
-    content.push(stringifyProseMirrorNode(item, nextIndentation));
+    content.push(`${stringifyProseMirrorNode(item, nextIndentation)},`);
   });
 
-  if (
-    !hasAttrs &&
-    content.length === 1 &&
-    node.content.firstChild?.type.name === "text"
-  ) {
+  if (content.length === 0) {
+    return `${indentation}${type}()`;
+  }
+
+  if (content.length === 1 && node.content.firstChild?.type.name === "text") {
     return `${indentation}${type}(${stringifyProseMirrorNode(node.content.firstChild, "")})`;
   }
 
-  const joiner = `,\n`;
-  const prefix = hasAttrs
-    ? `\n${nextIndentation}`
-    : content.length > 0
-      ? "\n"
-      : "";
-  const postfix = content.length > 0 ? `\n${indentation}` : "";
-
-  return `${indentation}${type}(${prefix}${content.join(joiner)},${postfix})`;
+  return `${indentation}${type}(\n${content.join("\n")}\n${indentation})`;
 }
