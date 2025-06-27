@@ -23,4 +23,7 @@ test("Parsing a document with an extension set", () => {
     basicSchema.spec.nodes.get("text"),
   );
   expect(testEditor.doc).toEqualProseMirrorNode(tree);
+  expect(testEditor.doc).not.toEqualProseMirrorNode(
+    basicSchema.nodes.hard_break.create(),
+  );
 });
