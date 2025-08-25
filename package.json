@@ -27,9 +27,7 @@
   "module": "dist/vitest-prosemirror.js",
   "types": "dist/vitest-prosemirror.d.ts",
   "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
+    "dist"
   ],
   "scripts": {
     "prebuild": "npm run clean",
