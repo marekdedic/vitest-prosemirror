@@ -3,6 +3,11 @@ on:
   release:
     types: [published]
 
+
+permissions:
+  id-token: write
+  contents: read
+
 env:
   cache-version: 1
 
@@ -53,7 +58,5 @@ jobs:
             README.md
 
       - name: "Publish"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         run: |
-          npm publish --provenance
+          npm publish
