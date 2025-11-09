@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+
 import { readFileSync, writeFileSync } from "fs";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
