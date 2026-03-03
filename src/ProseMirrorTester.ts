@@ -272,11 +272,9 @@ export class ProseMirrorTester {
     }
 
     let pos = 0;
-    if (selection === "start") {
-      pos = 0;
-    } else if (selection === "end") {
+    if (selection === "end") {
       pos = this.doc.nodeSize - 2;
-    } else {
+    } else if (selection !== "start") {
       pos = selection;
     }
 
