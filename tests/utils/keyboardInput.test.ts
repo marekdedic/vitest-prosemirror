@@ -39,120 +39,120 @@ test("Keyboard input tokenization", () => {
 });
 
 test("Keyboard input invalid values", () => {
-  expect(() => tokenizeKeyboardInput(">")).not.toThrowError();
-  expect(() => tokenizeKeyboardInput("{>}")).not.toThrowError();
-  expect(() => tokenizeKeyboardInput("[>]")).not.toThrowError();
-  expect(() => tokenizeKeyboardInput("/")).not.toThrowError();
-  expect(() => tokenizeKeyboardInput("{/}")).not.toThrowError();
-  expect(() => tokenizeKeyboardInput("[/]")).not.toThrowError();
+  expect(() => tokenizeKeyboardInput(">")).not.toThrow();
+  expect(() => tokenizeKeyboardInput("{>}")).not.toThrow();
+  expect(() => tokenizeKeyboardInput("[>]")).not.toThrow();
+  expect(() => tokenizeKeyboardInput("/")).not.toThrow();
+  expect(() => tokenizeKeyboardInput("{/}")).not.toThrow();
+  expect(() => tokenizeKeyboardInput("[/]")).not.toThrow();
 
-  expect(() => tokenizeKeyboardInput("{a>}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{a>}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{Shift>}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{Shift>}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{a>5}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{a>5}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{Shift>5}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{Shift>5}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{a>55}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{a>55}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{Shift>55}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{Shift>55}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{a>5/}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{a>5/}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{Shift>5/}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{Shift>5/}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{a>55/}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{a>55/}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{Shift>55/}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{Shift>55/}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{/a}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{/a}")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("{/Shift}")).toThrowError(
+  expect(() => tokenizeKeyboardInput("{/Shift}")).toThrow(
     "Unsupported keyboard input",
   );
 
-  expect(() => tokenizeKeyboardInput("[a>]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>5]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>5]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>5]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>5]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>55]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>55]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>55]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>55]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>5/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>5/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>5/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>5/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>55/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>55/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>55/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>55/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[/a]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[/a]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[/Shift]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[/Shift]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>5]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>5]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>5]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>5]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>55]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>55]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>55]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>55]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>5/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>5/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>5/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>5/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[a>55/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[a>55/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[Shift>55/]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[Shift>55/]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[/a]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[/a]")).toThrow(
     "Unsupported keyboard input",
   );
-  expect(() => tokenizeKeyboardInput("[/Shift]")).toThrowError(
+  expect(() => tokenizeKeyboardInput("[/Shift]")).toThrow(
     "Unsupported keyboard input",
   );
 });
