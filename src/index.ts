@@ -35,9 +35,7 @@ expect.extend({
           `Expected value of document to not equal:\n  ${this.utils.printExpected(expectedDoc)}\n` +
           `Actual:\n  ${this.utils.printReceived(receivedDoc)}`
       : (): string => {
-          const diffString = this.utils.diff(expectedDoc, receivedDoc, {
-            expand: this.expand ?? false,
-          });
+          const diffString = this.utils.diff(expectedDoc, receivedDoc);
           return `${this.utils.matcherHint(".toEqualProsemirrorNode")}\n\nExpected value of document to equal:\n${this.utils.printExpected(expectedDoc)}\nActual:\n${this.utils.printReceived(receivedDoc)}${diffString === undefined ? "" : `\n\nDifference:\n\n${diffString}`}`;
         };
     return {
