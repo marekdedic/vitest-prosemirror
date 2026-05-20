@@ -1,8 +1,8 @@
 /// <reference types="vitest/config" />
 
 import { readFileSync, writeFileSync } from "fs";
+import dts from "unplugin-dts/vite";
 import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
 
 export default defineConfig({
   build: {
@@ -26,7 +26,7 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [
-    dts({ rollupTypes: true }),
+    dts({ bundleTypes: true }),
     {
       closeBundle: (): void => {
         let file = readFileSync("dist/vitest-prosemirror.d.ts", "utf8");
