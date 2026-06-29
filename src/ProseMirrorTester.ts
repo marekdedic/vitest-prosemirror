@@ -23,12 +23,7 @@ export interface Options {
 }
 
 export type TesterSelection =
-  | "all"
-  | "end"
-  | "start"
-  | { from: number; to: number }
-  | Selection
-  | number;
+  "all" | "end" | "start" | { from: number; to: number } | Selection | number;
 
 type UsableMutationRecord = Omit<
   MutationRecord,
