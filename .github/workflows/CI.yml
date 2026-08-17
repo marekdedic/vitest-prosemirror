@@ -62,19 +62,10 @@ jobs:
           npm run test-coverage
 
       - name: "Upload coverage results"
-        uses: coverallsapp/github-action@v2.3.8
+        uses: codecov/codecov-action@v7.0.0
         with:
-          parallel: true
-
-  close-coverage:
-    name: "Close parallel coverage"
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: "Close parallel coverage"
-        uses: coverallsapp/github-action@v2.3.8
-        with:
-          parallel-finished: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   lint:
     name: "Lint"
