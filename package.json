@@ -21,6 +21,7 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/vitest-prosemirror.d.ts",
       "import": "./dist/vitest-prosemirror.js"
     }
   },
