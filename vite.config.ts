@@ -10,7 +10,6 @@ export default defineConfig({
     lib: {
       entry: "src/index",
       formats: ["es"],
-      name: "vitest-prosemirror",
     },
     minify: false,
     rollupOptions: {
@@ -19,7 +18,6 @@ export default defineConfig({
         "prosemirror-state",
         "prosemirror-view",
         "stringify-object",
-        "test-keyboard",
         "vitest",
       ],
     },
