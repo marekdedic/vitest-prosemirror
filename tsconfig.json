@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "types",
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true,
     "target": "es6",
 
     "allowUnreachableCode": false,
