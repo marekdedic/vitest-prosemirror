@@ -23,7 +23,6 @@ export default defineConfig({
         "vitest",
       ],
     },
-    sourcemap: true,
   },
   plugins: [
     dts({ bundleTypes: true }),
