@@ -15,7 +15,7 @@ export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
 }
 
-/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any -- These are overridest for vitest matchers */
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any -- These are overrides for vitest matchers */
 
 declare module "vitest" {
   interface Assertion<T = any> extends CustomMatchers<T> {}
