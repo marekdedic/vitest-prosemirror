@@ -10,6 +10,7 @@ import {
 import { EditorView } from "prosemirror-view";
 
 import { tokenizeKeyboardInput } from "./utils/keyboardInput";
+import { keyIdentity } from "./utils/keyIdentity";
 
 export interface KeyboardModifiers {
   altKey?: boolean;
@@ -32,23 +33,6 @@ type UsableMutationRecord = Omit<
   addedNodes: Array<Node>;
   removedNodes: Array<Node>;
 };
-
-class KeyboardEventMock extends KeyboardEvent {
-  private readonly onPreventDefault: () => void;
-
-  public constructor(
-    onPreventDefault: () => void,
-    type: string,
-    eventInitDict?: KeyboardEventInit,
-  ) {
-    super(type, eventInitDict);
-    this.onPreventDefault = onPreventDefault;
-  }
-  public override preventDefault(): void {
-    super.preventDefault();
-    this.onPreventDefault();
-  }
-}
 
 class MutationObserverMock {
   private static readonly activeObservers: Map<Node, MutationObserverMock> =
@@ -122,6 +106,7 @@ export class ProseMirrorTester {
     });
 
     global.MutationObserver = MutationObserverMock;
+    mockRangeRects();
 
     this.view = new EditorView(element, {
       state,
@@ -130,109 +115,40 @@ export class ProseMirrorTester {
 
   public insertText(text: string, modifiers?: KeyboardModifiers): void {
     for (const key of tokenizeKeyboardInput(text)) {
-      const character = keyToChar(key);
+      const identity = keyIdentity(key);
+      // Only keypress carries a charCode, and browsers only fire it for keys producing a character.
+      const eventInit = {
+        bubbles: true,
+        cancelable: true,
+        charCode: 0,
+        code: identity.code,
+        composed: true,
+        key: identity.key,
+        keyCode: identity.keyCode,
+        location: identity.location,
+        ...modifiers,
+      };
 
-      let keydownPrevented = false;
-      this.view.dispatchEvent(
-        new KeyboardEventMock(
-          () => {
-            keydownPrevented = true;
-          },
-          "keydown",
-          {
-            bubbles: true,
-            charCode: character.charCodeAt(0),
-            key,
-            ...modifiers,
-          },
-        ),
-      );
+      const keydownEvent = new KeyboardEvent("keydown", eventInit);
+      this.view.dispatchEvent(keydownEvent);
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- False positive due to the value being set in a callback
-      if (keydownPrevented) {
-        continue;
-      }
-
-      this.view.dispatchEvent(
-        new KeyboardEvent("keypress", {
-          bubbles: true,
-          charCode: character.charCodeAt(0),
-          key,
-          keyCode: character.charCodeAt(0),
-          ...modifiers,
-        }),
-      );
-
-      const domNode = this.view.domAtPos(this.view.state.selection.from).node;
-      if (
-        domNode.childNodes.length === 1 &&
-        domNode.firstChild instanceof HTMLBRElement &&
-        domNode.firstChild.classList.contains("ProseMirror-trailingBreak")
-      ) {
-        const brNode = domNode.firstChild;
-        const textNode = new Text(character);
-        domNode.removeChild(brNode);
-        domNode.appendChild(textNode);
-        MutationObserverMock.createMutation(this.view.dom, [
-          {
-            addedNodes: [textNode],
-            attributeName: null,
-            attributeNamespace: null,
-            nextSibling: brNode,
-            oldValue: null,
-            previousSibling: null,
-            removedNodes: [],
-            target: domNode,
-            type: "childList",
-          },
-          {
-            addedNodes: [],
-            attributeName: null,
-            attributeNamespace: null,
-            nextSibling: null,
-            oldValue: null,
-            previousSibling: textNode,
-            removedNodes: [brNode],
-            target: domNode,
-            type: "childList",
-          },
-        ]);
-      } else {
-        const target = findLastCharacterDataNode(domNode);
-        if (target === null) {
-          continue;
+      // A cancelled keydown suppresses the keypress and the typing, but not the keyup.
+      if (!keydownEvent.defaultPrevented) {
+        if (identity.charCode !== 0) {
+          this.view.dispatchEvent(
+            new KeyboardEvent("keypress", {
+              ...eventInit,
+              // Keypress reports the code point of the character, not the key's virtual code.
+              charCode: identity.charCode,
+              keyCode: identity.charCode,
+            }),
+          );
         }
-        const oldValue = target.data;
-        const domOffset =
-          this.view.state.selection.from - this.view.posAtDOM(target, 0);
-        target.data =
-          target.data.slice(0, domOffset) +
-          character +
-          target.data.slice(domOffset);
-        MutationObserverMock.createMutation(this.view.dom, [
-          {
-            addedNodes: [],
-            attributeName: null,
-            attributeNamespace: null,
-            nextSibling: null,
-            oldValue,
-            previousSibling: null,
-            removedNodes: [],
-            target,
-            type: "characterData",
-          },
-        ]);
+
+        this.typeCharacter(keyToChar(key));
       }
 
-      this.view.dispatchEvent(
-        new KeyboardEvent("keyup", {
-          bubbles: true,
-          charCode: character.charCodeAt(0),
-          key,
-          keyCode: character.charCodeAt(0),
-          ...modifiers,
-        }),
-      );
+      this.view.dispatchEvent(new KeyboardEvent("keyup", eventInit));
     }
   }
 
@@ -275,6 +191,69 @@ export class ProseMirrorTester {
 
     return TextSelection.near(this.doc.resolve(pos));
   }
+
+  private typeCharacter(character: string): void {
+    const domNode = this.view.domAtPos(this.view.state.selection.from).node;
+    if (
+      domNode.childNodes.length === 1 &&
+      domNode.firstChild instanceof HTMLBRElement &&
+      domNode.firstChild.classList.contains("ProseMirror-trailingBreak")
+    ) {
+      const brNode = domNode.firstChild;
+      const textNode = new Text(character);
+      domNode.removeChild(brNode);
+      domNode.appendChild(textNode);
+      MutationObserverMock.createMutation(this.view.dom, [
+        {
+          addedNodes: [textNode],
+          attributeName: null,
+          attributeNamespace: null,
+          nextSibling: brNode,
+          oldValue: null,
+          previousSibling: null,
+          removedNodes: [],
+          target: domNode,
+          type: "childList",
+        },
+        {
+          addedNodes: [],
+          attributeName: null,
+          attributeNamespace: null,
+          nextSibling: null,
+          oldValue: null,
+          previousSibling: textNode,
+          removedNodes: [brNode],
+          target: domNode,
+          type: "childList",
+        },
+      ]);
+    } else {
+      const target = findLastCharacterDataNode(domNode);
+      if (target === null) {
+        return;
+      }
+      const oldValue = target.data;
+      const domOffset =
+        this.view.state.selection.from - this.view.posAtDOM(target, 0);
+      target.data =
+        target.data.slice(0, domOffset) +
+        character +
+        target.data.slice(domOffset);
+      MutationObserverMock.createMutation(this.view.dom, [
+        {
+          addedNodes: [],
+          attributeName: null,
+          attributeNamespace: null,
+          nextSibling: null,
+          oldValue,
+          previousSibling: null,
+          removedNodes: [],
+          target,
+          type: "characterData",
+        },
+      ]);
+    }
+  }
 }
 
 function findLastCharacterDataNode(node: Node): CharacterData | null {
@@ -291,11 +270,23 @@ function findLastCharacterDataNode(node: Node): CharacterData | null {
 }
 
 function keyToChar(key: string): string {
-  if (key === "Enter") {
-    return "\n";
-  }
   if (key === "Tab") {
     return "\t";
   }
   return key;
+}
+
+// ProseMirror measures the DOM when handling cursor motion keys, but jsdom has no rects for a Range.
+// Zero-sized rects make those measurements inconclusive, which ProseMirror handles gracefully.
+function mockRangeRects(): void {
+  const zeroRect = (): DOMRect => new DOMRect(0, 0, 0, 0);
+  const emptyRectList = (): DOMRectList => [] as unknown as DOMRectList;
+
+  const rangePrototype = Range.prototype as Partial<Range>;
+  if (typeof rangePrototype.getBoundingClientRect !== "function") {
+    Range.prototype.getBoundingClientRect = zeroRect;
+  }
+  if (typeof rangePrototype.getClientRects !== "function") {
+    Range.prototype.getClientRects = emptyRectList;
+  }
 }
