@@ -4,12 +4,9 @@ import { expect } from "vitest";
 
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
-export {
-  type KeyboardModifiers,
-  type Options,
-  ProseMirrorTester,
-  type TesterSelection,
-} from "./ProseMirrorTester";
+export { type Options, ProseMirrorTester } from "./ProseMirrorTester";
+export type { TesterSelection } from "./utils/selection";
+export type { KeyboardModifiers } from "./utils/typing";
 
 export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
