@@ -1,10 +1,10 @@
-type UsableMutationRecord = Omit<
-  MutationRecord,
-  "addedNodes" | "removedNodes"
-> & {
-  addedNodes: Array<Node>;
-  removedNodes: Array<Node>;
-};
+type MutationRecordInit = Partial<
+  Omit<MutationRecord, "addedNodes" | "removedNodes">
+> &
+  Pick<MutationRecord, "target" | "type"> & {
+    addedNodes?: Array<Node>;
+    removedNodes?: Array<Node>;
+  };
 
 export class MutationObserverMock implements MutationObserver {
   private static readonly activeObservers: Map<Node, MutationObserverMock> =
@@ -20,14 +20,23 @@ export class MutationObserverMock implements MutationObserver {
 
   public static createMutation(
     target: Node,
-    mutationRecords: Array<UsableMutationRecord>,
+    mutationRecords: Array<MutationRecordInit>,
   ): void {
     const observer = MutationObserverMock.activeObservers.get(target);
     if (observer === undefined) {
       return;
     }
     observer.callback(
-      mutationRecords as unknown as Array<MutationRecord>,
+      mutationRecords.map((record) => ({
+        addedNodes: [],
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: [],
+        ...record,
+      })) as unknown as Array<MutationRecord>,
       observer,
     );
   }
@@ -49,5 +58,3 @@ export class MutationObserverMock implements MutationObserver {
     return [];
   }
 }
-
-export type { UsableMutationRecord };

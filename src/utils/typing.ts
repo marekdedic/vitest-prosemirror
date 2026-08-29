@@ -5,10 +5,7 @@ import { Selection } from "prosemirror-state";
 import { characterDataAt } from "./dom";
 import { tokenizeKeyboardInput } from "./keyboardInput";
 import { keyIdentity } from "./keyIdentity";
-import {
-  MutationObserverMock,
-  type UsableMutationRecord,
-} from "./MutationObserverMock";
+import { MutationObserverMock } from "./MutationObserverMock";
 
 export interface KeyboardModifiers {
   altKey?: boolean;
@@ -115,7 +112,7 @@ function deleteText(view: EditorView, direction: -1 | 1): void {
   const oldValue = target.data;
   target.data = target.data.slice(0, fromOffset) + target.data.slice(toOffset);
   MutationObserverMock.createMutation(view.dom, [
-    mutation({ oldValue, target, type: "characterData" }),
+    { oldValue, target, type: "characterData" },
   ]);
 }
 
@@ -162,22 +159,6 @@ function moveCaret(view: EditorView, direction: -1 | 1): void {
   );
 }
 
-function mutation(
-  record: Partial<UsableMutationRecord> &
-    Pick<UsableMutationRecord, "target" | "type">,
-): UsableMutationRecord {
-  return {
-    addedNodes: [],
-    attributeName: null,
-    attributeNamespace: null,
-    nextSibling: null,
-    oldValue: null,
-    previousSibling: null,
-    removedNodes: [],
-    ...record,
-  };
-}
-
 // Edits the DOM the way a browser would and reports the resulting mutation, so that
 // ProseMirror's DOM observer picks the change up through its real input path.
 function typeCharacter(view: EditorView, character: string): void {
@@ -192,7 +173,7 @@ function typeCharacter(view: EditorView, character: string): void {
     target.data =
       target.data.slice(0, offset) + character + target.data.slice(offset);
     MutationObserverMock.createMutation(view.dom, [
-      mutation({ oldValue, target, type: "characterData" }),
+      { oldValue, target, type: "characterData" },
     ]);
     return;
   }
@@ -205,12 +186,12 @@ function typeCharacter(view: EditorView, character: string): void {
   const nextSibling = node.childNodes.item(domOffset) as Node | null;
   node.insertBefore(textNode, nextSibling);
   MutationObserverMock.createMutation(view.dom, [
-    mutation({
+    {
       addedNodes: [textNode],
       nextSibling,
       previousSibling: textNode.previousSibling,
       target: node,
       type: "childList",
-    }),
+    },
   ]);
 }
