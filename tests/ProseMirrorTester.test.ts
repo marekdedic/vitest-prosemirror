@@ -4,7 +4,7 @@ import {
   toggleMark,
   wrapIn,
 } from "prosemirror-commands";
-import { InputRule, inputRules } from "prosemirror-inputrules";
+import { InputRule, inputRules, undoInputRule } from "prosemirror-inputrules";
 import { keymap } from "prosemirror-keymap";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { Plugin, TextSelection } from "prosemirror-state";
@@ -110,7 +110,7 @@ describe("insertText", () => {
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
-  test("should handle 'Tab'", () => {
+  test("should leave the document alone for an unhandled 'Tab'", () => {
     const initialDoc = basicSchema.nodes.doc.create(
       {},
       basicSchema.nodes.paragraph.create({}, basicSchema.text("HelloWorld!")),
@@ -121,11 +121,55 @@ describe("insertText", () => {
     testEditor.selectText(6);
     testEditor.insertText("{Tab}");
 
-    const expectedDoc = basicSchema.nodes.doc.create({}, [
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello\tWorld!")),
-    ]);
+    expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
+  });
 
-    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  test("should leave the document alone for a modifier key", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("{Shift}{Control}{Alt}{Meta}{CapsLock}");
+
+    expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
+  });
+
+  test.each([
+    ["a key with no simulable effect", "{Home}", "Home"],
+    ["a key whose motion cannot be measured", "{ArrowUp}", "ArrowUp"],
+    ["an unknown key", "{Nonsense}", "Nonsense"],
+  ])("should throw for %s", (_name, input, key) => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+
+    expect(() => {
+      testEditor.insertText(input);
+    }).toThrow(`Cannot simulate the "${key}" key`);
+  });
+
+  test("should throw for an arrow key with a modifier", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+
+    expect(() => {
+      testEditor.insertText("{ArrowLeft}", { ctrlKey: true });
+    }).toThrow('Cannot simulate the "ArrowLeft" key');
   });
 
   test("should do nothing when the selection has no text node to insert into", () => {
@@ -141,6 +185,326 @@ describe("insertText", () => {
     testEditor.insertText("a");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
+  });
+});
+
+describe("deletion", () => {
+  test("should delete the character before the cursor", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText(7);
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("HelloWorld")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should delete at the end of a paragraph", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("foo")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("{Backspace}{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("f")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should allow typing after emptying a paragraph", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("a")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("{Backspace}b");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("b")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should delete the character after the cursor", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText(6);
+    testEditor.insertText("{Delete}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("HelloWorld")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should delete a non-empty selection", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ from: 6, to: 12 });
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should let 'deleteSelection' handle a non-empty selection", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("World")),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [keymap(baseKeymap)],
+    });
+
+    testEditor.selectText({ from: 4, to: 10 });
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Helrld")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should let 'joinBackward' handle a block boundary", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("ab")),
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("cd")),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [keymap(baseKeymap)],
+    });
+
+    testEditor.selectText(5);
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("abcd")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should let 'joinForward' handle a block boundary", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("ab")),
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("cd")),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [keymap(baseKeymap)],
+    });
+
+    testEditor.selectText(3);
+    testEditor.insertText("{Delete}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("abcd")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should lift out of a blockquote", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.blockquote.create(
+        {},
+        basicSchema.nodes.paragraph.create({}, basicSchema.text("ab")),
+      ),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [keymap(baseKeymap)],
+    });
+
+    testEditor.selectText(2);
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("ab")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should undo an input rule", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [
+        inputRules({
+          rules: [
+            new InputRule(/!!/u, (state, _, start, end) =>
+              state.tr.replaceWith(start, end, basicSchema.text("XX")),
+            ),
+          ],
+        }),
+        keymap({ Backspace: undoInputRule }),
+      ],
+    });
+
+    testEditor.selectText("end");
+    testEditor.insertText("!!{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World!!")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should throw for an unhandled selection spanning several DOM nodes", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("ab", [basicSchema.marks.strong.create()]),
+        basicSchema.text("cd"),
+      ]),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ from: 2, to: 4 });
+
+    expect(() => {
+      testEditor.insertText("{Backspace}");
+    }).toThrow("Cannot simulate deleting a range spanning multiple DOM nodes");
+  });
+
+  test("should throw for an unhandled selection with no text to delete", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+      ]),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ from: 1, to: 2 });
+
+    expect(() => {
+      testEditor.insertText("{Backspace}");
+    }).toThrow("Cannot simulate deleting from a node with no text");
+  });
+
+  // ProseMirror deletes an atom itself rather than letting the browser near it.
+  test("should let ProseMirror delete an atom before the cursor", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+      ]),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("{Backspace}");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+});
+
+describe("caret motion", () => {
+  const initialDoc = basicSchema.nodes.doc.create(
+    {},
+    basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+  );
+
+  test("should move the caret left", () => {
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("{ArrowLeft}x");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hellxo")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should move the caret right", () => {
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText(3);
+    testEditor.insertText("{ArrowRight}x");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Helxlo")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should collapse a non-empty selection", () => {
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ from: 2, to: 4 });
+    testEditor.insertText("{ArrowLeft}x");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hxello")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 });
 
