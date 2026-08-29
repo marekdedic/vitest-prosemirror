@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
     "target": "es2015",
 
     "allowUnreachableCode": false,
