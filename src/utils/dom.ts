@@ -1,12 +1,16 @@
-export const findLastCharacterDataNode = (node: Node): CharacterData | null => {
+// The text node at a DOM position -- the one the position is inside, or the one that
+// starts there. Null when the position lies between nodes that hold no text, such as a
+// hard break, an image or ProseMirror's empty-block placeholder <br>.
+export const characterDataAt = (
+  node: Node,
+  offset: number,
+): { offset: number; target: CharacterData } | null => {
   if (node instanceof CharacterData) {
-    return node;
+    return { offset, target: node };
   }
-  for (const child of Array.from(node.childNodes).reverse()) {
-    const textNode = findLastCharacterDataNode(child);
-    if (textNode !== null) {
-      return textNode;
-    }
+  const after = node.childNodes[offset] as Node | undefined;
+  if (after instanceof CharacterData) {
+    return { offset: 0, target: after };
   }
   return null;
 };

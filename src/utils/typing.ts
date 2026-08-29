@@ -2,7 +2,7 @@ import type { EditorView } from "prosemirror-view";
 
 import { Selection } from "prosemirror-state";
 
-import { findLastCharacterDataNode } from "./dom";
+import { characterDataAt } from "./dom";
 import { tokenizeKeyboardInput } from "./keyboardInput";
 import { keyIdentity } from "./keyIdentity";
 import {
@@ -94,16 +94,21 @@ function deleteText(view: EditorView, direction: -1 | 1): void {
   const to =
     selection.empty && direction === forward ? selection.to + 1 : selection.to;
 
-  const target = findLastCharacterDataNode(view.domAtPos(from).node);
-  if (target === null) {
-    throw new Error("Cannot simulate deleting from a node with no text");
+  // Asking for the DOM position on the left mirrors the browser, which puts the caret at
+  // the end of the preceding text node rather than the start of the following one.
+  const fromDOM = view.domAtPos(from, backward);
+  const target = characterDataAt(fromDOM.node, fromDOM.offset)?.target;
+  if (target === undefined) {
+    throw new Error(
+      "Cannot simulate deleting a range that is not inside a single text node",
+    );
   }
   const nodeStart = view.posAtDOM(target, 0);
   const fromOffset = from - nodeStart;
   const toOffset = to - nodeStart;
   if (fromOffset < 0 || toOffset > target.data.length) {
     throw new Error(
-      "Cannot simulate deleting a range spanning multiple DOM nodes",
+      "Cannot simulate deleting a range that is not inside a single text node",
     );
   }
 
@@ -176,45 +181,36 @@ function mutation(
 // Edits the DOM the way a browser would and reports the resulting mutation, so that
 // ProseMirror's DOM observer picks the change up through its real input path.
 function typeCharacter(view: EditorView, character: string): void {
-  const domNode = view.domAtPos(view.state.selection.from).node;
-  // An empty textblock holds no text node to write into, only ProseMirror's placeholder
-  // <br>, so the character replaces it.
-  if (
-    domNode.childNodes.length === 1 &&
-    domNode.firstChild instanceof HTMLBRElement &&
-    domNode.firstChild.classList.contains("ProseMirror-trailingBreak")
-  ) {
-    const brNode = domNode.firstChild;
-    const textNode = new Text(character);
-    domNode.removeChild(brNode);
-    domNode.appendChild(textNode);
-    MutationObserverMock.createMutation(view.dom, [
-      mutation({
-        addedNodes: [textNode],
-        nextSibling: brNode,
-        target: domNode,
-        type: "childList",
-      }),
-      mutation({
-        previousSibling: textNode,
-        removedNodes: [brNode],
-        target: domNode,
-        type: "childList",
-      }),
-    ]);
-  } else {
-    const target = findLastCharacterDataNode(domNode);
-    if (target === null) {
-      return;
-    }
+  const { node, offset: domOffset } = view.domAtPos(
+    view.state.selection.from,
+    backward,
+  );
+  const point = characterDataAt(node, domOffset);
+  if (point !== null) {
+    const { offset, target } = point;
     const oldValue = target.data;
-    const domOffset = view.state.selection.from - view.posAtDOM(target, 0);
     target.data =
-      target.data.slice(0, domOffset) +
-      character +
-      target.data.slice(domOffset);
+      target.data.slice(0, offset) + character + target.data.slice(offset);
     MutationObserverMock.createMutation(view.dom, [
       mutation({ oldValue, target, type: "characterData" }),
     ]);
+    return;
   }
+
+  // There is no text node at the caret, so the browser creates one. ProseMirror's
+  // trailing <br> placeholder, if the caret sits before one, is left in place -- it is
+  // ignored when the change is read back and removed by the redraw that follows.
+  const textNode = new Text(character);
+  // .item() is null past the end of the list, where the character is simply appended.
+  const nextSibling = node.childNodes.item(domOffset) as Node | null;
+  node.insertBefore(textNode, nextSibling);
+  MutationObserverMock.createMutation(view.dom, [
+    mutation({
+      addedNodes: [textNode],
+      nextSibling,
+      previousSibling: textNode.previousSibling,
+      target: node,
+      type: "childList",
+    }),
+  ]);
 }

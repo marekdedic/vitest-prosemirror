@@ -172,7 +172,7 @@ describe("insertText", () => {
     }).toThrow('Cannot simulate the "ArrowLeft" key');
   });
 
-  test("should do nothing when the selection has no text node to insert into", () => {
+  test("should insert after a node that is not text", () => {
     const initialDoc = basicSchema.nodes.doc.create({}, [
       basicSchema.nodes.paragraph.create({}, [
         basicSchema.nodes.image.create({ src: "image.png" }),
@@ -184,7 +184,102 @@ describe("insertText", () => {
     testEditor.selectText("end");
     testEditor.insertText("a");
 
-    expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
+    const expectedDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+        basicSchema.text("a"),
+      ]),
+    ]);
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should insert at the start of a paragraph", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("ello")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+    testEditor.selectText("start");
+    testEditor.insertText("H");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should insert before the text following a node that is not text", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+        basicSchema.text("bc"),
+      ]),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText(2);
+    testEditor.insertText("a");
+
+    const expectedDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+        basicSchema.text("abc"),
+      ]),
+    ]);
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should insert after a trailing hard break", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("Hello"),
+        basicSchema.nodes.hard_break.create(),
+      ]),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText("end");
+    testEditor.insertText("a");
+
+    const expectedDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("Hello"),
+        basicSchema.nodes.hard_break.create(),
+        basicSchema.text("a"),
+      ]),
+    ]);
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should insert into the text node the cursor is in, not the last one", () => {
+    const initialDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("ab", [basicSchema.marks.strong.create()]),
+        basicSchema.text("cd"),
+      ]),
+    ]);
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText(2);
+    testEditor.insertText("x");
+
+    const expectedDoc = basicSchema.nodes.doc.create({}, [
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("axb", [basicSchema.marks.strong.create()]),
+        basicSchema.text("cd"),
+      ]),
+    ]);
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 });
 
@@ -416,7 +511,9 @@ describe("deletion", () => {
 
     expect(() => {
       testEditor.insertText("{Backspace}");
-    }).toThrow("Cannot simulate deleting a range spanning multiple DOM nodes");
+    }).toThrow(
+      "Cannot simulate deleting a range that is not inside a single text node",
+    );
   });
 
   test("should throw for an unhandled selection with no text to delete", () => {
@@ -433,7 +530,9 @@ describe("deletion", () => {
 
     expect(() => {
       testEditor.insertText("{Backspace}");
-    }).toThrow("Cannot simulate deleting from a node with no text");
+    }).toThrow(
+      "Cannot simulate deleting a range that is not inside a single text node",
+    );
   });
 
   // ProseMirror deletes an atom itself rather than letting the browser near it.
