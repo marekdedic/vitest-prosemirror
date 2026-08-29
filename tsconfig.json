@@ -3,7 +3,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "target": "es6",
+    "target": "es2015",
 
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
