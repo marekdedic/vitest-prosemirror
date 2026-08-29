@@ -15,12 +15,15 @@ There is no separate typecheck script; type errors surface via ESLint (typed lin
 
 A Vitest plugin that lets tests drive a real ProseMirror `EditorView` inside jsdom.
 
-- `src/index.ts` — entrypoint. Side-effectfully calls `expect.extend` to register the `toEqualProseMirrorNode` matcher and augments the `vitest` module's `Assertion` interfaces. Because of this, the package is `sideEffects: true` and the built `.d.ts` gets `import 'vitest';` prepended by the `pure-import-fixer` plugin in `vite.config.ts` — without that, the module augmentation is dropped.
-- `src/ProseMirrorTester.ts` — the core. It constructs an `EditorView` mounted on a real jsdom element, and fakes the browser behaviour ProseMirror relies on but jsdom lacks:
-  - `MutationObserverMock` replaces `global.MutationObserver` and lets `insertText` synthesise the exact mutation records ProseMirror's DOM observer expects. This is why `insertText` manually edits the DOM (text node insertion, or replacing the `ProseMirror-trailingBreak` `<br>`) and then reports the mutation, rather than dispatching a transaction — it exercises ProseMirror's real input path.
-  - `KeyboardEventMock` reports `preventDefault()` so `insertText` can skip synthetic typing when a keymap/plugin handled the keydown.
-  - `selectText` accepts a flexible `TesterSelection` (`"all" | "start" | "end" | number | {from,to} | Selection`).
+- `src/index.ts` — entrypoint. Side-effectfully calls `expect.extend` to register the `toEqualProseMirrorNode` matcher and augments the `vitest` module's `Assertion` interfaces. Because of this, the package is `sideEffects: true` and the built `.d.ts` gets `import 'vitest';` prepended by the `pure-import-fixer` plugin in `vite.config.ts` — without that, the module augmentation is dropped. It also re-exports the public API, whose types live next to the code that consumes them rather than in a shared types file.
+- `src/ProseMirrorTester.ts` — the public class and its `Options`. Deliberately thin: it constructs an `EditorView` mounted on a real jsdom element, installs the mocks below, and delegates `insertText`/`selectText` to `src/utils/`.
+- `src/utils/typing.ts` — `insertText` and its `KeyboardModifiers`. Dispatches keydown/keypress/keyup, and on a keydown that wasn't `preventDefault()`ed (i.e. no keymap/plugin handled it) manually edits the DOM (text node insertion, or replacing the `ProseMirror-trailingBreak` `<br>`) and reports the mutation via `MutationObserverMock`, rather than dispatching a transaction — this exercises ProseMirror's real input path.
+- `src/utils/MutationObserverMock.ts` — replaces `global.MutationObserver` and lets `typing.ts` synthesise the exact mutation records ProseMirror's DOM observer expects. It `implements MutationObserver` rather than extending it, so importing the module doesn't require the global to exist.
+- `src/utils/mockRangeRects.ts` — jsdom has no rects for a `Range`; zero-sized rects keep ProseMirror's cursor-motion measurements inconclusive, which it handles gracefully.
+- `src/utils/selection.ts` — the flexible `TesterSelection` (`"all" | "start" | "end" | number | {from,to} | Selection`) and `resolveSelection`, which turns it into a ProseMirror `Selection`.
+- `src/utils/dom.ts` — `findLastCharacterDataNode`, the DOM node `typing.ts` writes the typed character into.
 - `src/utils/keyboardInput.ts` — parses testing-library-style key strings (`{Enter}`, `[KeyA]`) into a token list, throwing on unsupported syntax (`/` prefix for hold, `>` for repeats).
+- `src/utils/keyIdentity.ts` — maps a token to the `key`/`code`/`keyCode`/`charCode`/`location` a browser would report (legacy `keyCode`s follow Chromium's tables).
 - `src/stringifyProseMirrorNode.ts` — renders a doc as prosemirror-test-builder-like source (`p(strong('x'))`), with a `renamedTypes` map (paragraph→p, heading→h, …). The matcher compares these strings, so **the diff quality of failing assertions depends entirely on this serialisation** — nodes whose distinguishing state isn't stringified will compare equal.
 
 ## Conventions
