@@ -37,6 +37,7 @@
     "lint": "run-p -c --aggregate-output lint:*",
     "lint:attw": "attw --pack",
     "lint:eslint": "eslint",
+    "lint:typecheck": "tsc --noEmit",
     "prepack": "npm run build",
     "start": "vite build --watch",
     "test": "vitest",
