@@ -21,6 +21,8 @@ export default defineConfig({
         "vitest",
       ],
     },
+    // Node 20 is the floor; ES2023 is the newest it fully supports.
+    target: "es2023",
   },
   plugins: [
     dts({ bundleTypes: true }),
