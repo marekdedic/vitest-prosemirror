@@ -43,8 +43,8 @@
     "lint:ts:typecheck": "tsc --noEmit",
     "prepack": "npm run build",
     "start": "vite build --watch",
-    "test": "vitest",
-    "test-coverage": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "test-watch": "vitest"
   },
   "dependencies": {
     "prosemirror-model": "^1.24.1",
