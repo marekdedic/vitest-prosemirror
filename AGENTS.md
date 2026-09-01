@@ -5,7 +5,7 @@ This file provides guidance to coding agents when working with code in this repo
 ## Commands
 
 - `npm run build` — Vite library build into `dist/` (cleans first). `npm start` is the same with `--watch`.
-- `npm run lint` — runs `lint:eslint` (ESLint, incl. Prettier, package.json and Markdown linting) and `lint:attw` (`attw --pack`, validates the published type entrypoint) in parallel.
+- `npm run lint` — runs `lint:eslint` (ESLint, incl. Prettier, package.json and Markdown linting) and the `lint:ts` group — `lint:ts:typecheck` (`tsc --noEmit`) and `lint:ts:attw` (`attw --pack`, validates the published type entrypoint) — in parallel.
 - `npm test` — Vitest in watch mode. Single file: `npx vitest run tests/ProseMirrorTester.test.ts`; single case: `npx vitest run -t "name of test"`.
 - `npm run test-coverage` — single-pass run with V8 coverage (what CI runs). Codecov requires ≥90% patch coverage, so new code needs tests.
 
