@@ -660,28 +660,65 @@ describe("keymap", () => {
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
-  test("should handle keybindings wrapping node", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
+  // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
+  const wrappingEditor = (): ProseMirrorTester =>
+    new ProseMirrorTester(
+      basicSchema.nodes.doc.create(
+        {},
+        basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
+      ),
+      {
+        plugins: [
+          keymap({
+            B: wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
     );
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
-      plugins: [
-        keymap({
-          "Shift-b": wrapIn(basicSchema.nodes.blockquote),
-        }),
-      ],
-    });
+  const wrappedDoc = basicSchema.nodes.doc.create(
+    {},
+    basicSchema.nodes.blockquote.create({}, [
+      basicSchema.nodes.paragraph.create({}, [basicSchema.text("some text")]),
+    ]),
+  );
+
+  test("should handle an uppercase-letter keybinding triggered with Shift", () => {
+    const testEditor = wrappingEditor();
 
     testEditor.selectText({ from: 1, to: 10 });
     testEditor.insertText("b", { shiftKey: true });
 
+    expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
+  });
+
+  test("should handle an uppercase-letter keybinding typed directly", () => {
+    const testEditor = wrappingEditor();
+
+    testEditor.selectText({ from: 1, to: 10 });
+    testEditor.insertText("B");
+
+    expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
+  });
+
+  test("should not trigger a Shift-<letter> binding, as a browser does not", () => {
+    const testEditor = new ProseMirrorTester(
+      basicSchema.nodes.doc.create({}, basicSchema.nodes.paragraph.create({})),
+      {
+        plugins: [
+          keymap({
+            "Shift-b": wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
+    );
+
+    testEditor.selectText("start");
+    testEditor.insertText("b", { shiftKey: true });
+
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
-      basicSchema.nodes.blockquote.create({}, [
-        basicSchema.nodes.paragraph.create({}, [basicSchema.text("some text")]),
-      ]),
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("B")),
     );
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
@@ -706,7 +743,7 @@ describe("modifier suppression", () => {
     },
   );
 
-  test("should still type a character while only Shift is held", () => {
+  test("should type the uppercase letter while Shift is held", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("end");
 
@@ -714,7 +751,7 @@ describe("modifier suppression", () => {
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("foob")),
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("fooB")),
     );
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
@@ -1077,5 +1114,102 @@ describe("keyboard events", () => {
       { code: "Escape", key: "Escape", keyCode: 27, type: "keydown" },
       { code: "Escape", key: "Escape", keyCode: 27, type: "keyup" },
     ]);
+  });
+
+  const recordShifted = (): {
+    events: Array<{
+      charCode: number;
+      code: string;
+      key: string;
+      keyCode: number;
+      shiftKey: boolean;
+      type: string;
+    }>;
+    plugin: Plugin;
+  } => {
+    const events: Array<{
+      charCode: number;
+      code: string;
+      key: string;
+      keyCode: number;
+      shiftKey: boolean;
+      type: string;
+    }> = [];
+    const record = (event: KeyboardEvent): false => {
+      events.push({
+        // eslint-disable-next-line @typescript-eslint/no-deprecated -- Testing the deprecated property
+        charCode: event.charCode,
+        code: event.code,
+        key: event.key,
+        // eslint-disable-next-line @typescript-eslint/no-deprecated -- Testing the deprecated property
+        keyCode: event.keyCode,
+        shiftKey: event.shiftKey,
+        type: event.type,
+      });
+      return false;
+    };
+
+    return {
+      events,
+      plugin: new Plugin({
+        props: {
+          handleDOMEvents: {
+            keypress: (_view, event) => record(event),
+            keyup: (_view, event) => record(event),
+          },
+          handleKeyDown: (_view, event) => record(event),
+        },
+      }),
+    };
+  };
+
+  // A browser reports the uppercase key with Shift held: `key` becomes "B", `code` and the
+  // keydown/keyup keyCode stay the physical key's, and the keypress charCode is the code point
+  // of "B" rather than "b".
+  const shiftedBEvents = [
+    {
+      charCode: 0,
+      code: "KeyB",
+      key: "B",
+      keyCode: 66,
+      shiftKey: true,
+      type: "keydown",
+    },
+    {
+      charCode: 66,
+      code: "KeyB",
+      key: "B",
+      keyCode: 66,
+      shiftKey: true,
+      type: "keypress",
+    },
+    {
+      charCode: 0,
+      code: "KeyB",
+      key: "B",
+      keyCode: 66,
+      shiftKey: true,
+      type: "keyup",
+    },
+  ];
+
+  test("should report the uppercase key while Shift is held", () => {
+    const { events, plugin } = recordShifted();
+    const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
+    testEditor.selectText("end");
+
+    testEditor.insertText("b", { shiftKey: true });
+
+    expect(events).toStrictEqual(shiftedBEvents);
+  });
+
+  test("should imply Shift when an uppercase letter is typed directly", () => {
+    const { events, plugin } = recordShifted();
+    const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
+    testEditor.selectText("end");
+
+    testEditor.insertText("B");
+
+    expect(events).toStrictEqual(shiftedBEvents);
   });
 });

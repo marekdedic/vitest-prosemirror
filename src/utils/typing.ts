@@ -41,13 +41,20 @@ const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
   modifiers?.ctrlKey === true ||
   modifiers?.metaKey === true;
 
+const isLetter = (key: string): boolean => /^[a-z]$/iu.test(key);
+
 export function insertText(
   view: EditorView,
   text: string,
   modifiers?: KeyboardModifiers,
 ): void {
   for (const key of tokenizeKeyboardInput(text)) {
-    const identity = keyIdentity(key);
+    const character =
+      isLetter(key) && modifiers?.shiftKey === true ? key.toUpperCase() : key;
+    const shiftKey = isLetter(character)
+      ? character === character.toUpperCase()
+      : (modifiers?.shiftKey ?? false);
+    const identity = keyIdentity(character);
     // Only keypress carries a charCode, and browsers only fire it for keys producing a character.
     const eventInit = {
       bubbles: true,
@@ -59,6 +66,7 @@ export function insertText(
       keyCode: identity.keyCode,
       location: identity.location,
       ...modifiers,
+      shiftKey,
     };
 
     const keydownEvent = new KeyboardEvent("keydown", eventInit);
@@ -66,7 +74,7 @@ export function insertText(
 
     // A cancelled keydown suppresses the keypress and the typing, but not the keyup.
     if (!keydownEvent.defaultPrevented) {
-      const action = keyAction(key, modifiers);
+      const action = keyAction(character, modifiers);
       if (action.type === "delete") {
         deleteText(view, action.direction);
       } else if (action.type === "moveCaret") {
