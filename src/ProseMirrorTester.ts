@@ -76,8 +76,6 @@ export class ProseMirrorTester {
     this.destroyed = true;
     this.view.destroy();
     this.element.remove();
-    // The view's DOM selection would otherwise dangle at the now-detached element, and a
-    // later view's keydown handling (which reads the DOM selection) crashes on it.
     document.getSelection()?.removeAllRanges();
     autoCleanupTesters.delete(this);
     liveTesters.delete(this);
