@@ -1,7 +1,8 @@
 import type { Node } from "prosemirror-model";
 
-import { expect } from "vitest";
+import { afterEach, expect } from "vitest";
 
+import { cleanupTesters } from "./ProseMirrorTester";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export { type Options, ProseMirrorTester } from "./ProseMirrorTester";
@@ -20,6 +21,8 @@ declare module "vitest" {
 }
 
 /* eslint-enable */
+
+afterEach(cleanupTesters);
 
 expect.extend({
   toEqualProseMirrorNode(received: Node, expected: Node) {
