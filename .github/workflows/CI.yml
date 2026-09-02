@@ -45,17 +45,28 @@ jobs:
     strategy:
       matrix:
         versions: [
-          {vitest: "2"},
-          {vitest: "3"},
-          {vitest: "4"},
+          {node: "20", vitest: "2", jsdom: "29"},
+          {node: "22", vitest: "3"},
+          {node: "24", vitest: "4"},
+          {node: "26", vitest: "4"},
         ]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v7
 
+      - name: "Setup Node"
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.versions.node }}
+
       - name: "Install NPM dependencies"
         run: |
           npm install
+
+      - name: "Install jsdom"
+        if: matrix.versions.jsdom
+        run: |
+          npm install jsdom@${{ matrix.versions.jsdom }}
 
       - name: "Install vitest"
         run: |
