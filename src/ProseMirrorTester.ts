@@ -9,18 +9,35 @@ import { resolveSelection, type TesterSelection } from "./utils/selection";
 import { insertText, type KeyboardModifiers } from "./utils/typing";
 
 export interface Options {
+  autoCleanup: boolean;
   plugins: Array<Plugin>;
 }
 
+const originalMutationObserver = global.MutationObserver;
+// All undestroyed testers, driving the MutationObserver refcount.
+const liveTesters = new Set<ProseMirrorTester>();
+// The subset the afterEach hook destroys -- opt-out testers stay out of it.
+const autoCleanupTesters = new Set<ProseMirrorTester>();
+
+export const cleanupTesters = (): void => {
+  for (const tester of [...autoCleanupTesters]) {
+    tester.destroy();
+  }
+};
+
 export class ProseMirrorTester {
   public get doc(): ProseMirrorNode {
+    this.assertAlive();
     return this.view.state.doc;
   }
 
   public get schema(): Schema {
+    this.assertAlive();
     return this.view.state.schema;
   }
 
+  private destroyed = false;
+  private readonly element: HTMLElement;
   private readonly view: EditorView;
 
   public constructor(
@@ -31,8 +48,8 @@ export class ProseMirrorTester {
       throw new Error("TODO");
     }
 
-    const element = document.createElement("div");
-    document.body.append(element);
+    this.element = document.createElement("div");
+    document.body.append(this.element);
 
     const state = EditorState.create({
       doc: documentRoot,
@@ -42,18 +59,50 @@ export class ProseMirrorTester {
     global.MutationObserver = MutationObserverMock;
     mockRangeRects();
 
-    this.view = new EditorView(element, {
+    this.view = new EditorView(this.element, {
       state,
     });
+
+    liveTesters.add(this);
+    if (options.autoCleanup ?? true) {
+      autoCleanupTesters.add(this);
+    }
+  }
+
+  public destroy(): void {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+    this.view.destroy();
+    this.element.remove();
+    // The view's DOM selection would otherwise dangle at the now-detached element, and a
+    // later view's keydown handling (which reads the DOM selection) crashes on it.
+    document.getSelection()?.removeAllRanges();
+    autoCleanupTesters.delete(this);
+    liveTesters.delete(this);
+    if (liveTesters.size === 0) {
+      global.MutationObserver = originalMutationObserver;
+    }
   }
 
   public insertText(text: string, modifiers?: KeyboardModifiers): void {
+    this.assertAlive();
     insertText(this.view, text, modifiers);
   }
 
   public selectText(selection: TesterSelection): void {
+    this.assertAlive();
     this.view.dispatch(
       this.view.state.tr.setSelection(resolveSelection(this.doc, selection)),
     );
+  }
+
+  private assertAlive(): void {
+    if (this.destroyed) {
+      throw new Error(
+        "This ProseMirrorTester has been destroyed. Testers are destroyed automatically after each test; pass { autoCleanup: false } to keep one alive (e.g. across a beforeAll).",
+      );
+    }
   }
 }
