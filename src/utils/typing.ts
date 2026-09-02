@@ -35,6 +35,12 @@ const forward = 1;
 const hasModifiers = (modifiers?: KeyboardModifiers): boolean =>
   modifiers !== undefined && Object.values(modifiers).includes(true);
 
+// A browser produces no character when Ctrl, Meta or Alt is held.
+const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
+  modifiers?.altKey === true ||
+  modifiers?.ctrlKey === true ||
+  modifiers?.metaKey === true;
+
 export function insertText(
   view: EditorView,
   text: string,
@@ -141,6 +147,9 @@ function keyAction(key: string, modifiers?: KeyboardModifiers): KeyAction {
   }
   // Multi-character tokens are key names; anything else is the character it produces.
   if (key.length === 1) {
+    if (suppressesCharacter(modifiers)) {
+      return { type: "ignore" };
+    }
     return { character: key, type: "type" };
   }
   throw new Error(`Cannot simulate the "${key}" key`);

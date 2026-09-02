@@ -688,6 +688,67 @@ describe("keymap", () => {
   });
 });
 
+describe("modifier suppression", () => {
+  const initialDoc = basicSchema.nodes.doc.create(
+    {},
+    basicSchema.nodes.paragraph.create({}, basicSchema.text("foo")),
+  );
+
+  test.each([{ ctrlKey: true }, { metaKey: true }, { altKey: true }])(
+    "should not type a character while a suppressing modifier is held (%o)",
+    (modifiers) => {
+      const testEditor = new ProseMirrorTester(initialDoc);
+      testEditor.selectText("end");
+
+      testEditor.insertText("b", modifiers);
+
+      expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
+    },
+  );
+
+  test("should still type a character while only Shift is held", () => {
+    const testEditor = new ProseMirrorTester(initialDoc);
+    testEditor.selectText("end");
+
+    testEditor.insertText("b", { shiftKey: true });
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("foob")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should fire no keypress for a suppressed character key", () => {
+    const events: Array<string> = [];
+    const plugin = new Plugin({
+      props: {
+        handleDOMEvents: {
+          keypress: (_view, event): false => {
+            events.push(event.type);
+            return false;
+          },
+          keyup: (_view, event): false => {
+            events.push(event.type);
+            return false;
+          },
+        },
+        handleKeyDown: (_view, event): false => {
+          events.push(event.type);
+          return false;
+        },
+      },
+    });
+    const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
+    testEditor.selectText("end");
+
+    testEditor.insertText("b", { ctrlKey: true });
+
+    expect(events).toStrictEqual(["keydown", "keyup"]);
+  });
+});
+
 describe("input rule", () => {
   test("should handle input rule", () => {
     const initialDoc = basicSchema.nodes.doc.create(
