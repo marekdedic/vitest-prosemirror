@@ -35,13 +35,26 @@ const forward = 1;
 const hasModifiers = (modifiers?: KeyboardModifiers): boolean =>
   modifiers !== undefined && Object.values(modifiers).includes(true);
 
+// A browser produces no character when Ctrl, Meta or Alt is held.
+const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
+  modifiers?.altKey === true ||
+  modifiers?.ctrlKey === true ||
+  modifiers?.metaKey === true;
+
+const isLetter = (key: string): boolean => /^[a-z]$/iu.test(key);
+
 export function insertText(
   view: EditorView,
   text: string,
   modifiers?: KeyboardModifiers,
 ): void {
   for (const key of tokenizeKeyboardInput(text)) {
-    const identity = keyIdentity(key);
+    const character =
+      isLetter(key) && modifiers?.shiftKey === true ? key.toUpperCase() : key;
+    const shiftKey = isLetter(character)
+      ? character === character.toUpperCase()
+      : (modifiers?.shiftKey ?? false);
+    const identity = keyIdentity(character);
     // Only keypress carries a charCode, and browsers only fire it for keys producing a character.
     const eventInit = {
       bubbles: true,
@@ -53,6 +66,7 @@ export function insertText(
       keyCode: identity.keyCode,
       location: identity.location,
       ...modifiers,
+      shiftKey,
     };
 
     const keydownEvent = new KeyboardEvent("keydown", eventInit);
@@ -60,7 +74,7 @@ export function insertText(
 
     // A cancelled keydown suppresses the keypress and the typing, but not the keyup.
     if (!keydownEvent.defaultPrevented) {
-      const action = keyAction(key, modifiers);
+      const action = keyAction(character, modifiers);
       if (action.type === "delete") {
         deleteText(view, action.direction);
       } else if (action.type === "moveCaret") {
@@ -141,6 +155,9 @@ function keyAction(key: string, modifiers?: KeyboardModifiers): KeyAction {
   }
   // Multi-character tokens are key names; anything else is the character it produces.
   if (key.length === 1) {
+    if (suppressesCharacter(modifiers)) {
+      return { type: "ignore" };
+    }
     return { character: key, type: "type" };
   }
   throw new Error(`Cannot simulate the "${key}" key`);
