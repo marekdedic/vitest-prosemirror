@@ -4,6 +4,7 @@ import { Selection } from "prosemirror-state";
 
 import { characterDataAt } from "./dom";
 import { tokenizeKeyboardInput } from "./keyboardInput";
+import { parseKeyChord } from "./keyChord";
 import { keyIdentity } from "./keyIdentity";
 import { MutationObserverMock } from "./MutationObserverMock";
 
@@ -43,17 +44,14 @@ const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
 
 const isLetter = (key: string): boolean => /^[a-z]$/iu.test(key);
 
-export function insertText(
-  view: EditorView,
-  text: string,
-  modifiers?: KeyboardModifiers,
-): void {
-  for (const key of tokenizeKeyboardInput(text)) {
+export function insertText(view: EditorView, text: string): void {
+  for (const token of tokenizeKeyboardInput(text)) {
+    const { key, modifiers } = parseKeyChord(token);
     const character =
-      isLetter(key) && modifiers?.shiftKey === true ? key.toUpperCase() : key;
+      isLetter(key) && modifiers.shiftKey === true ? key.toUpperCase() : key;
     const shiftKey = isLetter(character)
       ? character === character.toUpperCase()
-      : (modifiers?.shiftKey ?? false);
+      : (modifiers.shiftKey ?? false);
     const identity = keyIdentity(character);
     // Only keypress carries a charCode, and browsers only fire it for keys producing a character.
     const eventInit = {
