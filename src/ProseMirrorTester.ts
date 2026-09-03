@@ -1,4 +1,4 @@
-import type { Node as ProseMirrorNode, Schema } from "prosemirror-model";
+import type { Node as ProseMirrorNode } from "prosemirror-model";
 
 import { EditorState, type Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -31,9 +31,19 @@ export class ProseMirrorTester {
     return this.view.state.doc;
   }
 
-  public get schema(): Schema {
+  public get html(): string {
     this.assertAlive();
-    return this.view.state.schema;
+    return this.view.dom.innerHTML;
+  }
+
+  public get state(): EditorState {
+    this.assertAlive();
+    return this.view.state;
+  }
+
+  public get text(): string {
+    this.assertAlive();
+    return this.view.dom.textContent;
   }
 
   private destroyed = false;

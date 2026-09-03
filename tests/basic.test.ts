@@ -14,12 +14,12 @@ test("Parsing a document with an extension set", () => {
 
   const testEditor = new ProseMirrorTester(tree);
 
-  expect(testEditor.schema.spec.nodes.size).toBe(9);
-  expect(testEditor.schema.spec.marks.size).toBe(4);
-  expect(testEditor.schema.spec.nodes.get("doc")).toBe(
+  expect(testEditor.state.schema.spec.nodes.size).toBe(9);
+  expect(testEditor.state.schema.spec.marks.size).toBe(4);
+  expect(testEditor.state.schema.spec.nodes.get("doc")).toBe(
     basicSchema.spec.nodes.get("doc"),
   );
-  expect(testEditor.schema.spec.nodes.get("text")).toBe(
+  expect(testEditor.state.schema.spec.nodes.get("text")).toBe(
     basicSchema.spec.nodes.get("text"),
   );
   expect(testEditor.doc).toEqualProseMirrorNode(tree);
