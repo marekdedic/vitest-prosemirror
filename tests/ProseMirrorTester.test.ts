@@ -369,6 +369,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     expect(() => {
+      // @ts-expect-error -- { from, to } was removed in favour of { anchor, head }
       testEditor.selectText({ from: 6, to: 12 });
     }).toThrow("use { anchor, head } instead");
   });
