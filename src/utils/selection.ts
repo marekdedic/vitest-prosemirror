@@ -3,7 +3,12 @@ import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { AllSelection, type Selection, TextSelection } from "prosemirror-state";
 
 export type TesterSelection =
-  "all" | "end" | "start" | { from: number; to: number } | Selection | number;
+  | "all"
+  | "end"
+  | "start"
+  | { anchor: number; head: number }
+  | Selection
+  | number;
 
 export const resolveSelection = (
   doc: ProseMirrorNode,
@@ -23,12 +28,22 @@ export const resolveSelection = (
 
   if (
     typeof selection === "object" &&
+    "anchor" in selection &&
+    "head" in selection
+  ) {
+    return TextSelection.between(
+      doc.resolve(selection.anchor),
+      doc.resolve(selection.head),
+    );
+  }
+
+  if (
+    typeof selection === "object" &&
     "from" in selection &&
     "to" in selection
   ) {
-    return TextSelection.between(
-      doc.resolve(selection.from),
-      doc.resolve(selection.to),
+    throw new Error(
+      "selectText no longer accepts { from, to } — use { anchor, head } instead. The values map directly: { from: a, to: b } becomes { anchor: a, head: b }.",
     );
   }
 
