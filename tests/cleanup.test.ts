@@ -45,7 +45,9 @@ describe("destroy", () => {
     testEditor.destroy();
 
     expect(() => testEditor.doc).toThrow(destroyedMessage);
-    expect(() => testEditor.schema).toThrow(destroyedMessage);
+    expect(() => testEditor.state).toThrow(destroyedMessage);
+    expect(() => testEditor.html).toThrow(destroyedMessage);
+    expect(() => testEditor.text).toThrow(destroyedMessage);
   });
 
   test("should make methods throw after destruction", () => {
