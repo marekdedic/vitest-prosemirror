@@ -1,5 +1,4 @@
-import type { Node } from "prosemirror-model";
-
+import { type Node, Schema } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
@@ -26,6 +25,23 @@ describe("toEqualProseMirrorNode", () => {
         paragraph("expected"),
       );
     }).toThrow(/Difference/u);
+  });
+
+  test("should fail when two structurally identical nodes come from different schemas", () => {
+    expect.assertions(2);
+
+    const otherSchema = new Schema({
+      marks: basicSchema.spec.marks,
+      nodes: basicSchema.spec.nodes,
+    });
+    const otherParagraph = otherSchema.nodes["doc"].create(
+      {},
+      otherSchema.nodes["paragraph"].create({}, otherSchema.text("same")),
+    );
+
+    expect(() => {
+      expect(paragraph("same")).toEqualProseMirrorNode(otherParagraph);
+    }).toThrow(/come from different schemas/u);
   });
 
   test("should report a message when two equal nodes were expected to differ", () => {
