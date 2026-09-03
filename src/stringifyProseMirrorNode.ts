@@ -2,6 +2,41 @@ import type { Mark, Node } from "prosemirror-model";
 
 import stringifyObject from "stringify-object";
 
+export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
+  if (node.type.name === "text") {
+    return `${indentation}${wrapMarks(node.marks, escapeText(node.textContent))}`;
+  }
+
+  const type = node.type.name;
+  const content: Array<string> = [];
+  const nextIndentation = `${indentation}  `;
+
+  if (Object.keys(node.attrs).length > 0) {
+    content.push(
+      `${nextIndentation}${stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 })},`,
+    );
+  }
+
+  node.content.forEach((item) => {
+    content.push(`${stringifyProseMirrorNode(item, nextIndentation)},`);
+  });
+
+  let body: string;
+
+  if (content.length === 0) {
+    body = `${type}()`;
+  } else if (
+    content.length === 1 &&
+    node.content.firstChild?.type.name === "text"
+  ) {
+    body = `${type}(${stringifyProseMirrorNode(node.content.firstChild, "")})`;
+  } else {
+    body = `${type}(\n${content.join("\n")}\n${indentation})`;
+  }
+
+  return `${indentation}${wrapMarks(node.marks, body)}`;
+}
+
 function escapeText(text: string): string {
   const escaped = text.replace(/[\p{Cc}'\\]/gu, (char) => {
     switch (char) {
@@ -47,46 +82,4 @@ function wrapMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
   }
 
   return content;
-}
-
-const renamedTypes: Record<string, string> = {
-  hardBreak: "br",
-  heading: "h",
-  horizontalRule: "hr",
-  paragraph: "p",
-};
-
-export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
-  if (node.type.name === "text") {
-    return `${indentation}${wrapMarks(node.marks, escapeText(node.textContent))}`;
-  }
-
-  const type = renamedTypes[node.type.name] ?? node.type.name;
-  const content: Array<string> = [];
-  const nextIndentation = `${indentation}  `;
-
-  if (Object.keys(node.attrs).length > 0) {
-    content.push(
-      `${nextIndentation}${stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 })},`,
-    );
-  }
-
-  node.content.forEach((item) => {
-    content.push(`${stringifyProseMirrorNode(item, nextIndentation)},`);
-  });
-
-  let body: string;
-
-  if (content.length === 0) {
-    body = `${type}()`;
-  } else if (
-    content.length === 1 &&
-    node.content.firstChild?.type.name === "text"
-  ) {
-    body = `${type}(${stringifyProseMirrorNode(node.content.firstChild, "")})`;
-  } else {
-    body = `${type}(\n${content.join("\n")}\n${indentation})`;
-  }
-
-  return `${indentation}${wrapMarks(node.marks, body)}`;
 }

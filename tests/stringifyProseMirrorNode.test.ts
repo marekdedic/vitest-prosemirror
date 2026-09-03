@@ -15,7 +15,9 @@ test("Stringifying a basic paragraph", () => {
     basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World!")),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("doc(\n  p('Hello World!'),\n)");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "doc(\n  paragraph('Hello World!'),\n)",
+  );
 });
 
 test("Stringifying a paragraph in a blockquote", () => {
@@ -28,7 +30,7 @@ test("Stringifying a paragraph in a blockquote", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "doc(\n  blockquote(\n    p('Hello World!'),\n  ),\n)",
+    "doc(\n  blockquote(\n    paragraph('Hello World!'),\n  ),\n)",
   );
 });
 
@@ -50,7 +52,7 @@ test("Stringifying with attrs and content", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "h(\n  {level: 3},\n  'Hello World!',\n)",
+    "heading(\n  {level: 3},\n  'Hello World!',\n)",
   );
 });
 
@@ -84,7 +86,9 @@ test("Stringifying paragraph with a mark", () => {
     basicSchema.text("Hello World!").mark([basicSchema.marks.strong.create()]),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("p(strong('Hello World!'))");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "paragraph(strong('Hello World!'))",
+  );
 });
 
 test("Stringifying paragraph with multiple marks", () => {
@@ -95,7 +99,9 @@ test("Stringifying paragraph with multiple marks", () => {
       .mark([basicSchema.marks.strong.create(), basicSchema.marks.em.create()]),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("p(strong(em('Hello World!')))");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "paragraph(strong(em('Hello World!')))",
+  );
 });
 
 test("Stringifying paragraph with multiple partially overlaping marks", () => {
@@ -108,7 +114,7 @@ test("Stringifying paragraph with multiple partially overlaping marks", () => {
   ]);
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "p(\n  strong('Hello '),\n  strong(em('World')),\n  strong('!'),\n)",
+    "paragraph(\n  strong('Hello '),\n  strong(em('World')),\n  strong('!'),\n)",
   );
 });
 
@@ -141,6 +147,6 @@ test("Stringifying paragraph with a mark with attrs", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "p(link({href: 'https://example.com', title: null}, 'Hello World!'))",
+    "paragraph(link({href: 'https://example.com', title: null}, 'Hello World!'))",
   );
 });
