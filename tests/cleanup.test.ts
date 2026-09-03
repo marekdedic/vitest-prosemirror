@@ -4,8 +4,8 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/index";
+import { MutationObserverMock } from "../src/MutationObserverMock";
 import { cleanupTesters } from "../src/ProseMirrorTester";
-import { MutationObserverMock } from "../src/utils/MutationObserverMock";
 
 // Captured before any tester in this file replaces the global.
 const originalMutationObserver = global.MutationObserver;

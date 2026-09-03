@@ -2,8 +2,8 @@ import type { EditorView } from "prosemirror-view";
 
 import { Selection } from "prosemirror-state";
 
+import { MutationObserverMock } from "../MutationObserverMock";
 import { characterDataAt } from "./dom";
-import { MutationObserverMock } from "./MutationObserverMock";
 
 export const backward = -1;
 export const forward = 1;

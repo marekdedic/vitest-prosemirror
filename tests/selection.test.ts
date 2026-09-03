@@ -1,7 +1,7 @@
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { resolveSelection } from "../../src/utils/selection";
+import { resolveSelection } from "../src/selection";
 
 describe("resolveSelection", () => {
   const doc = basicSchema.nodes.doc.create(

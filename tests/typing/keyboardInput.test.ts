@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { tokenizeKeyboardInput } from "../../src/utils/keyboardInput";
+import { tokenizeKeyboardInput } from "../../src/typing/keyboardInput";
 
 test("Keyboard input tokenization", () => {
   expect(tokenizeKeyboardInput("foo")).toStrictEqual(["f", "o", "o"]);

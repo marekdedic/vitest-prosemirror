@@ -3,10 +3,10 @@ import type { Node as ProseMirrorNode, Schema } from "prosemirror-model";
 import { EditorState, type Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { mockRangeRects } from "./utils/mockRangeRects";
-import { MutationObserverMock } from "./utils/MutationObserverMock";
-import { resolveSelection, type TesterSelection } from "./utils/selection";
-import { insertText } from "./utils/typing";
+import { mockRangeRects } from "./mockRangeRects";
+import { MutationObserverMock } from "./MutationObserverMock";
+import { resolveSelection, type TesterSelection } from "./selection";
+import { insertText } from "./typing/typing";
 
 export interface Options {
   autoCleanup: boolean;
