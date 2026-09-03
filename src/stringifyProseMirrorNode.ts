@@ -58,7 +58,7 @@ const renamedTypes: Record<string, string> = {
 
 export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
   if (node.type.name === "text") {
-    return `${indentation}${getMarks(node.marks, node.text ?? "")}`;
+    return `${indentation}${getMarks(node.marks, node.textContent)}`;
   }
 
   const type = renamedTypes[node.type.name] ?? node.type.name;
