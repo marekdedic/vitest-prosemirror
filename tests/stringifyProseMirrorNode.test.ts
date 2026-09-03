@@ -1,3 +1,4 @@
+import { Schema } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { expect, test } from "vitest";
 
@@ -15,7 +16,9 @@ test("Stringifying a basic paragraph", () => {
     basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World!")),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("doc(\n  p('Hello World!'),\n)");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "doc(\n  paragraph('Hello World!'),\n)",
+  );
 });
 
 test("Stringifying a paragraph in a blockquote", () => {
@@ -28,7 +31,7 @@ test("Stringifying a paragraph in a blockquote", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "doc(\n  blockquote(\n    p('Hello World!'),\n  ),\n)",
+    "doc(\n  blockquote(\n    paragraph('Hello World!'),\n  ),\n)",
   );
 });
 
@@ -50,8 +53,32 @@ test("Stringifying with attrs and content", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "h(\n  {level: 3},\n  'Hello World!',\n)",
+    "heading(\n  {level: 3},\n  'Hello World!',\n)",
   );
+});
+
+test("Stringifying text with an apostrophe", () => {
+  const tree = basicSchema.text("it's a test");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'it\\'s a test'");
+});
+
+test("Stringifying text with a backslash", () => {
+  const tree = basicSchema.text("a\\b");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'a\\\\b'");
+});
+
+test("Stringifying text with control characters", () => {
+  const tree = basicSchema.text("a\nb\tc");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'a\\nb\\tc'");
+});
+
+test("Stringifying whitespace-only text", () => {
+  const tree = basicSchema.text(" ");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("' '");
 });
 
 test("Stringifying paragraph with a mark", () => {
@@ -60,7 +87,9 @@ test("Stringifying paragraph with a mark", () => {
     basicSchema.text("Hello World!").mark([basicSchema.marks.strong.create()]),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("p(strong('Hello World!'))");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "paragraph(strong('Hello World!'))",
+  );
 });
 
 test("Stringifying paragraph with multiple marks", () => {
@@ -71,7 +100,9 @@ test("Stringifying paragraph with multiple marks", () => {
       .mark([basicSchema.marks.strong.create(), basicSchema.marks.em.create()]),
   );
 
-  expect(stringifyProseMirrorNode(tree)).toBe("p(strong(em('Hello World!')))");
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "paragraph(strong(em('Hello World!')))",
+  );
 });
 
 test("Stringifying paragraph with multiple partially overlaping marks", () => {
@@ -84,7 +115,50 @@ test("Stringifying paragraph with multiple partially overlaping marks", () => {
   ]);
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "p(\n  strong('Hello '),\n  strong(em('World')),\n  strong('!'),\n)",
+    "paragraph(\n  strong('Hello '),\n  strong(em('World')),\n  strong('!'),\n)",
+  );
+});
+
+test("Stringifying a node type with a toDebugString hook", () => {
+  const schema = new Schema({
+    nodes: {
+      doc: { content: "widget*" },
+      text: {},
+      widget: {
+        attrs: { value: {} },
+        inline: false,
+        toDebugString: (node): string =>
+          `widget=${String(node.attrs["value"])}`,
+      },
+    },
+  });
+  const tree = schema.nodes.doc.create({}, [
+    schema.nodes.widget.create({ value: 1 }),
+    schema.nodes.widget.create({ value: 2 }),
+  ]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "doc(\n  widget=1,\n  widget=2,\n)",
+  );
+});
+
+test("Stringifying a leaf node with a mark", () => {
+  const tree = basicSchema.nodes.image
+    .create({ src: "img.jpg" })
+    .mark([basicSchema.marks.em.create()]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "em(image(\n  {src: 'img.jpg', alt: null, title: null},\n))",
+  );
+});
+
+test("Stringifying a leaf node with a mark with attrs", () => {
+  const tree = basicSchema.nodes.image
+    .create({ src: "img.jpg" })
+    .mark([basicSchema.marks.link.create({ href: "https://example.com" })]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "link({href: 'https://example.com', title: null}, image(\n  {src: 'img.jpg', alt: null, title: null},\n))",
   );
 });
 
@@ -97,6 +171,6 @@ test("Stringifying paragraph with a mark with attrs", () => {
   );
 
   expect(stringifyProseMirrorNode(tree)).toBe(
-    "p(link({href: 'https://example.com', title: null}, 'Hello World!'))",
+    "paragraph(link({href: 'https://example.com', title: null}, 'Hello World!'))",
   );
 });
