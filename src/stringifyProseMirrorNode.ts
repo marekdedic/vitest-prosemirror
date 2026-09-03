@@ -2,8 +2,33 @@ import type { Mark, Node } from "prosemirror-model";
 
 import stringifyObject from "stringify-object";
 
+function escapeText(text: string): string {
+  const escaped = text.replace(/[\p{Cc}'\\]/gu, (char) => {
+    switch (char) {
+      case "\f":
+        return "\\f";
+      case "\n":
+        return "\\n";
+      case "\r":
+        return "\\r";
+      case "\t":
+        return "\\t";
+      case "\b":
+        return "\\b";
+      case "'":
+        return "\\'";
+      case "\\":
+        return "\\\\";
+      default:
+        return `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`;
+    }
+  });
+
+  return `'${escaped}'`;
+}
+
 function getMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
-  let content = `'${origContent}'`;
+  let content = escapeText(origContent);
 
   for (const mark of [...marks].reverse()) {
     const hasAttrs = Object.keys(mark.attrs).length > 0;

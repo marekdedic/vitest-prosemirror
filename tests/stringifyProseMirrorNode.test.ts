@@ -54,6 +54,30 @@ test("Stringifying with attrs and content", () => {
   );
 });
 
+test("Stringifying text with an apostrophe", () => {
+  const tree = basicSchema.text("it's a test");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'it\\'s a test'");
+});
+
+test("Stringifying text with a backslash", () => {
+  const tree = basicSchema.text("a\\b");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'a\\\\b'");
+});
+
+test("Stringifying text with control characters", () => {
+  const tree = basicSchema.text("a\nb\tc");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'a\\nb\\tc'");
+});
+
+test("Stringifying whitespace-only text", () => {
+  const tree = basicSchema.text(" ");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("' '");
+});
+
 test("Stringifying paragraph with a mark", () => {
   const tree = basicSchema.nodes.paragraph.create(
     {},
