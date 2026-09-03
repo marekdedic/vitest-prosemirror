@@ -112,6 +112,26 @@ test("Stringifying paragraph with multiple partially overlaping marks", () => {
   );
 });
 
+test("Stringifying a leaf node with a mark", () => {
+  const tree = basicSchema.nodes.image
+    .create({ src: "img.jpg" })
+    .mark([basicSchema.marks.em.create()]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "em(image(\n  {src: 'img.jpg', alt: null, title: null},\n))",
+  );
+});
+
+test("Stringifying a leaf node with a mark with attrs", () => {
+  const tree = basicSchema.nodes.image
+    .create({ src: "img.jpg" })
+    .mark([basicSchema.marks.link.create({ href: "https://example.com" })]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "link({href: 'https://example.com', title: null}, image(\n  {src: 'img.jpg', alt: null, title: null},\n))",
+  );
+});
+
 test("Stringifying paragraph with a mark with attrs", () => {
   const tree = basicSchema.nodes.paragraph.create(
     {},

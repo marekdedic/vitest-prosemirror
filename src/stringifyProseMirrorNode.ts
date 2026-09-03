@@ -27,8 +27,8 @@ function escapeText(text: string): string {
   return `'${escaped}'`;
 }
 
-function getMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
-  let content = escapeText(origContent);
+function wrapMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
+  let content = origContent;
 
   for (const mark of [...marks].reverse()) {
     const hasAttrs = Object.keys(mark.attrs).length > 0;
@@ -58,7 +58,7 @@ const renamedTypes: Record<string, string> = {
 
 export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
   if (node.type.name === "text") {
-    return `${indentation}${getMarks(node.marks, node.textContent)}`;
+    return `${indentation}${wrapMarks(node.marks, escapeText(node.textContent))}`;
   }
 
   const type = renamedTypes[node.type.name] ?? node.type.name;
@@ -75,13 +75,18 @@ export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
     content.push(`${stringifyProseMirrorNode(item, nextIndentation)},`);
   });
 
+  let body: string;
+
   if (content.length === 0) {
-    return `${indentation}${type}()`;
+    body = `${type}()`;
+  } else if (
+    content.length === 1 &&
+    node.content.firstChild?.type.name === "text"
+  ) {
+    body = `${type}(${stringifyProseMirrorNode(node.content.firstChild, "")})`;
+  } else {
+    body = `${type}(\n${content.join("\n")}\n${indentation})`;
   }
 
-  if (content.length === 1 && node.content.firstChild?.type.name === "text") {
-    return `${indentation}${type}(${stringifyProseMirrorNode(node.content.firstChild, "")})`;
-  }
-
-  return `${indentation}${type}(\n${content.join("\n")}\n${indentation})`;
+  return `${indentation}${wrapMarks(node.marks, body)}`;
 }
