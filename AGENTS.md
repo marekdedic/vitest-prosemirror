@@ -32,4 +32,4 @@ A Vitest plugin that lets tests drive a real ProseMirror `EditorView` inside jsd
 
 - ESM only, `type: "module"`; no default exports; arrow functions preferred (`eslint-plugin-prefer-arrow-functions`); imports/keys/members sorted by `eslint-plugin-perfectionist` — run lint rather than hand-ordering.
 - Any `eslint-disable` needs a `--` justification comment (enforced by `@eslint-community/eslint-comments`).
-- ProseMirror packages, `stringify-object` and `vitest` are externals in the build; `vitest` is an optional peer dep spanning v2–v4, and CI tests against all three, so avoid version-specific Vitest APIs.
+- ProseMirror packages, `stringify-object` and `vitest` are externals in the build; `vitest` is an optional peer dep spanning v2–v5, and CI tests against all four, so avoid version-specific Vitest APIs.
