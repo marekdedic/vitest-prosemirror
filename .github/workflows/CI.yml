@@ -48,7 +48,7 @@ jobs:
           {node: "20", vitest: "2", jsdom: "29"},
           {node: "22", vitest: "3"},
           {node: "24", vitest: "4"},
-          {node: "26", vitest: "4"},
+          {node: "26", vitest: "5"},
         ]
     steps:
       - name: "Checkout"
