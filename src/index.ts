@@ -6,7 +6,7 @@ import { cleanupTesters } from "./ProseMirrorTester";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export { type Options, ProseMirrorTester } from "./ProseMirrorTester";
-export type { TesterSelection } from "./utils/selection";
+export type { TesterSelection } from "./selection";
 
 export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;

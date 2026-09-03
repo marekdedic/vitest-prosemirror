@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { parseKeyChord } from "../../src/utils/keyChord";
+import { parseKeyChord } from "../../src/typing/keyChord";
 
 test("Plain key without modifiers", () => {
   expect(parseKeyChord("b")).toStrictEqual({ key: "b", modifiers: {} });

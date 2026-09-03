@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { base, shift } from "w3c-keyname";
 
-import { keyIdentity } from "../../src/utils/keyIdentity";
+import { keyIdentity } from "../../src/typing/keyIdentity";
 
 test("Key identity of named keys", () => {
   expect(keyIdentity("Backspace")).toStrictEqual({
