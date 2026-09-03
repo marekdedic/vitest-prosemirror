@@ -360,6 +360,20 @@ describe("deletion", () => {
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
+  test("should throw when passed the removed { from, to } form", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    expect(() => {
+      // @ts-expect-error -- { from, to } was removed in favour of { anchor, head }
+      testEditor.selectText({ from: 6, to: 12 });
+    }).toThrow("use { anchor, head } instead");
+  });
+
   test("should delete a non-empty selection", () => {
     const initialDoc = basicSchema.nodes.doc.create(
       {},
@@ -368,7 +382,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ from: 6, to: 12 });
+    testEditor.selectText({ anchor: 6, head: 12 });
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
@@ -389,7 +403,7 @@ describe("deletion", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText({ from: 4, to: 10 });
+    testEditor.selectText({ anchor: 4, head: 10 });
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
@@ -507,7 +521,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ from: 2, to: 4 });
+    testEditor.selectText({ anchor: 2, head: 4 });
 
     expect(() => {
       testEditor.insertText("{Backspace}");
@@ -526,7 +540,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ from: 1, to: 2 });
+    testEditor.selectText({ anchor: 1, head: 2 });
 
     expect(() => {
       testEditor.insertText("{Backspace}");
@@ -595,7 +609,7 @@ describe("caret motion", () => {
   test("should collapse a non-empty selection", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ from: 2, to: 4 });
+    testEditor.selectText({ anchor: 2, head: 4 });
     testEditor.insertText("{ArrowLeft}x");
 
     const expectedDoc = basicSchema.nodes.doc.create(
@@ -622,7 +636,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ from: 1, to: 10 });
+    testEditor.selectText({ anchor: 1, head: 10 });
     testEditor.insertText("b", { ctrlKey: true });
 
     const expectedDoc = basicSchema.nodes.doc.create(
@@ -649,7 +663,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ from: 1, to: 10 });
+    testEditor.selectText({ anchor: 1, head: 10 });
     testEditor.insertText("b", { ctrlKey: true });
 
     const expectedDoc = basicSchema.nodes.doc.create(
@@ -686,7 +700,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding triggered with Shift", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ from: 1, to: 10 });
+    testEditor.selectText({ anchor: 1, head: 10 });
     testEditor.insertText("b", { shiftKey: true });
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
@@ -695,7 +709,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding typed directly", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ from: 1, to: 10 });
+    testEditor.selectText({ anchor: 1, head: 10 });
     testEditor.insertText("B");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
