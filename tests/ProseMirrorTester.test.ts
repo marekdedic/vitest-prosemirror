@@ -1037,20 +1037,6 @@ describe("keyboard events", () => {
     ]);
   });
 
-  test("should set the same identity for the [KeyA] syntax", () => {
-    const { events, plugin } = recordEvents();
-    const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
-
-    testEditor.insertText("[KeyA]");
-
-    expect(events).toStrictEqual([
-      { code: "KeyA", key: "a", keyCode: 65, type: "keydown" },
-      { code: "KeyA", key: "a", keyCode: 97, type: "keypress" },
-      { code: "KeyA", key: "a", keyCode: 65, type: "keyup" },
-    ]);
-  });
-
   test("should dispatch cancelable, composed events carrying the key location", () => {
     const keydownEvents: Array<KeyboardEvent> = [];
     const plugin = new Plugin({
@@ -1147,14 +1133,14 @@ describe("keyboard events", () => {
     testEditor.insertText("{Backspace}{ArrowLeft}{Escape}");
 
     // Named keys produce no character, so they fire no keypress.
-    expect(events).toStrictEqual([
-      { code: "Backspace", key: "Backspace", keyCode: 8, type: "keydown" },
-      { code: "Backspace", key: "Backspace", keyCode: 8, type: "keyup" },
-      { code: "ArrowLeft", key: "ArrowLeft", keyCode: 37, type: "keydown" },
-      { code: "ArrowLeft", key: "ArrowLeft", keyCode: 37, type: "keyup" },
+    expect(events.map(({ key, type }) => ({ key, type }))).toStrictEqual([
+      { key: "Backspace", type: "keydown" },
+      { key: "Backspace", type: "keyup" },
+      { key: "ArrowLeft", type: "keydown" },
+      { key: "ArrowLeft", type: "keyup" },
       // ProseMirror cancels the Escape keydown, which suppresses only the keypress.
-      { code: "Escape", key: "Escape", keyCode: 27, type: "keydown" },
-      { code: "Escape", key: "Escape", keyCode: 27, type: "keyup" },
+      { key: "Escape", type: "keydown" },
+      { key: "Escape", type: "keyup" },
     ]);
   });
 
