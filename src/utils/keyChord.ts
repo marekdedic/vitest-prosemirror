@@ -1,4 +1,9 @@
-import type { KeyboardModifiers } from "./typing";
+export interface KeyboardModifiers {
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
 
 export interface KeyChord {
   key: string;

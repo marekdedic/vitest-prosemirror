@@ -4,16 +4,9 @@ import { Selection } from "prosemirror-state";
 
 import { characterDataAt } from "./dom";
 import { tokenizeKeyboardInput } from "./keyboardInput";
-import { parseKeyChord } from "./keyChord";
+import { type KeyboardModifiers, parseKeyChord } from "./keyChord";
 import { keyIdentity } from "./keyIdentity";
 import { MutationObserverMock } from "./MutationObserverMock";
-
-export interface KeyboardModifiers {
-  altKey?: boolean;
-  ctrlKey?: boolean;
-  metaKey?: boolean;
-  shiftKey?: boolean;
-}
 
 type KeyAction =
   | { character: string; type: "type" }
