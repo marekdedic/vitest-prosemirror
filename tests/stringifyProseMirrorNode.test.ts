@@ -1,3 +1,4 @@
+import { Schema } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { expect, test } from "vitest";
 
@@ -115,6 +116,29 @@ test("Stringifying paragraph with multiple partially overlaping marks", () => {
 
   expect(stringifyProseMirrorNode(tree)).toBe(
     "paragraph(\n  strong('Hello '),\n  strong(em('World')),\n  strong('!'),\n)",
+  );
+});
+
+test("Stringifying a node type with a toDebugString hook", () => {
+  const schema = new Schema({
+    nodes: {
+      doc: { content: "widget*" },
+      text: {},
+      widget: {
+        attrs: { value: {} },
+        inline: false,
+        toDebugString: (node): string =>
+          `widget=${String(node.attrs["value"])}`,
+      },
+    },
+  });
+  const tree = schema.nodes.doc.create({}, [
+    schema.nodes.widget.create({ value: 1 }),
+    schema.nodes.widget.create({ value: 2 }),
+  ]);
+
+  expect(stringifyProseMirrorNode(tree)).toBe(
+    "doc(\n  widget=1,\n  widget=2,\n)",
   );
 });
 

@@ -3,6 +3,10 @@ import type { Mark, Node } from "prosemirror-model";
 import stringifyObject from "stringify-object";
 
 export function stringifyProseMirrorNode(node: Node, indentation = ""): string {
+  if (node.type.spec.toDebugString !== undefined) {
+    return `${indentation}${wrapMarks(node.marks, node.type.spec.toDebugString(node))}`;
+  }
+
   if (node.type.name === "text") {
     return `${indentation}${wrapMarks(node.marks, escapeText(node.textContent))}`;
   }
