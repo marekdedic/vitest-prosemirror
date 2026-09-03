@@ -6,7 +6,7 @@ import { EditorView } from "prosemirror-view";
 import { mockRangeRects } from "./utils/mockRangeRects";
 import { MutationObserverMock } from "./utils/MutationObserverMock";
 import { resolveSelection, type TesterSelection } from "./utils/selection";
-import { insertText, type KeyboardModifiers } from "./utils/typing";
+import { insertText } from "./utils/typing";
 
 export interface Options {
   autoCleanup: boolean;
@@ -84,9 +84,9 @@ export class ProseMirrorTester {
     }
   }
 
-  public insertText(text: string, modifiers?: KeyboardModifiers): void {
+  public insertText(text: string): void {
     this.assertAlive();
-    insertText(this.view, text, modifiers);
+    insertText(this.view, text);
   }
 
   public selectText(selection: TesterSelection): void {

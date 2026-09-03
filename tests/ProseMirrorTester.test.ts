@@ -168,7 +168,7 @@ describe("insertText", () => {
     testEditor.selectText("end");
 
     expect(() => {
-      testEditor.insertText("{ArrowLeft}", { ctrlKey: true });
+      testEditor.insertText("{Ctrl-ArrowLeft}");
     }).toThrow('Cannot simulate the "ArrowLeft" key');
   });
 
@@ -637,7 +637,7 @@ describe("keymap", () => {
     });
 
     testEditor.selectText({ anchor: 1, head: 10 });
-    testEditor.insertText("b", { ctrlKey: true });
+    testEditor.insertText("{Mod-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
@@ -664,11 +664,39 @@ describe("keymap", () => {
     });
 
     testEditor.selectText({ anchor: 1, head: 10 });
-    testEditor.insertText("b", { ctrlKey: true });
+    testEditor.insertText("{Mod-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
       basicSchema.nodes.code_block.create({}, [basicSchema.text("some text")]),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should apply a chord's modifier only to its own token", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc, {
+      plugins: [
+        keymap({
+          "Mod-b": toggleMark(basicSchema.marks.strong),
+        }),
+      ],
+    });
+
+    testEditor.selectText("end");
+    testEditor.insertText("{Mod-b}bold{Mod-b} normal");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("bold", [basicSchema.marks.strong.create()]),
+        basicSchema.text(" normal"),
+      ]),
     );
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
@@ -701,7 +729,7 @@ describe("keymap", () => {
     const testEditor = wrappingEditor();
 
     testEditor.selectText({ anchor: 1, head: 10 });
-    testEditor.insertText("b", { shiftKey: true });
+    testEditor.insertText("{Shift-b}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
   });
@@ -728,7 +756,7 @@ describe("keymap", () => {
     );
 
     testEditor.selectText("start");
-    testEditor.insertText("b", { shiftKey: true });
+    testEditor.insertText("{Shift-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
@@ -745,13 +773,13 @@ describe("modifier suppression", () => {
     basicSchema.nodes.paragraph.create({}, basicSchema.text("foo")),
   );
 
-  test.each([{ ctrlKey: true }, { metaKey: true }, { altKey: true }])(
-    "should not type a character while a suppressing modifier is held (%o)",
-    (modifiers) => {
+  test.each(["{Ctrl-b}", "{Meta-b}", "{Alt-b}"])(
+    "should not type a character while a suppressing modifier is held (%s)",
+    (chord) => {
       const testEditor = new ProseMirrorTester(initialDoc);
       testEditor.selectText("end");
 
-      testEditor.insertText("b", modifiers);
+      testEditor.insertText(chord);
 
       expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
     },
@@ -761,7 +789,7 @@ describe("modifier suppression", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("end");
 
-    testEditor.insertText("b", { shiftKey: true });
+    testEditor.insertText("{Shift-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
@@ -794,7 +822,7 @@ describe("modifier suppression", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("b", { ctrlKey: true });
+    testEditor.insertText("{Ctrl-b}");
 
     expect(events).toStrictEqual(["keydown", "keyup"]);
   });
@@ -911,7 +939,7 @@ describe("selectText", () => {
     });
 
     testEditor.selectText("all");
-    testEditor.insertText("b", { ctrlKey: true });
+    testEditor.insertText("{Mod-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create({}, [
       basicSchema.nodes.paragraph.create({}, [
@@ -940,7 +968,7 @@ describe("selectText", () => {
     });
 
     testEditor.selectText(TextSelection.create(initialDoc, 1, 5));
-    testEditor.insertText("b", { ctrlKey: true });
+    testEditor.insertText("{Mod-b}");
 
     const expectedDoc = basicSchema.nodes.doc.create(
       {},
@@ -1212,7 +1240,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("b", { shiftKey: true });
+    testEditor.insertText("{Shift-b}");
 
     expect(events).toStrictEqual(shiftedBEvents);
   });
