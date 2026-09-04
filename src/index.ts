@@ -5,6 +5,8 @@ import { afterEach, expect } from "vitest";
 import { cleanupTesters } from "./ProseMirrorTester";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
+export type { Clipboard } from "./clipboard/copy";
+export type { PasteContent, PasteInput } from "./clipboard/paste";
 export { type Options, ProseMirrorTester } from "./ProseMirrorTester";
 export type { TesterSelection } from "./selection";
 

@@ -3,6 +3,8 @@ import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { type Command, EditorState } from "prosemirror-state";
 import { type DirectEditorProps, EditorView } from "prosemirror-view";
 
+import { type Clipboard, copy } from "./clipboard/copy";
+import { paste, type PasteInput } from "./clipboard/paste";
 import { mockRangeRects } from "./mockRangeRects";
 import { MutationObserverMock } from "./MutationObserverMock";
 import { resolveSelection, type TesterSelection } from "./selection";
@@ -93,6 +95,11 @@ export class ProseMirrorTester {
     );
   }
 
+  public copy(): Clipboard {
+    this.assertAlive();
+    return copy(this.view);
+  }
+
   public destroy(): void {
     if (this.destroyed) {
       return;
@@ -111,6 +118,11 @@ export class ProseMirrorTester {
   public insertText(text: string): void {
     this.assertAlive();
     insertText(this.view, text);
+  }
+
+  public paste(content: PasteInput): void {
+    this.assertAlive();
+    paste(this.view, content);
   }
 
   public selectText(selection: TesterSelection): void {
