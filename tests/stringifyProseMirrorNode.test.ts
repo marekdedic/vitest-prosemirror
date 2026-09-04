@@ -176,12 +176,6 @@ test("Stringifying paragraph with a mark with attrs", () => {
   );
 });
 
-// AGENTS.md documents that stringifyProseMirrorNode renders
-// "prosemirror-test-builder-like source". Since #584 dropped renamedTypes, the
-// output uses each node's real schema type name and maps 1:1 onto
-// builders(basicSchema) source — these tests lock that correspondence in by
-// building with the real builders and asserting the stringified form uses the
-// same type names.
 describe("prosemirror-test-builder correspondence", () => {
   test("paragraphs keep their real type name", () => {
     expect(stringifyProseMirrorNode(doc(p("Line one"), p()))).toBe(
