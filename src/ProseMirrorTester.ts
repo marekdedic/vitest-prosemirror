@@ -1,16 +1,18 @@
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 
-import { EditorState, type Plugin } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { EditorState } from "prosemirror-state";
+import { type DirectEditorProps, EditorView } from "prosemirror-view";
 
 import { mockRangeRects } from "./mockRangeRects";
 import { MutationObserverMock } from "./MutationObserverMock";
 import { resolveSelection, type TesterSelection } from "./selection";
 import { insertText } from "./typing/typing";
 
-export interface Options {
+export interface Options extends Omit<
+  DirectEditorProps,
+  "dispatchTransaction" | "state"
+> {
   autoCleanup: boolean;
-  plugins: Array<Plugin>;
 }
 
 const originalMutationObserver = global.MutationObserver;
@@ -61,9 +63,11 @@ export class ProseMirrorTester {
     this.element = document.createElement("div");
     document.body.append(this.element);
 
+    const { autoCleanup = true, plugins = [], ...editorProps } = options;
+
     const state = EditorState.create({
       doc: documentRoot,
-      plugins: options.plugins ?? [],
+      plugins,
     });
 
     global.MutationObserver = MutationObserverMock;
@@ -71,10 +75,11 @@ export class ProseMirrorTester {
 
     this.view = new EditorView(this.element, {
       state,
+      ...editorProps,
     });
 
     liveTesters.add(this);
-    if (options.autoCleanup ?? true) {
+    if (autoCleanup) {
       autoCleanupTesters.add(this);
     }
   }
