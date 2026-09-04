@@ -197,6 +197,7 @@ export default tseslint.config(
     extends: [vitest.configs.recommended],
     files: ["tests/**/*.ts"],
     rules: {
+      "@typescript-eslint/unbound-method": "off",
       "vitest/consistent-test-it": ["error", { withinDescribe: "test" }],
       "vitest/no-alias-methods": "error",
       "vitest/no-conditional-expect": "error",
