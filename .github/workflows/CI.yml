@@ -59,18 +59,24 @@ jobs:
         with:
           node-version: ${{ matrix.versions.node }}
 
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v6
+        with:
+          path: "~/.npm"
+          key: >-
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-node${{
+            matrix.versions.node }}-vitest${{ matrix.versions.vitest }}-${{
+            hashFiles('package.json') }}
+          restore-keys: |
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-node${{ matrix.versions.node }}-vitest${{ matrix.versions.vitest }}-
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-
+
       - name: "Install NPM dependencies"
-        run: |
+        run: >-
           npm install
-
-      - name: "Install jsdom"
-        if: matrix.versions.jsdom
-        run: |
-          npm install jsdom@${{ matrix.versions.jsdom }}
-
-      - name: "Install vitest"
-        run: |
-          npm install vitest@${{ matrix.versions.vitest }} @vitest/coverage-v8@${{ matrix.versions.vitest }}
+          vitest@${{ matrix.versions.vitest }}
+          @vitest/coverage-v8@${{ matrix.versions.vitest }}
+          ${{ matrix.versions.jsdom && format('jsdom@{0}', matrix.versions.jsdom) || '' }}
 
       - name: "Run tests"
         run: |
