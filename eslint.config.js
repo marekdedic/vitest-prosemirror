@@ -196,6 +196,19 @@ export default tseslint.config(
     files: ["tests/**/*.ts"],
     rules: {
       "@typescript-eslint/unbound-method": "off",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              allowImportNames: ["builders"],
+              message:
+                "Import document builders from tests/builders.ts, not prosemirror-test-builder directly — the pre-exported doc/p/schema are bound to a list-augmented superset schema, not prosemirror-schema-basic.",
+              name: "prosemirror-test-builder",
+            },
+          ],
+        },
+      ],
       "vitest/consistent-test-it": ["error", { withinDescribe: "test" }],
       "vitest/no-alias-methods": "error",
       "vitest/no-conditional-in-test": "error",

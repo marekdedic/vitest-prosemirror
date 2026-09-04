@@ -77,6 +77,7 @@
     "prosemirror-inputrules": "^1.5.0",
     "prosemirror-keymap": "^1.2.3",
     "prosemirror-schema-basic": "^1.2.3",
+    "prosemirror-test-builder": "^1.1.1",
     "rimraf": "^6.0.1",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",

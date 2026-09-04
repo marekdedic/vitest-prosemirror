@@ -1,13 +1,10 @@
-import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../../src/index";
+import { doc, p } from "../builders";
 
 describe("caret motion", () => {
-  const initialDoc = basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
-  );
+  const initialDoc = doc(p("Hello"));
 
   test("should move the caret left", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
@@ -15,10 +12,7 @@ describe("caret motion", () => {
     testEditor.selectText("end");
     testEditor.insertText("{ArrowLeft}x");
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hellxo")),
-    );
+    const expectedDoc = doc(p("Hellxo"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
@@ -29,10 +23,7 @@ describe("caret motion", () => {
     testEditor.selectText(3);
     testEditor.insertText("{ArrowRight}x");
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("Helxlo")),
-    );
+    const expectedDoc = doc(p("Helxlo"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
@@ -43,10 +34,7 @@ describe("caret motion", () => {
     testEditor.selectText({ anchor: 2, head: 4 });
     testEditor.insertText("{ArrowLeft}x");
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hxello")),
-    );
+    const expectedDoc = doc(p("Hxello"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });

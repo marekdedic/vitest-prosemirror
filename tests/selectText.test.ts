@@ -5,13 +5,11 @@ import { TextSelection } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/index";
+import { doc, p, strong } from "./builders";
 
 describe("selectText", () => {
   test("should handle the 'all' selection", () => {
-    const initialDoc = basicSchema.nodes.doc.create({}, [
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("first")),
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("second")),
-    ]);
+    const initialDoc = doc(p("first"), p("second"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [
@@ -24,23 +22,13 @@ describe("selectText", () => {
     testEditor.selectText("all");
     testEditor.insertText("{Mod-b}");
 
-    const expectedDoc = basicSchema.nodes.doc.create({}, [
-      basicSchema.nodes.paragraph.create({}, [
-        basicSchema.text("first", [basicSchema.marks.strong.create()]),
-      ]),
-      basicSchema.nodes.paragraph.create({}, [
-        basicSchema.text("second", [basicSchema.marks.strong.create()]),
-      ]),
-    ]);
+    const expectedDoc = doc(p(strong("first")), p(strong("second")));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
   test("should accept a ProseMirror selection object", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [
@@ -53,13 +41,7 @@ describe("selectText", () => {
     testEditor.selectText(TextSelection.create(initialDoc, 1, 5));
     testEditor.insertText("{Mod-b}");
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, [
-        basicSchema.text("some", [basicSchema.marks.strong.create()]),
-        basicSchema.text(" text"),
-      ]),
-    );
+    const expectedDoc = doc(p(strong("some"), " text"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });

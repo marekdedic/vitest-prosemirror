@@ -1,14 +1,11 @@
-import { schema as basicSchema } from "prosemirror-schema-basic";
 import { Plugin } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../../src/index";
+import { doc, p } from "../builders";
 
 describe("modifier suppression", () => {
-  const initialDoc = basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.create({}, basicSchema.text("foo")),
-  );
+  const initialDoc = doc(p("foo"));
 
   test.each(["{Ctrl-b}", "{Meta-b}", "{Alt-b}"])(
     "should not type a character while a suppressing modifier is held (%s)",
@@ -28,10 +25,7 @@ describe("modifier suppression", () => {
 
     testEditor.insertText("{Shift-b}");
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("fooB")),
-    );
+    const expectedDoc = doc(p("fooB"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });

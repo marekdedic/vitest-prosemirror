@@ -3,16 +3,11 @@ import { TextSelection } from "prosemirror-state";
 import { expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/index";
+import { doc, p } from "./builders";
 
 const makeTester = (text = "Hello World"): ProseMirrorTester => {
-  const doc = basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.create(
-      {},
-      text === "" ? undefined : basicSchema.text(text),
-    ),
-  );
-  return new ProseMirrorTester(doc);
+  const testDoc = doc(text === "" ? p() : p(text));
+  return new ProseMirrorTester(testDoc);
 };
 
 test("state exposes the current EditorState", () => {
@@ -29,12 +24,7 @@ test("state is a live getter, not a snapshot", () => {
   testEditor.insertText("a");
 
   expect(testEditor.state).not.toBe(before);
-  expect(testEditor.state.doc).toEqualProseMirrorNode(
-    basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("a")),
-    ),
-  );
+  expect(testEditor.state.doc).toEqualProseMirrorNode(doc(p("a")));
 });
 
 test("state reflects the selection", () => {

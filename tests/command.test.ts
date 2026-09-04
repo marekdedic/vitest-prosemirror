@@ -3,13 +3,11 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/index";
+import { doc, p, strong } from "./builders";
 
 describe("command", () => {
   test("should apply a command and return true", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
@@ -17,22 +15,13 @@ describe("command", () => {
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, [
-        basicSchema.text("some", [basicSchema.marks.strong.create()]),
-        basicSchema.text(" text"),
-      ]),
-    );
+    const expectedDoc = doc(p(strong("some"), " text"));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
   test("should return false and leave the document unchanged when the command does not apply", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
@@ -48,10 +37,7 @@ describe("command", () => {
   });
 
   test("should see state produced by an earlier mutation", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
@@ -60,21 +46,13 @@ describe("command", () => {
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);
 
-    const expectedDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, [
-        basicSchema.text("xsome text", [basicSchema.marks.strong.create()]),
-      ]),
-    );
+    const expectedDoc = doc(p(strong("xsome text")));
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
   test("should pass the view to the command", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
@@ -88,10 +66,7 @@ describe("command", () => {
   });
 
   test("should throw when the tester has been destroyed", () => {
-    const initialDoc = basicSchema.nodes.doc.create(
-      {},
-      basicSchema.nodes.paragraph.create({}, basicSchema.text("some text")),
-    );
+    const initialDoc = doc(p("some text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.destroy();
