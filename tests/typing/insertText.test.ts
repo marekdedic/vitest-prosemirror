@@ -252,4 +252,144 @@ describe("insertText", () => {
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
+
+  test("should replace a non-empty selection with typed text", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 7, head: 12 });
+    testEditor.insertText("there");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello there")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should replace a non-empty selection with a single character", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello World")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 7, head: 12 });
+    testEditor.insertText("X");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello X")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should replace a selection at the start of a text node", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Xello")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.insertText("H");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("Hello")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should allow typing after replacing a whole paragraph's contents", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("a")),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.insertText("b");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, basicSchema.text("b")),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should preserve the marks when replacing a selection", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create(
+        {},
+        basicSchema.text("abc", [basicSchema.marks.strong.create()]),
+      ),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 2, head: 4 });
+    testEditor.insertText("X");
+
+    const expectedDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create(
+        {},
+        basicSchema.text("aX", [basicSchema.marks.strong.create()]),
+      ),
+    );
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should throw when replacing a selection spanning several DOM nodes", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.text("ab", [basicSchema.marks.strong.create()]),
+        basicSchema.text("cd"),
+      ]),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 2, head: 4 });
+
+    expect(() => {
+      testEditor.insertText("X");
+    }).toThrow(
+      "Cannot simulate deleting a range that is not inside a single text node",
+    );
+  });
+
+  test("should throw when replacing a selection over an atom", () => {
+    const initialDoc = basicSchema.nodes.doc.create(
+      {},
+      basicSchema.nodes.paragraph.create({}, [
+        basicSchema.nodes.image.create({ src: "image.png" }),
+      ]),
+    );
+
+    const testEditor = new ProseMirrorTester(initialDoc);
+
+    testEditor.selectText({ anchor: 1, head: 2 });
+
+    expect(() => {
+      testEditor.insertText("a");
+    }).toThrow(
+      "Cannot simulate deleting a range that is not inside a single text node",
+    );
+  });
 });
