@@ -3,12 +3,9 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
 import "../src/index";
+import { doc, p } from "./builders";
 
-const paragraph = (text: string): Node =>
-  basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.create({}, basicSchema.text(text)),
-  );
+const paragraph = (text: string): Node => doc(p(text));
 
 describe("toEqualProseMirrorNode", () => {
   test("should report a diff when two nodes differ", () => {

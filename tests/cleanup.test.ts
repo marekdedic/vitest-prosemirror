@@ -1,20 +1,16 @@
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 
-import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/index";
 import { MutationObserverMock } from "../src/MutationObserverMock";
 import { cleanupTesters } from "../src/ProseMirrorTester";
+import { doc, p } from "./builders";
 
 // Captured before any tester in this file replaces the global.
 const originalMutationObserver = global.MutationObserver;
 
-const makeDoc = (): ProseMirrorNode =>
-  basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.createAndFill({}, basicSchema.text("Hello")),
-  );
+const makeDoc = (): ProseMirrorNode => doc(p("Hello"));
 
 const destroyedMessage =
   "This ProseMirrorTester has been destroyed. Testers are destroyed automatically after each test; pass { autoCleanup: false } to keep one alive (e.g. across a beforeAll).";

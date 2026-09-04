@@ -1,8 +1,9 @@
 import { Schema } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { stringifyProseMirrorNode } from "../src/stringifyProseMirrorNode";
+import { doc, em, heading, hr, img, p, strong } from "./builders";
 
 test("Stringifying an empty node", () => {
   const tree = basicSchema.nodes.horizontal_rule.create();
@@ -173,4 +174,48 @@ test("Stringifying paragraph with a mark with attrs", () => {
   expect(stringifyProseMirrorNode(tree)).toBe(
     "paragraph(link({href: 'https://example.com', title: null}, 'Hello World!'))",
   );
+});
+
+// AGENTS.md documents that stringifyProseMirrorNode renders
+// "prosemirror-test-builder-like source". Since #584 dropped renamedTypes, the
+// output uses each node's real schema type name and maps 1:1 onto
+// builders(basicSchema) source — these tests lock that correspondence in by
+// building with the real builders and asserting the stringified form uses the
+// same type names.
+describe("prosemirror-test-builder correspondence", () => {
+  test("paragraphs keep their real type name", () => {
+    expect(stringifyProseMirrorNode(doc(p("Line one"), p()))).toBe(
+      "doc(\n  paragraph('Line one'),\n  paragraph(),\n)",
+    );
+  });
+
+  test("marks render under their builder names", () => {
+    expect(
+      stringifyProseMirrorNode(doc(p(strong("bold"), " and ", em("italic")))),
+    ).toBe(
+      "doc(\n  paragraph(\n    strong('bold'),\n    ' and ',\n    em('italic'),\n  ),\n)",
+    );
+  });
+
+  test("headings keep their type name and attrs", () => {
+    expect(stringifyProseMirrorNode(doc(heading({ level: 3 }, "Title")))).toBe(
+      "doc(\n  heading(\n    {level: 3},\n    'Title',\n  ),\n)",
+    );
+  });
+
+  test("leaf nodes keep their real type name", () => {
+    expect(stringifyProseMirrorNode(doc(p("a"), hr(), p("b")))).toBe(
+      "doc(\n  paragraph('a'),\n  horizontal_rule(),\n  paragraph('b'),\n)",
+    );
+  });
+
+  test("nodes with attrs keep their type name", () => {
+    expect(
+      stringifyProseMirrorNode(
+        doc(img({ alt: "A", src: "a.png", title: "T" })),
+      ),
+    ).toBe(
+      "doc(\n  image(\n    {src: 'a.png', alt: 'A', title: 'T'},\n  ),\n)",
+    );
+  });
 });

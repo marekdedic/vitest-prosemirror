@@ -1,10 +1,10 @@
 import { baseKeymap } from "prosemirror-commands";
 import { keymap } from "prosemirror-keymap";
-import { schema as basicSchema } from "prosemirror-schema-basic";
 import { Plugin } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../../src/index";
+import { doc, p } from "../builders";
 
 describe("keyboard events", () => {
   const recordEvents = (): {
@@ -42,10 +42,7 @@ describe("keyboard events", () => {
     };
   };
 
-  const initialDoc = basicSchema.nodes.doc.create(
-    {},
-    basicSchema.nodes.paragraph.createAndFill({}, basicSchema.text("foo")),
-  );
+  const initialDoc = doc(p("foo"));
 
   test("should set key, code and keyCode for a character key", () => {
     const { events, plugin } = recordEvents();
