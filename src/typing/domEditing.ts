@@ -58,6 +58,10 @@ export function moveCaret(view: EditorView, direction: -1 | 1): void {
 // Edits the DOM the way a browser would and reports the resulting mutation, so that
 // ProseMirror's DOM observer picks the change up through its real input path.
 export function typeCharacter(view: EditorView, character: string): void {
+  if (!view.state.selection.empty) {
+    deleteText(view, backward);
+  }
+
   const { node, offset: domOffset } = view.domAtPos(
     view.state.selection.from,
     backward,
