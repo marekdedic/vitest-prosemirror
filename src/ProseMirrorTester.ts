@@ -1,6 +1,6 @@
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 
-import { EditorState } from "prosemirror-state";
+import { type Command, EditorState } from "prosemirror-state";
 import { type DirectEditorProps, EditorView } from "prosemirror-view";
 
 import { mockRangeRects } from "./mockRangeRects";
@@ -82,6 +82,15 @@ export class ProseMirrorTester {
     if (autoCleanup) {
       autoCleanupTesters.add(this);
     }
+  }
+
+  public command(command: Command): boolean {
+    this.assertAlive();
+    return command(
+      this.view.state,
+      this.view.dispatch.bind(this.view),
+      this.view,
+    );
   }
 
   public destroy(): void {
