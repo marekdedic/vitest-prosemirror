@@ -9,11 +9,11 @@ import { blockquote, doc, img, p, strong } from "../builders";
 
 describe("deletion", () => {
   test("should delete the character before the cursor", () => {
-    const initialDoc = doc(p("Hello <a>World"));
+    const initialDoc = doc(p("Hello <cursor>World"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("a");
+    testEditor.selectText("cursor");
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = doc(p("HelloWorld"));
@@ -48,11 +48,11 @@ describe("deletion", () => {
   });
 
   test("should delete the character after the cursor", () => {
-    const initialDoc = doc(p("Hello<a> World"));
+    const initialDoc = doc(p("Hello<cursor> World"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("a");
+    testEditor.selectText("cursor");
     testEditor.insertText("{Delete}");
 
     const expectedDoc = doc(p("HelloWorld"));
@@ -72,11 +72,11 @@ describe("deletion", () => {
   });
 
   test("should delete a non-empty selection", () => {
-    const initialDoc = doc(p("Hello<a> World<b>"));
+    const initialDoc = doc(p("Hello<selStart> World<selEnd>"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "a", head: "b" });
+    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = doc(p("Hello"));
@@ -85,13 +85,13 @@ describe("deletion", () => {
   });
 
   test("should let 'deleteSelection' handle a non-empty selection", () => {
-    const initialDoc = doc(p("Hel<a>lo"), p("Wo<b>rld"));
+    const initialDoc = doc(p("Hel<selStart>lo"), p("Wo<selEnd>rld"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText({ anchor: "a", head: "b" });
+    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = doc(p("Helrld"));
@@ -100,13 +100,13 @@ describe("deletion", () => {
   });
 
   test("should let 'joinBackward' handle a block boundary", () => {
-    const initialDoc = doc(p("ab"), p("<a>cd"));
+    const initialDoc = doc(p("ab"), p("<cursor>cd"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("a");
+    testEditor.selectText("cursor");
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = doc(p("abcd"));
@@ -115,13 +115,13 @@ describe("deletion", () => {
   });
 
   test("should let 'joinForward' handle a block boundary", () => {
-    const initialDoc = doc(p("ab<a>"), p("cd"));
+    const initialDoc = doc(p("ab<cursor>"), p("cd"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("a");
+    testEditor.selectText("cursor");
     testEditor.insertText("{Delete}");
 
     const expectedDoc = doc(p("abcd"));
@@ -130,13 +130,13 @@ describe("deletion", () => {
   });
 
   test("should lift out of a blockquote", () => {
-    const initialDoc = doc(blockquote(p("<a>ab")));
+    const initialDoc = doc(blockquote(p("<cursor>ab")));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("a");
+    testEditor.selectText("cursor");
     testEditor.insertText("{Backspace}");
 
     const expectedDoc = doc(p("ab"));
@@ -169,11 +169,11 @@ describe("deletion", () => {
   });
 
   test("should throw for an unhandled selection spanning several DOM nodes", () => {
-    const initialDoc = doc(p(strong("a<a>b"), "c<b>d"));
+    const initialDoc = doc(p(strong("a<selStart>b"), "c<selEnd>d"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "a", head: "b" });
+    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
 
     expect(() => {
       testEditor.insertText("{Backspace}");
