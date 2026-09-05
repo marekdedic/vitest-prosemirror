@@ -31,10 +31,10 @@ describe("insertText", () => {
   });
 
   test("should insert text in the middle of an existing paragraph", () => {
-    const initialDoc = doc(p("Helloworld"));
+    const initialDoc = doc(p("Hello<a>world"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText(6);
+    testEditor.selectText("a");
     testEditor.insertText(" ");
 
     const expectedDoc = doc(p("Hello world"));
@@ -58,11 +58,11 @@ describe("insertText", () => {
   });
 
   test("should leave the document alone for an unhandled 'Tab'", () => {
-    const initialDoc = doc(p("HelloWorld!"));
+    const initialDoc = doc(p("Hello<a>World!"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText(6);
+    testEditor.selectText("a");
     testEditor.insertText("{Tab}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
@@ -133,11 +133,11 @@ describe("insertText", () => {
   });
 
   test("should insert before the text following a node that is not text", () => {
-    const initialDoc = doc(p(img({ src: "image.png" }), "bc"));
+    const initialDoc = doc(p(img({ src: "image.png" }), "<a>bc"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText(2);
+    testEditor.selectText("a");
     testEditor.insertText("a");
 
     const expectedDoc = doc(p(img({ src: "image.png" }), "abc"));
@@ -159,11 +159,11 @@ describe("insertText", () => {
   });
 
   test("should insert into the text node the cursor is in, not the last one", () => {
-    const initialDoc = doc(p(strong("ab"), "cd"));
+    const initialDoc = doc(p(strong("a<a>b"), "cd"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText(2);
+    testEditor.selectText("a");
     testEditor.insertText("x");
 
     const expectedDoc = doc(p(strong("axb"), "cd"));
@@ -172,11 +172,11 @@ describe("insertText", () => {
   });
 
   test("should replace a non-empty selection with typed text", () => {
-    const initialDoc = doc(p("Hello World"));
+    const initialDoc = doc(p("Hello <a>World<b>"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 7, head: 12 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("there");
 
     const expectedDoc = doc(p("Hello there"));
@@ -185,11 +185,11 @@ describe("insertText", () => {
   });
 
   test("should replace a non-empty selection with a single character", () => {
-    const initialDoc = doc(p("Hello World"));
+    const initialDoc = doc(p("Hello <a>World<b>"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 7, head: 12 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("X");
 
     const expectedDoc = doc(p("Hello X"));
@@ -198,11 +198,11 @@ describe("insertText", () => {
   });
 
   test("should replace a selection at the start of a text node", () => {
-    const initialDoc = doc(p("Xello"));
+    const initialDoc = doc(p("<a>X<b>ello"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("H");
 
     const expectedDoc = doc(p("Hello"));
@@ -211,11 +211,11 @@ describe("insertText", () => {
   });
 
   test("should allow typing after replacing a whole paragraph's contents", () => {
-    const initialDoc = doc(p("a"));
+    const initialDoc = doc(p("<a>a<b>"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("b");
 
     const expectedDoc = doc(p("b"));
@@ -224,11 +224,11 @@ describe("insertText", () => {
   });
 
   test("should preserve the marks when replacing a selection", () => {
-    const initialDoc = doc(p(strong("abc")));
+    const initialDoc = doc(p(strong("a<a>bc<b>")));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 2, head: 4 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("X");
 
     const expectedDoc = doc(p(strong("aX")));
@@ -237,11 +237,11 @@ describe("insertText", () => {
   });
 
   test("should throw when replacing a selection spanning several DOM nodes", () => {
-    const initialDoc = doc(p(strong("ab"), "cd"));
+    const initialDoc = doc(p(strong("a<a>b"), "c<b>d"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 2, head: 4 });
+    testEditor.selectText({ anchor: "a", head: "b" });
 
     expect(() => {
       testEditor.insertText("X");

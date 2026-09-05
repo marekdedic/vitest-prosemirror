@@ -7,11 +7,11 @@ import { doc, p, strong } from "./builders";
 
 describe("command", () => {
   test("should apply a command and return true", () => {
-    const initialDoc = doc(p("some text"));
+    const initialDoc = doc(p("<a>some<b> text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 5 });
+    testEditor.selectText({ anchor: "a", head: "b" });
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);
 
@@ -21,11 +21,11 @@ describe("command", () => {
   });
 
   test("should return false and leave the document unchanged when the command does not apply", () => {
-    const initialDoc = doc(p("some text"));
+    const initialDoc = doc(p("<a>some<b> text"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 5 });
+    testEditor.selectText({ anchor: "a", head: "b" });
 
     // A horizontal_rule is a leaf and cannot contain the paragraph, so no
     // wrapping is possible and the command reports that it does not apply.

@@ -8,7 +8,7 @@ import { blockquote, codeBlock, doc, p, strong } from "../builders";
 
 describe("keymap", () => {
   test("should handle keybindings toggling marks", () => {
-    const initialDoc = doc(p("some text"));
+    const initialDoc = doc(p("<a>some text<b>"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [
@@ -18,7 +18,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ anchor: 1, head: 10 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("{Mod-b}");
 
     const expectedDoc = doc(p(strong("some text")));
@@ -27,7 +27,7 @@ describe("keymap", () => {
   });
 
   test("should handle keybindings setting block type", () => {
-    const initialDoc = doc(p("some text"));
+    const initialDoc = doc(p("<a>some text<b>"));
 
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [
@@ -37,7 +37,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ anchor: 1, head: 10 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("{Mod-b}");
 
     const expectedDoc = doc(codeBlock("some text"));
@@ -66,7 +66,7 @@ describe("keymap", () => {
 
   // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
   const wrappingEditor = (): ProseMirrorTester =>
-    new ProseMirrorTester(doc(p("some text")), {
+    new ProseMirrorTester(doc(p("<a>some text<b>")), {
       plugins: [
         keymap({
           B: wrapIn(basicSchema.nodes.blockquote),
@@ -79,7 +79,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding triggered with Shift", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ anchor: 1, head: 10 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("{Shift-b}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
@@ -88,7 +88,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding typed directly", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ anchor: 1, head: 10 });
+    testEditor.selectText({ anchor: "a", head: "b" });
     testEditor.insertText("B");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
