@@ -24,6 +24,13 @@ describe("resolveSelection", () => {
     expect(selection.to).toBe(7);
   });
 
+  test("should resolve a bare number to a cursor", () => {
+    const selection = resolveSelection(testDoc, 4);
+
+    expect(selection.empty).toBe(true);
+    expect(selection.from).toBe(4);
+  });
+
   describe("tag names", () => {
     test("should resolve a bare tag name to a cursor", () => {
       const taggedDoc = doc(p("foo<a>bar"));
