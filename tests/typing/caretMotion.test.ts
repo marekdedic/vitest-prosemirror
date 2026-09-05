@@ -4,7 +4,7 @@ import { ProseMirrorTester } from "../../src/index";
 import { doc, p } from "../builders";
 
 describe("caret motion", () => {
-  const initialDoc = doc(p("Hello"));
+  const initialDoc = doc(p("H<selStart>e<caret>l<selEnd>lo"));
 
   test("should move the caret left", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
@@ -20,7 +20,7 @@ describe("caret motion", () => {
   test("should move the caret right", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText(3);
+    testEditor.selectText("caret");
     testEditor.insertText("{ArrowRight}x");
 
     const expectedDoc = doc(p("Helxlo"));
@@ -31,7 +31,7 @@ describe("caret motion", () => {
   test("should collapse a non-empty selection", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 2, head: 4 });
+    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
     testEditor.insertText("{ArrowLeft}x");
 
     const expectedDoc = doc(p("Hxello"));
