@@ -5,6 +5,7 @@ import { type DirectEditorProps, EditorView } from "prosemirror-view";
 
 import { type Clipboard, copy } from "./clipboard/copy";
 import { paste, type PasteInput } from "./clipboard/paste";
+import { click, element, elements } from "./domInteraction";
 import { mockRangeRects } from "./mockRangeRects";
 import { MutationObserverMock } from "./MutationObserverMock";
 import { resolveSelection, type TesterSelection } from "./selection";
@@ -51,7 +52,7 @@ export class ProseMirrorTester {
   }
 
   private destroyed = false;
-  private readonly element: HTMLElement;
+  private readonly mountPoint: HTMLElement;
   private readonly view: EditorView;
 
   public constructor(
@@ -62,8 +63,8 @@ export class ProseMirrorTester {
       throw new Error("TODO");
     }
 
-    this.element = document.createElement("div");
-    document.body.append(this.element);
+    this.mountPoint = document.createElement("div");
+    document.body.append(this.mountPoint);
 
     const { autoCleanup = true, plugins = [], ...editorProps } = options;
 
@@ -75,7 +76,7 @@ export class ProseMirrorTester {
     global.MutationObserver = MutationObserverMock;
     mockRangeRects();
 
-    this.view = new EditorView(this.element, {
+    this.view = new EditorView(this.mountPoint, {
       state,
       ...editorProps,
     });
@@ -84,6 +85,11 @@ export class ProseMirrorTester {
     if (autoCleanup) {
       autoCleanupTesters.add(this);
     }
+  }
+
+  public click(target: Element | string): boolean {
+    this.assertAlive();
+    return click(this.view, target);
   }
 
   public command(command: Command): boolean {
@@ -106,13 +112,23 @@ export class ProseMirrorTester {
     }
     this.destroyed = true;
     this.view.destroy();
-    this.element.remove();
+    this.mountPoint.remove();
     document.getSelection()?.removeAllRanges();
     autoCleanupTesters.delete(this);
     liveTesters.delete(this);
     if (liveTesters.size === 0) {
       global.MutationObserver = originalMutationObserver;
     }
+  }
+
+  public element(selector: string): HTMLElement {
+    this.assertAlive();
+    return element(this.view, selector);
+  }
+
+  public elements(selector: string): Array<HTMLElement> {
+    this.assertAlive();
+    return elements(this.view, selector);
   }
 
   public insertText(text: string): void {

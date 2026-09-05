@@ -85,20 +85,17 @@ const makeDoc = (): ProseMirrorNode =>
     schema.node("todo", { checked: false }, schema.text("World")),
   ]);
 
-const checkboxes = (): NodeListOf<HTMLInputElement> =>
-  document.body.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-
 describe("node views", () => {
   test("ProseMirror builds the node views with a real getPos", () => {
     const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
 
-    const boxes = checkboxes();
+    const boxes = testEditor.elements('input[type="checkbox"]');
 
     expect(boxes).toHaveLength(2);
 
     // Clicking the *second* checkbox only toggles the second todo if getPos is
     // real -- hand-constructed node views cannot reach this.
-    boxes[1].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    testEditor.click(boxes[1]);
 
     expect(testEditor.state.doc.child(0).attrs["checked"]).toBe(true);
     expect(testEditor.state.doc.child(1).attrs["checked"]).toBe(true);
