@@ -14,6 +14,31 @@ export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
 }
 
+// A structural check rather than `val instanceof Node`, which fails when the
+// document comes from a different copy of prosemirror-model than this package's.
+const isProseMirrorNode = (val: unknown): val is Node => {
+  if (typeof val !== "object" || val === null) {
+    return false;
+  }
+
+  const node = val as Record<string, unknown>;
+  const type: unknown = node["type"];
+
+  if (typeof type !== "object" || type === null) {
+    return false;
+  }
+
+  const typeRecord = type as Record<string, unknown>;
+
+  return (
+    typeof typeRecord["name"] === "string" &&
+    typeof typeRecord["schema"] === "object" &&
+    "marks" in node &&
+    "attrs" in node &&
+    "content" in node
+  );
+};
+
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars -- This is an override for vitest matchers; the type parameters must match vitest's Matchers signature exactly */
 
 declare module "vitest" {
@@ -51,4 +76,13 @@ expect.extend({
       pass,
     };
   },
+});
+
+expect.addSnapshotSerializer({
+  // StringifyProseMirrorNode prefixes the top line with `indentation`, but
+  // pretty-format positions the first line itself, so drop that leading prefix
+  // while keeping nested lines correctly indented.
+  serialize: (val: Node, _config, indentation): string =>
+    stringifyProseMirrorNode(val, indentation).slice(indentation.length),
+  test: isProseMirrorNode,
 });
