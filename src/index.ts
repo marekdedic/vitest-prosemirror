@@ -2,6 +2,7 @@ import type { Node } from "prosemirror-model";
 
 import { afterEach, expect } from "vitest";
 
+import { isProseMirrorNode } from "./isProseMirrorNode";
 import { cleanupTesters } from "./ProseMirrorTester";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
@@ -51,4 +52,13 @@ expect.extend({
       pass,
     };
   },
+});
+
+expect.addSnapshotSerializer({
+  // The serialiser prefixes the top line with `indentation`, but pretty-format
+  // positions the first line itself, so drop that leading prefix while keeping
+  // nested lines correctly indented.
+  serialize: (val: Node, _config, indentation): string =>
+    stringifyProseMirrorNode(val, indentation).slice(indentation.length),
+  test: isProseMirrorNode,
 });
