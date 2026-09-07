@@ -59,6 +59,8 @@ expect.addSnapshotSerializer({
   // positions the first line itself, so drop that leading prefix while keeping
   // nested lines correctly indented.
   serialize: (val: Node, _config, indentation): string =>
-    stringifyProseMirrorNode(val, indentation).slice(indentation.length),
+    stringifyProseMirrorNode(val, undefined, indentation).slice(
+      indentation.length,
+    ),
   test: isProseMirrorNode,
 });
