@@ -1,9 +1,7 @@
 import type { EditorState } from "prosemirror-state";
 
-import {
-  stringifyMark,
-  stringifyProseMirrorNode,
-} from "./stringifyProseMirrorNode";
+import { stringifyMark } from "./stringifyMark";
+import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export function stringifyEditorState(
   state: EditorState,

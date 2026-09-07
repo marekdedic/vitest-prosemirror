@@ -3,18 +3,9 @@ import type { Selection } from "prosemirror-state";
 
 import stringifyObject from "stringify-object";
 
+import { stringifyObjectOptions } from "./stringifyMark";
+
 type Markers = Map<number, string>;
-
-// Shared across every `stringify-object` call so attrs (on nodes, on marks
-// wrapping content, and on standalone stored marks) all format identically.
-const stringifyObjectOptions = { indent: "  ", inlineCharacterLimit: 1000 };
-
-// Renders a single mark in standalone form — `name` or `name({attrs})` — as used
-// for stored marks. Distinct from `wrapMarks`, which wraps content: `name(content)`.
-export const stringifyMark = (mark: Mark): string =>
-  Object.keys(mark.attrs).length > 0
-    ? `${mark.type.name}(${stringifyObject(mark.attrs, stringifyObjectOptions)})`
-    : mark.type.name;
 
 export function stringifyProseMirrorNode(
   node: Node,
