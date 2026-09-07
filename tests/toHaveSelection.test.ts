@@ -67,6 +67,38 @@ describe("toHaveSelection", () => {
     }).toThrow(/Difference/u);
   });
 
+  test("should print both selections with their markers on a failure", () => {
+    expect.assertions(4);
+
+    const t = new ProseMirrorTester(doc(p("foobar")));
+    t.selectText({ anchor: 4, head: 7 });
+
+    // Received selection renders at positions 4/7, the expected one at 1/2.
+    expect(() => {
+      expect(t).toHaveSelection({ anchor: 1, head: 2 });
+    }).toThrow(/paragraph\('foo<anchor>bar<head>'\)/u);
+
+    expect(() => {
+      expect(t).toHaveSelection({ anchor: 1, head: 2 });
+    }).toThrow(/paragraph\('<anchor>f<head>oobar'\)/u);
+  });
+
+  test("should print a collapsed cursor as a single marker", () => {
+    expect.assertions(4);
+
+    const t = new ProseMirrorTester(doc(p("foobar")));
+    t.selectText(4);
+
+    // Received cursor at position 4, expected cursor at position 2.
+    expect(() => {
+      expect(t).toHaveSelection(2);
+    }).toThrow(/paragraph\('foo<cursor>bar'\)/u);
+
+    expect(() => {
+      expect(t).toHaveSelection(2);
+    }).toThrow(/paragraph\('f<cursor>oobar'\)/u);
+  });
+
   test("should name both selection kinds when kinds differ", () => {
     expect.assertions(4);
 
@@ -84,13 +116,18 @@ describe("toHaveSelection", () => {
   });
 
   test("should report a message when a matching selection was expected to differ", () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
     t.selectText({ anchor: 4, head: 7 });
 
+    // The rejection prints the (matching) selection with its markers.
     expect(() => {
       expect(t).not.toHaveSelection({ anchor: 4, head: 7 });
     }).toThrow(/Expected selection to not equal/u);
+
+    expect(() => {
+      expect(t).not.toHaveSelection({ anchor: 4, head: 7 });
+    }).toThrow(/paragraph\('foo<anchor>bar<head>'\)/u);
   });
 });
