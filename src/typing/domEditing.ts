@@ -3,6 +3,7 @@ import type { EditorView } from "prosemirror-view";
 import { Selection, TextSelection } from "prosemirror-state";
 
 import { MutationObserverMock } from "../MutationObserverMock";
+import { containsRTL } from "./direction";
 import { characterDataAt } from "./dom";
 import { graphemeBoundary } from "./grapheme";
 
@@ -65,6 +66,8 @@ export function moveCaret(
   let pos = direction === backward ? selection.from : selection.to;
   if (selection.empty) {
     pos = graphemeStep(view, pos, direction);
+  } else if (containsRTL(doc.textBetween(selection.from, selection.to))) {
+    throwRTL(direction);
   }
   view.dispatch(
     view.state.tr.setSelection(Selection.near(doc.resolve(pos), direction)),
@@ -122,6 +125,10 @@ function graphemeStep(
   if (point === null) {
     return pos + direction;
   }
+
+  if (containsRTL(point.target.data)) {
+    throwRTL(direction);
+  }
   const nodeStart = view.posAtDOM(point.target, 0);
   const boundary = graphemeBoundary(
     point.target.data,
@@ -129,4 +136,9 @@ function graphemeStep(
     direction,
   );
   return boundary === null ? pos + direction : nodeStart + boundary;
+}
+
+function throwRTL(direction: -1 | 1): never {
+  const key = direction === backward ? "ArrowLeft" : "ArrowRight";
+  throw new Error(`Cannot simulate the "${key}" key in right-to-left text.`);
 }
