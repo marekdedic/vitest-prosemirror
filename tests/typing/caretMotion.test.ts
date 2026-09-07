@@ -38,4 +38,60 @@ describe("caret motion", () => {
 
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
+
+  test("should step over a surrogate-pair emoji when moving right", () => {
+    const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
+
+    testEditor.selectText("caret");
+    testEditor.insertText("{ArrowRight}x");
+
+    const expectedDoc = doc(p("a👍xb"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should step over a surrogate-pair emoji when moving left", () => {
+    const testEditor = new ProseMirrorTester(doc(p("a👍<caret>b")));
+
+    testEditor.selectText("caret");
+    testEditor.insertText("{ArrowLeft}x");
+
+    const expectedDoc = doc(p("ax👍b"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should step over a combining sequence in one keypress", () => {
+    // Decomposed "e" + combining acute (U+0301): two code units, one grapheme.
+    const testEditor = new ProseMirrorTester(doc(p("a<caret>éb")));
+
+    testEditor.selectText("caret");
+    testEditor.insertText("{ArrowRight}x");
+
+    const expectedDoc = doc(p("aéxb"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should step over a ZWJ emoji sequence in one keypress", () => {
+    const testEditor = new ProseMirrorTester(doc(p("a<caret>👨‍👩‍👧b")));
+
+    testEditor.selectText("caret");
+    testEditor.insertText("{ArrowRight}x");
+
+    const expectedDoc = doc(p("a👨‍👩‍👧xb"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should cross a block boundary from the end of a text node", () => {
+    const testEditor = new ProseMirrorTester(doc(p("ab<caret>"), p("cd")));
+
+    testEditor.selectText("caret");
+    testEditor.insertText("{ArrowRight}x");
+
+    const expectedDoc = doc(p("ab"), p("xcd"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
 });

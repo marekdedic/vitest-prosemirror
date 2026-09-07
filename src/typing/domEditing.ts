@@ -4,6 +4,7 @@ import { Selection } from "prosemirror-state";
 
 import { MutationObserverMock } from "../MutationObserverMock";
 import { characterDataAt } from "./dom";
+import { graphemeBoundary } from "./grapheme";
 
 export const backward = -1;
 export const forward = 1;
@@ -46,7 +47,20 @@ export function moveCaret(view: EditorView, direction: -1 | 1): void {
   const { selection } = view.state;
   let pos = direction === backward ? selection.from : selection.to;
   if (selection.empty) {
-    pos += direction;
+    const dom = view.domAtPos(pos, direction);
+    const point = characterDataAt(dom.node, dom.offset);
+    if (point === null) {
+      // No text node at the caret (node boundary, image, ...): one PM step.
+      pos += direction;
+    } else {
+      const nodeStart = view.posAtDOM(point.target, 0);
+      const boundary = graphemeBoundary(
+        point.target.data,
+        pos - nodeStart,
+        direction,
+      );
+      pos = boundary === null ? pos + direction : nodeStart + boundary;
+    }
   }
   view.dispatch(
     view.state.tr.setSelection(
