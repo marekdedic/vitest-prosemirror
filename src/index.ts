@@ -1,9 +1,11 @@
 import type { Node } from "prosemirror-model";
+import type { EditorState } from "prosemirror-state";
 
 import { afterEach, expect } from "vitest";
 
 import { isProseMirrorNode } from "./isProseMirrorNode";
-import { cleanupTesters } from "./ProseMirrorTester";
+import { cleanupTesters, ProseMirrorTester } from "./ProseMirrorTester";
+import { resolveSelection, type TesterSelection } from "./selection";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export type { Clipboard } from "./clipboard/copy";
@@ -13,6 +15,7 @@ export type { TesterSelection } from "./selection";
 
 export interface CustomMatchers<R = unknown> {
   toEqualProseMirrorNode(expected: Node): R;
+  toHaveSelection(expected: TesterSelection): R;
 }
 
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars -- This is an override for vitest matchers; the type parameters must match vitest's Matchers signature exactly */
@@ -46,6 +49,39 @@ expect.extend({
 
           const diffString = this.utils.diff(expectedDoc, receivedDoc);
           return `${this.utils.matcherHint(".toEqualProsemirrorNode")}\n\nExpected value of document to equal:\n${this.utils.printExpected(expectedDoc)}\nActual:\n${this.utils.printReceived(receivedDoc)}${diffString === undefined ? "" : `\n\nDifference:\n\n${diffString}`}`;
+        };
+    return {
+      message,
+      pass,
+    };
+  },
+  toHaveSelection(
+    received: EditorState | ProseMirrorTester,
+    expected: TesterSelection,
+  ) {
+    const state =
+      received instanceof ProseMirrorTester ? received.state : received;
+    const receivedSelection = state.selection;
+    const expectedSelection = resolveSelection(state.doc, expected);
+
+    const receivedDoc = `\n${stringifyProseMirrorNode(state.doc, receivedSelection)}\n`;
+    const expectedDoc = `\n${stringifyProseMirrorNode(state.doc, expectedSelection)}\n`;
+    const pass = receivedSelection.eq(expectedSelection);
+    const message = pass
+      ? (): string =>
+          `${this.utils.matcherHint(".not.toHaveSelection")}\n\n` +
+          `Expected selection to not equal:\n${this.utils.printExpected(expectedDoc)}\n` +
+          `Actual:\n${this.utils.printReceived(receivedDoc)}`
+      : (): string => {
+          const diffString = this.utils.diff(expectedDoc, receivedDoc);
+          // Always name the selection kind: when only the kind differs (e.g. an
+          // `AllSelection` vs a `TextSelection` over the same span) the marker
+          // renderings can be identical, so the diff alone would look empty.
+          return (
+            `${this.utils.matcherHint(".toHaveSelection")}\n\n` +
+            `Expected selection to equal (${this.utils.printExpected(expectedSelection.constructor.name)}):\n${this.utils.printExpected(expectedDoc)}\n` +
+            `Actual (${this.utils.printReceived(receivedSelection.constructor.name)}):\n${this.utils.printReceived(receivedDoc)}${diffString === undefined ? "" : `\n\nDifference:\n\n${diffString}`}`
+          );
         };
     return {
       message,
