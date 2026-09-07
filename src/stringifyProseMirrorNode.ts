@@ -3,6 +3,8 @@ import type { Selection } from "prosemirror-state";
 
 import stringifyObject from "stringify-object";
 
+import { stringifyObjectOptions } from "./stringifyMark";
+
 type Markers = Map<number, string>;
 
 export function stringifyProseMirrorNode(
@@ -111,9 +113,7 @@ function renderElement(
   };
 
   if (hasAttrs) {
-    pushArg(
-      stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 }),
-    );
+    pushArg(stringifyObject(node.attrs, stringifyObjectOptions));
   }
 
   if (!node.type.isLeaf) {
@@ -173,12 +173,7 @@ function wrapMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
     const items: Array<string> = [content];
 
     if (hasAttrs) {
-      items.unshift(
-        stringifyObject(mark.attrs, {
-          indent: "  ",
-          inlineCharacterLimit: 1000,
-        }),
-      );
+      items.unshift(stringifyObject(mark.attrs, stringifyObjectOptions));
     }
 
     content = `${mark.type.name}(${items.join(", ")})`;
