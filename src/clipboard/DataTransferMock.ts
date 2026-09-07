@@ -28,7 +28,6 @@ export class DataTransferMock implements DataTransfer {
       {
         add: (): DataTransferItem | null => null,
         clear: (): void => undefined,
-        // A real read-only paste clipboard throws here; add returns null and clear no-ops.
         remove: (): void => {
           throw new DOMException(
             "The DataTransferItemList is not in the read/write mode.",
@@ -57,6 +56,8 @@ export class DataTransferMock implements DataTransfer {
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- Mocking another method
   public setDragImage(): void {
-    // Drag-and-drop is out of scope for clipboard testing.
+    throw new Error(
+      "setDragImage is not supported: ProseMirrorTester models clipboard paste/copy, not drag-and-drop.",
+    );
   }
 }

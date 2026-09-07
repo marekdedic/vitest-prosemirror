@@ -108,4 +108,12 @@ describe("DataTransferMock", () => {
       data.items.remove(0);
     }).toThrow(DOMException);
   });
+
+  test("should throw from the drag-only setDragImage", () => {
+    const data = new DataTransferMock();
+
+    expect(() => {
+      data.setDragImage();
+    }).toThrow(/drag-and-drop/u);
+  });
 });
