@@ -80,6 +80,14 @@ test("Stringifying text with control characters", () => {
   expect(stringifyProseMirrorNode(tree)).toBe("'a\\nb\\tc'");
 });
 
+test("Stringifying text with bidirectional and format characters", () => {
+  // U+202E RIGHT-TO-LEFT OVERRIDE, U+200F RIGHT-TO-LEFT MARK, U+200D ZERO WIDTH
+  // JOINER -- all invisible and all Cf
+  const tree = basicSchema.text("a\u202eb\u200fc\u200dd");
+
+  expect(stringifyProseMirrorNode(tree)).toBe("'a\\u202eb\\u200fc\\u200dd'");
+});
+
 test("Stringifying whitespace-only text", () => {
   const tree = basicSchema.text(" ");
 

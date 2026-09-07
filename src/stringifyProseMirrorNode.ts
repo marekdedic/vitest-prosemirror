@@ -27,7 +27,8 @@ export function stringifyProseMirrorNode(
 }
 
 function escapeText(text: string): string {
-  return text.replace(/[\p{Cc}'\\]/gu, (char) => {
+  // `\p{Cf}` (format) and `\p{Cc}` (control) are invisible characters
+  return text.replace(/[\p{Cc}\p{Cf}'\\]/gu, (char) => {
     switch (char) {
       case "\f":
         return "\\f";
