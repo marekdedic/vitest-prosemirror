@@ -13,8 +13,8 @@ import { keyIdentity } from "./keyIdentity";
 
 type KeyAction =
   | { character: string; type: "type" }
+  | { direction: -1 | 1; extend: boolean; type: "moveCaret" }
   | { direction: -1 | 1; type: "delete" }
-  | { direction: -1 | 1; type: "moveCaret" }
   | { type: "ignore" };
 
 const ignoredKeys = new Set([
@@ -69,7 +69,7 @@ export function insertText(view: EditorView, text: string): void {
       if (action.type === "delete") {
         deleteText(view, action.direction);
       } else if (action.type === "moveCaret") {
-        moveCaret(view, action.direction);
+        moveCaret(view, action.direction, action.extend);
       } else if (action.type === "type") {
         view.dispatchEvent(
           new KeyboardEvent("keypress", {
@@ -100,15 +100,16 @@ function keyAction(key: string, modifiers?: KeyboardModifiers): KeyAction {
     return { direction: forward, type: "delete" };
   }
   // Vertical motion picks its target from the caret's x-coordinate, which the zero-sized
-  // Range rects make unknowable, and the modified forms move by word or extend the selection.
-  if (
-    (key === "ArrowLeft" || key === "ArrowRight") &&
-    !hasModifiers(modifiers)
-  ) {
-    return {
-      direction: key === "ArrowLeft" ? backward : forward,
-      type: "moveCaret",
-    };
+  // Range rects make unknowable, and Ctrl/Alt word motion is not simulable yet, so those
+  // fall through to the throw. Shift extends the selection; unmodified moves the caret.
+  if (key === "ArrowLeft" || key === "ArrowRight") {
+    const direction = key === "ArrowLeft" ? backward : forward;
+    if (!hasModifiers(modifiers)) {
+      return { direction, extend: false, type: "moveCaret" };
+    }
+    if (modifiers?.shiftKey === true && !suppressesCharacter(modifiers)) {
+      return { direction, extend: true, type: "moveCaret" };
+    }
   }
   // Multi-character tokens are key names; anything else is the character it produces.
   if (key.length === 1) {

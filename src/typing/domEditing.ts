@@ -1,9 +1,11 @@
 import type { EditorView } from "prosemirror-view";
 
-import { Selection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import { MutationObserverMock } from "../MutationObserverMock";
+import { containsRTL } from "./direction";
 import { characterDataAt } from "./dom";
+import { graphemeBoundary } from "./grapheme";
 
 export const backward = -1;
 export const forward = 1;
@@ -42,16 +44,33 @@ export function deleteText(view: EditorView, direction: -1 | 1): void {
   ]);
 }
 
-export function moveCaret(view: EditorView, direction: -1 | 1): void {
-  const { selection } = view.state;
+export function moveCaret(
+  view: EditorView,
+  direction: -1 | 1,
+  extend: boolean,
+): void {
+  const { doc, selection } = view.state;
+  if (extend) {
+    const head = graphemeStep(view, selection.head, direction);
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.between(
+          doc.resolve(selection.anchor),
+          doc.resolve(head),
+          direction,
+        ),
+      ),
+    );
+    return;
+  }
   let pos = direction === backward ? selection.from : selection.to;
   if (selection.empty) {
-    pos += direction;
+    pos = graphemeStep(view, pos, direction);
+  } else if (containsRTL(doc.textBetween(selection.from, selection.to))) {
+    throwRTL(direction);
   }
   view.dispatch(
-    view.state.tr.setSelection(
-      Selection.near(view.state.doc.resolve(pos), direction),
-    ),
+    view.state.tr.setSelection(Selection.near(doc.resolve(pos), direction)),
   );
 }
 
@@ -94,4 +113,32 @@ export function typeCharacter(view: EditorView, character: string): void {
       type: "childList",
     },
   ]);
+}
+
+function graphemeStep(
+  view: EditorView,
+  pos: number,
+  direction: -1 | 1,
+): number {
+  const dom = view.domAtPos(pos, direction);
+  const point = characterDataAt(dom.node, dom.offset);
+  if (point === null) {
+    return pos + direction;
+  }
+
+  if (containsRTL(point.target.data)) {
+    throwRTL(direction);
+  }
+  const nodeStart = view.posAtDOM(point.target, 0);
+  const boundary = graphemeBoundary(
+    point.target.data,
+    pos - nodeStart,
+    direction,
+  );
+  return boundary === null ? pos + direction : nodeStart + boundary;
+}
+
+function throwRTL(direction: -1 | 1): never {
+  const key = direction === backward ? "ArrowLeft" : "ArrowRight";
+  throw new Error(`Cannot simulate the "${key}" key in right-to-left text.`);
 }
