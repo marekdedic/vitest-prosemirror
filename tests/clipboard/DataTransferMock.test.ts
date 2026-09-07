@@ -92,15 +92,20 @@ describe("DataTransferMock", () => {
     expect(data.types).toContain("Files");
   });
 
-  test("should stub the drag-only DataTransferItemList members", () => {
+  test("should stub the read-only DataTransferItemList members", () => {
     const data = new DataTransferMock([new File(["x"], "cat.png")]);
 
     expect(data.items.add(new File(["y"], "dog.png"))).toBeNull();
     expect(() => {
-      data.items.remove(0);
-    }).not.toThrow();
-    expect(() => {
       data.items.clear();
     }).not.toThrow();
+  });
+
+  test("should throw when removing from the read-only DataTransferItemList", () => {
+    const data = new DataTransferMock([new File(["x"], "cat.png")]);
+
+    expect(() => {
+      data.items.remove(0);
+    }).toThrow(DOMException);
   });
 });

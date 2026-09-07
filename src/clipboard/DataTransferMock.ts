@@ -28,7 +28,13 @@ export class DataTransferMock implements DataTransfer {
       {
         add: (): DataTransferItem | null => null,
         clear: (): void => undefined,
-        remove: (): void => undefined,
+        // A real read-only paste clipboard throws here; add returns null and clear no-ops.
+        remove: (): void => {
+          throw new DOMException(
+            "The DataTransferItemList is not in the read/write mode.",
+            "InvalidStateError",
+          );
+        },
       },
     );
   }
