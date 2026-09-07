@@ -1,6 +1,6 @@
 import type { EditorView } from "prosemirror-view";
 
-import { Selection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import { MutationObserverMock } from "../MutationObserverMock";
 import { characterDataAt } from "./dom";
@@ -43,29 +43,31 @@ export function deleteText(view: EditorView, direction: -1 | 1): void {
   ]);
 }
 
-export function moveCaret(view: EditorView, direction: -1 | 1): void {
-  const { selection } = view.state;
+export function moveCaret(
+  view: EditorView,
+  direction: -1 | 1,
+  extend: boolean,
+): void {
+  const { doc, selection } = view.state;
+  if (extend) {
+    const head = graphemeStep(view, selection.head, direction);
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.between(
+          doc.resolve(selection.anchor),
+          doc.resolve(head),
+          direction,
+        ),
+      ),
+    );
+    return;
+  }
   let pos = direction === backward ? selection.from : selection.to;
   if (selection.empty) {
-    const dom = view.domAtPos(pos, direction);
-    const point = characterDataAt(dom.node, dom.offset);
-    if (point === null) {
-      // No text node at the caret (node boundary, image, ...): one PM step.
-      pos += direction;
-    } else {
-      const nodeStart = view.posAtDOM(point.target, 0);
-      const boundary = graphemeBoundary(
-        point.target.data,
-        pos - nodeStart,
-        direction,
-      );
-      pos = boundary === null ? pos + direction : nodeStart + boundary;
-    }
+    pos = graphemeStep(view, pos, direction);
   }
   view.dispatch(
-    view.state.tr.setSelection(
-      Selection.near(view.state.doc.resolve(pos), direction),
-    ),
+    view.state.tr.setSelection(Selection.near(doc.resolve(pos), direction)),
   );
 }
 
@@ -108,4 +110,23 @@ export function typeCharacter(view: EditorView, character: string): void {
       type: "childList",
     },
   ]);
+}
+
+function graphemeStep(
+  view: EditorView,
+  pos: number,
+  direction: -1 | 1,
+): number {
+  const dom = view.domAtPos(pos, direction);
+  const point = characterDataAt(dom.node, dom.offset);
+  if (point === null) {
+    return pos + direction;
+  }
+  const nodeStart = view.posAtDOM(point.target, 0);
+  const boundary = graphemeBoundary(
+    point.target.data,
+    pos - nodeStart,
+    direction,
+  );
+  return boundary === null ? pos + direction : nodeStart + boundary;
 }

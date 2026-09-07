@@ -84,6 +84,17 @@ describe("caret motion", () => {
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
+  test("should stay put at the start of the document", () => {
+    const testEditor = new ProseMirrorTester(doc(p("Hello")));
+
+    testEditor.selectText("start");
+    testEditor.insertText("{ArrowLeft}x");
+
+    const expectedDoc = doc(p("xHello"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
   test("should cross a block boundary from the end of a text node", () => {
     const testEditor = new ProseMirrorTester(doc(p("ab<caret>"), p("cd")));
 
