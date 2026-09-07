@@ -4,6 +4,7 @@ import type { Selection } from "prosemirror-state";
 import stringifyObject from "stringify-object";
 
 import { stringifyObjectOptions } from "./stringifyMark";
+import { containsRTL } from "./typing/direction";
 
 type Markers = Map<number, string>;
 
@@ -27,7 +28,8 @@ export function stringifyProseMirrorNode(
 }
 
 function escapeText(text: string): string {
-  return text.replace(/[\p{Cc}'\\]/gu, (char) => {
+  // `\p{Cf}` (format) and `\p{Cc}` (control) are invisible characters
+  return text.replace(/[\p{Cc}\p{Cf}'\\]/gu, (char) => {
     switch (char) {
       case "\f":
         return "\\f";
@@ -58,13 +60,23 @@ function quoteWithMarkers(
     .filter(([pos]) => pos >= start && pos <= start + text.length)
     .sort(([a], [b]) => a - b);
 
-  let raw = text;
-  for (const [pos, notation] of inside.reverse()) {
+  // A marker is LTR text spliced into the source; in right-to-left text it would
+  // visually reorder the surrounding characters, so wrap it in U+2066 LRI ...
+  // U+2069 PDI to pin it in place.
+  const wrapMarker = containsRTL(text)
+    ? (notation: string): string => `\u2066${notation}\u2069`
+    : (notation: string): string => notation;
+
+  let quoted = "";
+  let last = 0;
+  for (const [pos, notation] of inside) {
     markers.delete(pos);
     const offset = pos - start;
-    raw = `${raw.slice(0, offset)}${notation}${raw.slice(offset)}`;
+    quoted += escapeText(text.slice(last, offset)) + wrapMarker(notation);
+    last = offset;
   }
-  return `'${escapeText(raw)}'`;
+  quoted += escapeText(text.slice(last));
+  return `'${quoted}'`;
 }
 
 // `contentStart` is the absolute document position of the start of `node`'s
