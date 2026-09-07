@@ -256,6 +256,15 @@ describe("selection markers", () => {
     );
   });
 
+  test("markers in right-to-left text are wrapped in bidi isolates", () => {
+    const tree = doc(p("אבג"));
+    const selection = TextSelection.create(tree, 3);
+
+    expect(stringifyProseMirrorNode(tree, selection)).toBe(
+      "doc(\n  paragraph('אב\u2066<cursor>\u2069ג'),\n)",
+    );
+  });
+
   test("markers order by position, not by anchor/head role", () => {
     const tree = doc(p("foobar"));
     const selection = TextSelection.create(tree, 7, 4);
