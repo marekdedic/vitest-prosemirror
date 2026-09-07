@@ -5,6 +5,17 @@ import stringifyObject from "stringify-object";
 
 type Markers = Map<number, string>;
 
+// Shared across every `stringify-object` call so attrs (on nodes, on marks
+// wrapping content, and on standalone stored marks) all format identically.
+const stringifyObjectOptions = { indent: "  ", inlineCharacterLimit: 1000 };
+
+// Renders a single mark in standalone form — `name` or `name({attrs})` — as used
+// for stored marks. Distinct from `wrapMarks`, which wraps content: `name(content)`.
+export const stringifyMark = (mark: Mark): string =>
+  Object.keys(mark.attrs).length > 0
+    ? `${mark.type.name}(${stringifyObject(mark.attrs, stringifyObjectOptions)})`
+    : mark.type.name;
+
 export function stringifyProseMirrorNode(
   node: Node,
   selection?: Selection,
@@ -111,9 +122,7 @@ function renderElement(
   };
 
   if (hasAttrs) {
-    pushArg(
-      stringifyObject(node.attrs, { indent: "  ", inlineCharacterLimit: 1000 }),
-    );
+    pushArg(stringifyObject(node.attrs, stringifyObjectOptions));
   }
 
   if (!node.type.isLeaf) {
@@ -173,12 +182,7 @@ function wrapMarks(marks: ReadonlyArray<Mark>, origContent: string): string {
     const items: Array<string> = [content];
 
     if (hasAttrs) {
-      items.unshift(
-        stringifyObject(mark.attrs, {
-          indent: "  ",
-          inlineCharacterLimit: 1000,
-        }),
-      );
+      items.unshift(stringifyObject(mark.attrs, stringifyObjectOptions));
     }
 
     content = `${mark.type.name}(${items.join(", ")})`;

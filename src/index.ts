@@ -3,9 +3,11 @@ import type { EditorState } from "prosemirror-state";
 
 import { afterEach, expect } from "vitest";
 
+import { isEditorState } from "./isEditorState";
 import { isProseMirrorNode } from "./isProseMirrorNode";
 import { cleanupTesters, ProseMirrorTester } from "./ProseMirrorTester";
 import { resolveSelection, type TesterSelection } from "./selection";
+import { stringifyEditorState } from "./stringifyEditorState";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
 export type { Clipboard } from "./clipboard/copy";
@@ -99,4 +101,18 @@ expect.addSnapshotSerializer({
       indentation.length,
     ),
   test: isProseMirrorNode,
+});
+
+expect.addSnapshotSerializer({
+  // Same leading-prefix trim as the node serializer above
+  serialize: (
+    val: EditorState | ProseMirrorTester,
+    _config,
+    indentation,
+  ): string => {
+    const state = val instanceof ProseMirrorTester ? val.state : val;
+    return stringifyEditorState(state, indentation).slice(indentation.length);
+  },
+  test: (val: unknown): boolean =>
+    val instanceof ProseMirrorTester || isEditorState(val),
 });
