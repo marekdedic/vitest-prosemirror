@@ -7,6 +7,7 @@ import { ClipboardEventMock } from "./ClipboardEventMock";
 import { DataTransferMock } from "./DataTransferMock";
 
 export interface PasteContent {
+  files?: Array<File>;
   html?: string;
   plainText?: boolean;
   text?: string;
@@ -45,9 +46,9 @@ const normalize = (view: EditorView, content: PasteInput): PasteContent => {
 
 // Dispatches a real paste event through view.dom, exercising the full browser path.
 export const paste = (view: EditorView, content: PasteInput): void => {
-  const { html, plainText, text } = normalize(view, content);
+  const { files, html, plainText, text } = normalize(view, content);
 
-  const data = new DataTransferMock();
+  const data = new DataTransferMock(files);
   if (text !== undefined) {
     data.setData("text/plain", text);
   }

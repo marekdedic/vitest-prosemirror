@@ -4,7 +4,7 @@ import { Plugin } from "prosemirror-state";
 import { describe, expect, test, vi } from "vitest";
 
 import { ProseMirrorTester } from "../../src/index";
-import { doc, em, p, strong } from "../builders";
+import { doc, em, img, p, strong } from "../builders";
 
 describe("paste", () => {
   test("should paste plain text at the selection", () => {
@@ -75,6 +75,37 @@ describe("paste", () => {
 
     expect(handlePaste.mock.calls).toHaveLength(1);
     expect(testEditor.doc).toEqualProseMirrorNode(doc(p("intercepted")));
+  });
+
+  test("should carry pasted files to handlePaste", () => {
+    expect.hasAssertions();
+
+    const file = new File(["bytes"], "cat.png", { type: "image/png" });
+    const handlePaste = vi.fn(
+      (view: EditorView, event: ClipboardEvent): boolean => {
+        const pasted = event.clipboardData?.files[0];
+
+        expect(pasted).toBe(file);
+        expect(event.clipboardData?.items[0].getAsFile()).toBe(file);
+        expect(event.clipboardData?.types).toContain("Files");
+
+        view.dispatch(
+          view.state.tr.replaceSelectionWith(
+            view.state.schema.nodes["image"].create({ src: pasted?.name }),
+          ),
+        );
+        return true;
+      },
+    );
+    const testEditor = new ProseMirrorTester(doc(p()), { handlePaste });
+    testEditor.selectText("start");
+
+    testEditor.paste({ files: [file] });
+
+    expect(handlePaste.mock.calls).toHaveLength(1);
+    expect(testEditor.doc).toEqualProseMirrorNode(
+      doc(p(img({ src: "cat.png" }))),
+    );
   });
 
   test("should apply transformPastedHTML", () => {
