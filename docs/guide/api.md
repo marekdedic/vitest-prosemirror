@@ -189,7 +189,8 @@ editor.selectText({ anchor: "a", head: "b" });
 ## `parseHTML`
 
 A standalone, model-level helper (no tester or `EditorView` involved) for testing
-a schema's `parseDOM` rules.
+a schema's `parseDOM` rules. See
+[Testing parse rules](/guide/testing-parse-rules) for a walkthrough.
 
 ```ts
 import { parseHTML } from "vitest-prosemirror";

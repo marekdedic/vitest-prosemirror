@@ -27,6 +27,7 @@ export default defineConfig({
           { link: "/guide/simulating-input", text: "Simulating input" },
           { link: "/guide/node-views-and-dom", text: "Node views & the DOM" },
           { link: "/guide/assertions", text: "Assertions & snapshots" },
+          { link: "/guide/testing-parse-rules", text: "Testing parse rules" },
           {
             link: "/guide/migrating-from-jest-prosemirror",
             text: "Migrating from jest-prosemirror",
