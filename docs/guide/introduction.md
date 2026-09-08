@@ -47,8 +47,8 @@ test("typing inserts text at the caret", () => {
 ## What it is not
 
 - **Not a headless model harness.** It needs a DOM, so your Vitest
-  [environment](https://vitest.dev/config/#environment) must be `jsdom` (or
-  `happy-dom`). It is meant for editor-behaviour tests, not for exercising a
+  [environment](https://vitest.dev/config/#environment) must be `jsdom`. It is
+  meant for editor-behaviour tests, not for exercising a
   schema in isolation — though the standalone
   [`parseHTML`](/guide/testing-parse-rules) helper covers testing `parseDOM`
   rules without a view.

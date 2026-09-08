@@ -11,7 +11,7 @@ run). This page covers both.
 
 Swap the test-time dependency and point Vitest at a DOM environment:
 
-- Use the `jsdom` (or `happy-dom`)
+- Use the `jsdom`
   [environment](https://vitest.dev/config/#environment) — the tester mounts a real
   `EditorView`, so it needs a DOM.
 - Register the package from a
