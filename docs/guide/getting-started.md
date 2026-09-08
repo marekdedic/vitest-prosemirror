@@ -1,15 +1,18 @@
 # Getting started
 
-`vitest-prosemirror` lets you write Vitest tests that drive a real ProseMirror
-`EditorView` running inside jsdom. Because it exercises ProseMirror's real input
-path — DOM events, transactions, plugins and node views — your tests behave the
-way the editor does in the browser.
+This page gets `vitest-prosemirror` installed and walks you through a first test.
+For *why* it drives a real editor rather than the document model, see the
+[Introduction](/guide/introduction).
 
 ## Installation
 
 ```sh
-npm install --save-dev vitest-prosemirror
+npm install --save-dev vitest-prosemirror prosemirror-test-builder
 ```
+
+[`prosemirror-test-builder`](https://github.com/ProseMirror/prosemirror-test-builder)
+is what the examples throughout this guide use to write documents concisely
+(`doc(p("…"))`); it's optional, but recommended.
 
 The package uses jsdom, so make sure your Vitest config uses the `jsdom`
 environment:
@@ -43,40 +46,35 @@ export default defineConfig({
 
 ## Your first test
 
-Build a starting document from your schema, hand it to a `ProseMirrorTester`,
-and drive it like a user:
+Build a starting document, hand it to a `ProseMirrorTester`, and drive it like a
+user:
 
 ```ts
-import { schema } from "prosemirror-schema-basic";
+import { doc, p } from "prosemirror-test-builder";
 import { ProseMirrorTester } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 test("typing inserts text at the selection", () => {
-  const editor = new ProseMirrorTester(
-    schema.node("doc", null, [
-      schema.node("paragraph", null, [schema.text("Hello")]),
-    ]),
-  );
+  const editor = new ProseMirrorTester(doc(p("Hello")));
 
   editor.selectText("end");
   editor.insertText(" world");
 
-  expect(editor.doc).toEqualProseMirrorNode(
-    schema.node("doc", null, [
-      schema.node("paragraph", null, [schema.text("Hello world")]),
-    ]),
-  );
+  expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 });
 ```
 
 `selectText` positions the caret before you type — here at the end of the
-document. See [selections](/guide/api#selections) in the API reference for every
+document. See
+[describing selections](/guide/writing-a-test#describing-selections) for every
 form it accepts.
 
 ## What next?
 
-- Read the [API reference](/guide/api) for the full `ProseMirrorTester` surface,
-  the custom matchers, and the standalone helpers.
-- The tester passes any `EditorProps` straight through to the underlying
-  `EditorView`, so `nodeViews`, `markViews`, `handleDOMEvents`, `editable` and
-  the rest work exactly as in production.
+- [Writing a test](/guide/writing-a-test) — building documents, the tester's
+  lifecycle, and selections in depth.
+- [Simulating input](/guide/simulating-input) — typing and key syntax, commands,
+  input rules, and the clipboard.
+- [Assertions & snapshots](/guide/assertions) — the matchers and snapshot
+  serializers you'll assert with.
+- [API reference](/guide/api) — the full `ProseMirrorTester` surface in one place.

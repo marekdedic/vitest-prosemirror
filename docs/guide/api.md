@@ -18,8 +18,9 @@ new ProseMirrorTester(documentRoot: Node, options?: Partial<Options>)
 ```
 
 - `documentRoot` — the starting document, typically built with
-  `prosemirror-test-builder`. Any selection tags (`<cursor>`, `<start>`, …) on
-  it are honoured.
+  `prosemirror-test-builder`. Any selection tags (`<cursor>`, `<a>`, …) on it are
+  recorded but do **not** set the initial selection — apply one with
+  [`selectText`](#selections) (e.g. `selectText("cursor")`).
 - `options` — `Options` (see below), all fields optional.
 
 ### Options
