@@ -18,8 +18,9 @@ new ProseMirrorTester(documentRoot: Node, options?: Partial<Options>)
 ```
 
 - `documentRoot` — the starting document, typically built with
-  `prosemirror-test-builder`. Any selection tags (`<cursor>`, `<start>`, …) on
-  it are honoured.
+  `prosemirror-test-builder`. Any selection tags (`<cursor>`, `<a>`, …) on it are
+  recorded but do **not** set the initial selection — apply one with
+  [`selectText`](#selections) (e.g. `selectText("cursor")`).
 - `options` — `Options` (see below), all fields optional.
 
 ### Options
@@ -59,13 +60,15 @@ desync ProseMirror's document view.
 #### `insertText(text: string): void`
 
 Types `text` into the editor at the current selection, driving ProseMirror's
-real input path. Accepts plain characters as well as
-[testing-library-style](https://testing-library.com/docs/user-event/keyboard/)
-key strings such as `{Enter}`, `{Backspace}`, `{ArrowLeft}` and `[KeyA]`.
+real input path. Plain characters are typed literally; special keys and chords go
+in `{…}` or `[…]` groups (`{Enter}`, `{Mod-b}`, `[KeyA]`).
 
 ```ts
 editor.insertText("Hello{Enter}world");
 ```
+
+See [Simulating input](/guide/simulating-input#typing) for the full key syntax
+and which keys are supported.
 
 #### `selectText(selection: TesterSelection): void`
 
@@ -86,9 +89,27 @@ editor.command(toggleMark(schema.marks.strong));
 
 Dispatches a real `paste` event through the DOM, running the full paste path
 (`handlePaste`, `transformPasted*`, the clipboard parsers and the paste
-transaction metadata). `content` may be a string, a ProseMirror `Node`, or an
-object `{ text?, html?, plainText?, files? }` — `files` carries pasted images as
-real `File`s.
+transaction metadata).
+
+`PasteInput` is one of three forms:
+
+```ts
+type PasteInput = string | Node | PasteContent;
+```
+
+- a `string` — pasted as `text/plain`;
+- a ProseMirror `Node` — serialized to clipboard HTML and text, exactly as the
+  copy handler would;
+- a `PasteContent` object, which sets the clipboard flavours explicitly:
+
+```ts
+interface PasteContent {
+  text?: string; // the text/plain flavour
+  html?: string; // the text/html flavour
+  files?: File[]; // pasted files such as images, as real File objects
+  plainText?: boolean; // force the plain-text paste path, as if Shift were held
+}
+```
 
 #### `copy(): Clipboard`
 
@@ -110,11 +131,11 @@ ProseMirror's `mousedown` handler bails before those props run.
 #### `element(selector: string): HTMLElement`
 
 Returns the first element matching `selector` within the editor DOM, throwing
-(and naming the selector) on a miss.
+on a miss.
 
 #### `elements(selector: string): HTMLElement[]`
 
-Returns all matching elements — absence is a `length` of `0`.
+Returns all matching elements — or an empty array when there are none.
 
 #### `destroy(): void`
 
@@ -145,8 +166,8 @@ expect(editor).toHaveSelection({ anchor: 1, head: 6 });
 
 ## Selections
 
-A `TesterSelection` — accepted by `selectText`, `toHaveSelection` and internally
-— can be any of:
+A `TesterSelection` — accepted by `selectText` and `toHaveSelection` — can be any
+of:
 
 | Form                          | Meaning                                                    |
 | ----------------------------- | ---------------------------------------------------------- |
@@ -168,7 +189,8 @@ editor.selectText({ anchor: "a", head: "b" });
 ## `parseHTML`
 
 A standalone, model-level helper (no tester or `EditorView` involved) for testing
-a schema's `parseDOM` rules.
+a schema's `parseDOM` rules. See
+[Testing parse rules](/guide/testing-parse-rules) for a walkthrough.
 
 ```ts
 import { parseHTML } from "vitest-prosemirror";
