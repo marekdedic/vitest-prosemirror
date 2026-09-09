@@ -2,12 +2,12 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { TextSelection } from "prosemirror-state";
 import { expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/index";
+import { type ProseMirrorEditor, renderProseMirror } from "../src/index";
 import { doc, p } from "./builders";
 
-const makeTester = (text = "Hello World"): ProseMirrorTester => {
+const makeTester = (text = "Hello World"): ProseMirrorEditor => {
   const testDoc = doc(text === "" ? p() : p(text));
-  return new ProseMirrorTester(testDoc);
+  return renderProseMirror(testDoc);
 };
 
 test("state exposes the current EditorState", () => {

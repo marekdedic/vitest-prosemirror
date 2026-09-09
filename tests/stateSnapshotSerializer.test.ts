@@ -3,12 +3,12 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { AllSelection, NodeSelection } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/ProseMirrorTester";
+import { renderProseMirror } from "../src/renderProseMirror";
 import { doc, hr, p } from "./builders";
 
 describe("state snapshot serializer", () => {
   test("serializes a text selection with inline markers and a kind line", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
     t.setSelection({ anchor: 4, head: 7 });
 
     expect(t.state).toMatchInlineSnapshot(`
@@ -20,7 +20,7 @@ describe("state snapshot serializer", () => {
   });
 
   test("accepts the tester itself", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
     t.setSelection({ anchor: 4, head: 7 });
 
     expect(t).toMatchInlineSnapshot(`
@@ -32,7 +32,7 @@ describe("state snapshot serializer", () => {
   });
 
   test("renders a collapsed cursor with a single marker", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
     t.setSelection(4);
 
     expect(t.state).toMatchInlineSnapshot(`
@@ -45,7 +45,7 @@ describe("state snapshot serializer", () => {
 
   test("names an AllSelection whose markers span the whole doc", () => {
     const d = doc(p("foobar"));
-    const t = new ProseMirrorTester(d);
+    const t = renderProseMirror(d);
     t.setSelection(new AllSelection(d));
 
     expect(t.state).toMatchInlineSnapshot(`
@@ -60,7 +60,7 @@ describe("state snapshot serializer", () => {
 
   test("names a NodeSelection", () => {
     const d = doc(p("foo"), hr());
-    const t = new ProseMirrorTester(d);
+    const t = renderProseMirror(d);
     t.setSelection(NodeSelection.create(d, 5));
 
     expect(t.state).toMatchInlineSnapshot(`
@@ -75,7 +75,7 @@ describe("state snapshot serializer", () => {
   });
 
   test("renders stored marks", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
     t.setSelection(4);
     t.command(toggleMark(basicSchema.marks.strong));
 
@@ -89,7 +89,7 @@ describe("state snapshot serializer", () => {
   });
 
   test("renders stored marks losslessly, including attrs", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
     t.setSelection(4);
     t.command((state, dispatch) => {
       dispatch?.(
@@ -110,7 +110,7 @@ describe("state snapshot serializer", () => {
   });
 
   test("omits the stored-marks line for an empty editor (storedMarks null)", () => {
-    const t = new ProseMirrorTester(doc(p("foobar")));
+    const t = renderProseMirror(doc(p("foobar")));
 
     expect(t.state.storedMarks).toBeNull();
     expect(t.state).toMatchInlineSnapshot(`

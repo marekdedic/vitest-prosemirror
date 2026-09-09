@@ -2,14 +2,14 @@ import { toggleMark, wrapIn } from "prosemirror-commands";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/index";
+import { renderProseMirror } from "../src/index";
 import { doc, p, strong } from "./builders";
 
 describe("command", () => {
   test("should apply a command and return true", () => {
     const initialDoc = doc(p("<selStart>some<selEnd> text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
@@ -23,7 +23,7 @@ describe("command", () => {
   test("should return false and leave the document unchanged when the command does not apply", () => {
     const initialDoc = doc(p("<selStart>some<selEnd> text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
@@ -39,7 +39,7 @@ describe("command", () => {
   test("should see state produced by an earlier mutation", () => {
     const initialDoc = doc(p("some text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.type("x");
     testEditor.setSelection("all");
@@ -54,7 +54,7 @@ describe("command", () => {
   test("should pass the view to the command", () => {
     const initialDoc = doc(p("some text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     let receivedView = false;
     testEditor.command((_state, _dispatch, view) => {
@@ -68,7 +68,7 @@ describe("command", () => {
   test("should throw when the tester has been destroyed", () => {
     const initialDoc = doc(p("some text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.destroy();
 
     expect(() =>

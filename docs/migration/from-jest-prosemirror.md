@@ -49,11 +49,11 @@ the next section):
 
 ```ts
 import { doc, p } from "prosemirror-test-builder";
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 test("typing inserts text", () => {
-  const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
+  const editor = renderProseMirror(doc(p("Hello<cursor>")));
 
   editor.setSelection("cursor");
   editor.type(" world");
@@ -76,7 +76,7 @@ start). You turn a tag into a selection **explicitly**, with
 [`setSelection`](/guide/writing-a-test#describing-selections):
 
 ```ts
-const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
+const editor = renderProseMirror(doc(p("Hello<cursor>")));
 
 editor.setSelection("cursor"); // ← without this, typing lands at the start
 editor.type("!");
@@ -91,7 +91,7 @@ on.
 
 | jest-prosemirror                     | vitest-prosemirror                                        |
 | ------------------------------------ | --------------------------------------------------------- |
-| `createEditor(doc, options)`         | `new ProseMirrorTester(doc, options)`                     |
+| `createEditor(doc, options)`         | `renderProseMirror(doc, options)`                         |
 | `.insertText("x")`                   | `editor.type("x")`                                  |
 | `.press("Enter")`                    | `editor.type("{Enter}")`                            |
 | `.shortcut("Mod-b")`                 | `editor.type("{Mod-b}")`                            |
@@ -99,7 +99,7 @@ on.
 | `.command(cmd)`                      | `editor.command(cmd)`                                     |
 | `.paste(content)`                    | `editor.paste(content)`                                   |
 | `.fire({ event: "click", … })`       | `editor.click(target)`                                    |
-| `.overwrite(doc)`                    | construct a new `ProseMirrorTester`                       |
+| `.overwrite(doc)`                    | call `renderProseMirror` again                            |
 | `.callback((c) => c.state…)`         | read `editor.state` / `editor.doc` directly               |
 | `doc`, `p` from `jest-prosemirror`   | `doc`, `p` from `prosemirror-test-builder`                |
 

@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, p, strong } from "../builders";
 
 describe("copy", () => {
   test("should serialise the selection to html and text", () => {
-    const testEditor = new ProseMirrorTester(doc(p("hello ", strong("world"))));
+    const testEditor = renderProseMirror(doc(p("hello ", strong("world"))));
     testEditor.setSelection("all");
 
     const { html, text } = testEditor.copy();
@@ -15,11 +15,11 @@ describe("copy", () => {
   });
 
   test("should round-trip through paste", () => {
-    const source = new ProseMirrorTester(doc(p("a", strong("b"))));
+    const source = renderProseMirror(doc(p("a", strong("b"))));
     source.setSelection("all");
     const clipboard = source.copy();
 
-    const target = new ProseMirrorTester(doc(p()));
+    const target = renderProseMirror(doc(p()));
     target.setSelection("start");
     target.paste(clipboard);
 

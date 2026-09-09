@@ -7,7 +7,7 @@ import {
 } from "prosemirror-model";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/index";
+import { renderProseMirror } from "../src/index";
 
 const schema = new Schema({
   nodes: {
@@ -84,7 +84,7 @@ const makeDoc = (): ProseMirrorNode =>
 
 describe("element()", () => {
   test("returns the matching element", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     const el = testEditor.element("div.todo");
 
@@ -93,7 +93,7 @@ describe("element()", () => {
   });
 
   test("throws naming the selector on a miss", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     expect(() => testEditor.element("div.missing")).toThrow("div.missing");
   });
@@ -101,7 +101,7 @@ describe("element()", () => {
 
 describe("elements()", () => {
   test("returns an array of all matches", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     const boxes = testEditor.elements('input[type="checkbox"]');
 
@@ -110,7 +110,7 @@ describe("elements()", () => {
   });
 
   test("returns an empty array when nothing matches", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     expect(testEditor.elements("span.missing")).toHaveLength(0);
   });
@@ -118,7 +118,7 @@ describe("elements()", () => {
 
 describe("click()", () => {
   test("clicking the second checkbox toggles only the second item", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     const boxes = testEditor.elements('input[type="checkbox"]');
     testEditor.click(boxes[1]);
@@ -128,13 +128,13 @@ describe("click()", () => {
   });
 
   test("returns whether the default was prevented", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     expect(testEditor.click('input[type="checkbox"]')).toBe(true);
   });
 
   test("accepts a selector as well as an element", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     testEditor.click('input[type="checkbox"]');
 
@@ -143,7 +143,7 @@ describe("click()", () => {
 
   test("propagates to handleDOMEvents on view.dom", () => {
     let clicked = false;
-    const testEditor = new ProseMirrorTester(makeDoc(), {
+    const testEditor = renderProseMirror(makeDoc(), {
       handleDOMEvents: {
         click: (): boolean => {
           clicked = true;
@@ -159,7 +159,7 @@ describe("click()", () => {
   });
 
   test("clicking a detached element hits the getPos() === undefined guard", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
 
     const box = testEditor.elements('input[type="checkbox"]')[0];
 
@@ -176,7 +176,7 @@ describe("click()", () => {
   });
 
   test("throws when a handleClick prop is configured", () => {
-    const testEditor = new ProseMirrorTester(makeDoc(), {
+    const testEditor = renderProseMirror(makeDoc(), {
       handleClick: (): boolean => false,
       nodeViews,
     });

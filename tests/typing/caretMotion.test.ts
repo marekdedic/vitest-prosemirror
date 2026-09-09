@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, p } from "../builders";
 
 describe("caret motion", () => {
   const initialDoc = doc(p("H<selStart>e<caret>l<selEnd>lo"));
 
   test("should move the caret left", () => {
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("{ArrowLeft}x");
@@ -18,7 +18,7 @@ describe("caret motion", () => {
   });
 
   test("should move the caret right", () => {
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowRight}x");
@@ -29,7 +29,7 @@ describe("caret motion", () => {
   });
 
   test("should collapse a non-empty selection", () => {
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{ArrowLeft}x");
@@ -40,7 +40,7 @@ describe("caret motion", () => {
   });
 
   test("should step over a surrogate-pair emoji when moving right", () => {
-    const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
+    const testEditor = renderProseMirror(doc(p("a<caret>👍b")));
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowRight}x");
@@ -51,7 +51,7 @@ describe("caret motion", () => {
   });
 
   test("should step over a surrogate-pair emoji when moving left", () => {
-    const testEditor = new ProseMirrorTester(doc(p("a👍<caret>b")));
+    const testEditor = renderProseMirror(doc(p("a👍<caret>b")));
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowLeft}x");
@@ -63,7 +63,7 @@ describe("caret motion", () => {
 
   test("should step over a combining sequence in one keypress", () => {
     // Decomposed "e" + combining acute (U+0301): two code units, one grapheme.
-    const testEditor = new ProseMirrorTester(doc(p("a<caret>éb")));
+    const testEditor = renderProseMirror(doc(p("a<caret>éb")));
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowRight}x");
@@ -74,7 +74,7 @@ describe("caret motion", () => {
   });
 
   test("should step over a ZWJ emoji sequence in one keypress", () => {
-    const testEditor = new ProseMirrorTester(doc(p("a<caret>👨‍👩‍👧b")));
+    const testEditor = renderProseMirror(doc(p("a<caret>👨‍👩‍👧b")));
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowRight}x");
@@ -85,7 +85,7 @@ describe("caret motion", () => {
   });
 
   test("should stay put at the start of the document", () => {
-    const testEditor = new ProseMirrorTester(doc(p("Hello")));
+    const testEditor = renderProseMirror(doc(p("Hello")));
 
     testEditor.setSelection("start");
     testEditor.type("{ArrowLeft}x");
@@ -96,7 +96,7 @@ describe("caret motion", () => {
   });
 
   test("should cross a block boundary from the end of a text node", () => {
-    const testEditor = new ProseMirrorTester(doc(p("ab<caret>"), p("cd")));
+    const testEditor = renderProseMirror(doc(p("ab<caret>"), p("cd")));
 
     testEditor.setSelection("caret");
     testEditor.type("{ArrowRight}x");

@@ -135,13 +135,13 @@ trigger:
 import { InputRule, inputRules } from "prosemirror-inputrules";
 import { schema } from "prosemirror-schema-basic";
 import { builders } from "prosemirror-test-builder";
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 const { doc, paragraph: p } = builders(schema);
 
 test("typing !! runs the input rule", () => {
-  const editor = new ProseMirrorTester(doc(p("Hello World<cursor>")), {
+  const editor = renderProseMirror(doc(p("Hello World<cursor>")), {
     plugins: [
       inputRules({
         rules: [
@@ -196,7 +196,7 @@ instead:
 ```ts
 import { keymap } from "prosemirror-keymap";
 
-const editor = new ProseMirrorTester(doc(p("<a>some text<b>")), {
+const editor = renderProseMirror(doc(p("<a>some text<b>")), {
   plugins: [keymap({ "Mod-b": toggleMark(schema.marks.strong) })],
 });
 

@@ -3,6 +3,37 @@
 The 1.0 release changes the public API. It contains breaking changes, each with
 a mechanical migration. This page lists them.
 
+## `new ProseMirrorTester(...)` is now `renderProseMirror(...)`
+
+The `ProseMirrorTester` class and its `new` constructor have been replaced by a
+`renderProseMirror` factory function, matching the verb-named `render` idiom of
+Testing Library and jest-prosemirror's `createEditor`. It returns a
+`ProseMirrorEditor` — an interface, so the public contract is decoupled from the
+implementation class, which is now internal.
+
+```ts
+// before
+import { ProseMirrorTester } from "vitest-prosemirror";
+
+const editor = new ProseMirrorTester(doc(p("Hello<cursor>")), { plugins });
+
+// after
+import { renderProseMirror } from "vitest-prosemirror";
+
+const editor = renderProseMirror(doc(p("Hello<cursor>")), { plugins });
+```
+
+The arguments, options and returned editor are unchanged; `autoCleanup` and the
+automatic `afterEach` teardown behave exactly as before. Where you referenced the
+`ProseMirrorTester` type (e.g. a helper's return type), use `ProseMirrorEditor`
+instead:
+
+```ts
+// codemod-friendly find & replace
+- new ProseMirrorTester(
++ renderProseMirror(
+```
+
 ## `insertText` is now `type`
 
 The tester method `insertText` has been renamed to `type`.

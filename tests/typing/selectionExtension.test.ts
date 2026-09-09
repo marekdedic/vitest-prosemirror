@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, p } from "../builders";
 
 describe("selection extension", () => {
   test("should extend the selection forward from a caret", () => {
-    const testEditor = new ProseMirrorTester(doc(p("H<caret>ello")));
+    const testEditor = renderProseMirror(doc(p("H<caret>ello")));
 
     testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}");
@@ -15,7 +15,7 @@ describe("selection extension", () => {
   });
 
   test("should extend the selection backward from a caret", () => {
-    const testEditor = new ProseMirrorTester(doc(p("He<caret>llo")));
+    const testEditor = renderProseMirror(doc(p("He<caret>llo")));
 
     testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowLeft}");
@@ -25,7 +25,7 @@ describe("selection extension", () => {
   });
 
   test("should extend over a whole grapheme cluster", () => {
-    const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
+    const testEditor = renderProseMirror(doc(p("a<caret>👍b")));
 
     testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}");
@@ -40,7 +40,7 @@ describe("selection extension", () => {
   });
 
   test("should shrink the selection when the head moves back", () => {
-    const testEditor = new ProseMirrorTester(doc(p("Hello")));
+    const testEditor = renderProseMirror(doc(p("Hello")));
 
     testEditor.setSelection({ anchor: 2, head: 4 });
     testEditor.type("{Shift-ArrowLeft}");
@@ -50,7 +50,7 @@ describe("selection extension", () => {
   });
 
   test("should replace the range built by repeated extension", () => {
-    const testEditor = new ProseMirrorTester(doc(p("<caret>Hello")));
+    const testEditor = renderProseMirror(doc(p("<caret>Hello")));
 
     testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}{Shift-ArrowRight}x");
@@ -59,7 +59,7 @@ describe("selection extension", () => {
   });
 
   test("should throw for word motion and word extension", () => {
-    const testEditor = new ProseMirrorTester(doc(p("Hello")));
+    const testEditor = renderProseMirror(doc(p("Hello")));
     testEditor.setSelection("start");
 
     expect(() => {

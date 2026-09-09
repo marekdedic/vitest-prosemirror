@@ -3,6 +3,8 @@ import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { type Command, EditorState } from "prosemirror-state";
 import { type DirectEditorProps, EditorView } from "prosemirror-view";
 
+import type { ProseMirrorEditor } from "./ProseMirrorEditor";
+
 import { type Clipboard, copy } from "./clipboard/copy";
 import { paste, type PasteInput } from "./clipboard/paste";
 import { click, element, elements } from "./domInteraction";
@@ -19,18 +21,18 @@ export interface Options extends Omit<
 }
 
 const originalMutationObserver = global.MutationObserver;
-// All undestroyed testers, driving the MutationObserver refcount.
-const liveTesters = new Set<ProseMirrorTester>();
-// The subset the afterEach hook destroys -- opt-out testers stay out of it.
-const autoCleanupTesters = new Set<ProseMirrorTester>();
+// All undestroyed editors, driving the MutationObserver refcount.
+const liveEditors = new Set<ProseMirrorEditorImpl>();
+// The subset the afterEach hook destroys -- opt-out editors stay out of it.
+const autoCleanupEditors = new Set<ProseMirrorEditorImpl>();
 
-export const cleanupTesters = (): void => {
-  for (const tester of [...autoCleanupTesters]) {
-    tester.destroy();
+export const cleanupEditors = (): void => {
+  for (const editor of [...autoCleanupEditors]) {
+    editor.destroy();
   }
 };
 
-export class ProseMirrorTester {
+export class ProseMirrorEditorImpl implements ProseMirrorEditor {
   public get doc(): ProseMirrorNode {
     this.assertAlive();
     return this.view.state.doc;
@@ -81,9 +83,9 @@ export class ProseMirrorTester {
       ...editorProps,
     });
 
-    liveTesters.add(this);
+    liveEditors.add(this);
     if (autoCleanup) {
-      autoCleanupTesters.add(this);
+      autoCleanupEditors.add(this);
     }
   }
 
@@ -114,9 +116,9 @@ export class ProseMirrorTester {
     this.view.destroy();
     this.mountPoint.remove();
     document.getSelection()?.removeAllRanges();
-    autoCleanupTesters.delete(this);
-    liveTesters.delete(this);
-    if (liveTesters.size === 0) {
+    autoCleanupEditors.delete(this);
+    liveEditors.delete(this);
+    if (liveEditors.size === 0) {
       global.MutationObserver = originalMutationObserver;
     }
   }
@@ -151,8 +153,19 @@ export class ProseMirrorTester {
   private assertAlive(): void {
     if (this.destroyed) {
       throw new Error(
-        "This ProseMirrorTester has been destroyed. Testers are destroyed automatically after each test; pass { autoCleanup: false } to keep one alive (e.g. across a beforeAll).",
+        "This ProseMirror editor has been destroyed. Editors are destroyed automatically after each test; pass { autoCleanup: false } to keep one alive (e.g. across a beforeAll).",
       );
     }
   }
 }
+
+/**
+ * Mount a ProseMirror `EditorView` on a jsdom node and return a
+ * {@link ProseMirrorEditor} handle for driving it. Installs the mocks the
+ * tester relies on (`MutationObserver`, range rects) and registers the editor
+ * for automatic cleanup after each test unless `autoCleanup: false` is passed.
+ */
+export const renderProseMirror = (
+  documentRoot: ProseMirrorNode,
+  options: Partial<Options> = {},
+): ProseMirrorEditor => new ProseMirrorEditorImpl(documentRoot, options);
