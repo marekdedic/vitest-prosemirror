@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     lib: {
-      entry: "src/index",
+      entry: { index: "src/index" },
       formats: ["es"],
     },
     minify: false,
@@ -28,9 +28,9 @@ export default defineConfig({
     dts({ bundleTypes: true }),
     {
       closeBundle: (): void => {
-        let file = readFileSync("dist/vitest-prosemirror.d.ts", "utf8");
+        let file = readFileSync("dist/index.d.ts", "utf8");
         file = `import 'vitest';\n${file}`;
-        writeFileSync("dist/vitest-prosemirror.d.ts", file, "utf8");
+        writeFileSync("dist/index.d.ts", file, "utf8");
       },
       name: "pure-import-fixer",
     },

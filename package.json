@@ -21,12 +21,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/vitest-prosemirror.d.ts",
-      "import": "./dist/vitest-prosemirror.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
-  "module": "dist/vitest-prosemirror.js",
-  "types": "dist/vitest-prosemirror.d.ts",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
