@@ -2,14 +2,14 @@ import { baseKeymap } from "prosemirror-commands";
 import { keymap } from "prosemirror-keymap";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { br, doc, img, p, strong } from "../builders";
 
 describe("type", () => {
   test("should insert a single character into an empty paragraph", () => {
     const initialDoc = doc(p());
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.setSelection("start");
     testEditor.type("a");
 
@@ -21,7 +21,7 @@ describe("type", () => {
   test("should insert text at the end of an existing paragraph", () => {
     const initialDoc = doc(p("Hello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.setSelection("end");
     testEditor.type(" World!");
 
@@ -33,7 +33,7 @@ describe("type", () => {
   test("should insert text in the middle of an existing paragraph", () => {
     const initialDoc = doc(p("Hello<cursor>world"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.setSelection("cursor");
     testEditor.type(" ");
 
@@ -45,7 +45,7 @@ describe("type", () => {
   test("should handle 'Enter' to split a paragraph", () => {
     const initialDoc = doc(p("Line one"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
@@ -60,7 +60,7 @@ describe("type", () => {
   test("should leave the document alone for an unhandled 'Tab'", () => {
     const initialDoc = doc(p("Hello<cursor>World!"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("cursor");
     testEditor.type("{Tab}");
@@ -71,7 +71,7 @@ describe("type", () => {
   test("should leave the document alone for a modifier key", () => {
     const initialDoc = doc(p("Hello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("{Shift}{Control}{Alt}{Meta}{CapsLock}");
@@ -86,7 +86,7 @@ describe("type", () => {
   ])("should throw for %s", (_name, input, key) => {
     const initialDoc = doc(p("Hello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
 
@@ -98,7 +98,7 @@ describe("type", () => {
   test("should throw for an arrow key with a modifier", () => {
     const initialDoc = doc(p("Hello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
 
@@ -110,7 +110,7 @@ describe("type", () => {
   test("should insert after a node that is not text", () => {
     const initialDoc = doc(p(img({ src: "image.png" })));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("a");
@@ -123,7 +123,7 @@ describe("type", () => {
   test("should insert at the start of a paragraph", () => {
     const initialDoc = doc(p("ello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.setSelection("start");
     testEditor.type("H");
 
@@ -135,7 +135,7 @@ describe("type", () => {
   test("should insert before the text following a node that is not text", () => {
     const initialDoc = doc(p(img({ src: "image.png" }), "<cursor>bc"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("cursor");
     testEditor.type("a");
@@ -148,7 +148,7 @@ describe("type", () => {
   test("should insert after a trailing hard break", () => {
     const initialDoc = doc(p("Hello", br()));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("a");
@@ -161,7 +161,7 @@ describe("type", () => {
   test("should insert into the text node the cursor is in, not the last one", () => {
     const initialDoc = doc(p(strong("a<cursor>b"), "cd"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("cursor");
     testEditor.type("x");
@@ -174,7 +174,7 @@ describe("type", () => {
   test("should replace a non-empty selection with typed text", () => {
     const initialDoc = doc(p("Hello <selStart>World<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("there");
@@ -187,7 +187,7 @@ describe("type", () => {
   test("should replace a non-empty selection with a single character", () => {
     const initialDoc = doc(p("Hello <selStart>World<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("X");
@@ -200,7 +200,7 @@ describe("type", () => {
   test("should replace a selection at the start of a text node", () => {
     const initialDoc = doc(p("<selStart>X<selEnd>ello"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("H");
@@ -213,7 +213,7 @@ describe("type", () => {
   test("should allow typing after replacing a whole paragraph's contents", () => {
     const initialDoc = doc(p("<selStart>a<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("b");
@@ -226,7 +226,7 @@ describe("type", () => {
   test("should preserve the marks when replacing a selection", () => {
     const initialDoc = doc(p(strong("a<selStart>bc<selEnd>")));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("X");
@@ -239,7 +239,7 @@ describe("type", () => {
   test("should throw when replacing a selection spanning several DOM nodes", () => {
     const initialDoc = doc(p(strong("a<selStart>b"), "c<selEnd>d"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
@@ -253,7 +253,7 @@ describe("type", () => {
   test("should throw when replacing a selection over an atom", () => {
     const initialDoc = doc(p(img({ src: "image.png" })));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: 1, head: 2 });
 

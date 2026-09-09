@@ -4,14 +4,14 @@ import { schema as basicSchema } from "prosemirror-schema-basic";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/index";
+import { renderProseMirror } from "../src/index";
 import { doc, p, strong } from "./builders";
 
 describe("setSelection", () => {
   test("should handle the 'all' selection", () => {
     const initialDoc = doc(p("first"), p("second"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         keymap({
           "Mod-b": toggleMark(basicSchema.marks.strong),
@@ -30,7 +30,7 @@ describe("setSelection", () => {
   test("should accept a ProseMirror selection object", () => {
     const initialDoc = doc(p("some text"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         keymap({
           "Mod-b": toggleMark(basicSchema.marks.strong),

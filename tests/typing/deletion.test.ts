@@ -4,14 +4,14 @@ import { keymap } from "prosemirror-keymap";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { blockquote, doc, img, p, strong } from "../builders";
 
 describe("deletion", () => {
   test("should delete the character before the cursor", () => {
     const initialDoc = doc(p("Hello <cursor>World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("cursor");
     testEditor.type("{Backspace}");
@@ -24,7 +24,7 @@ describe("deletion", () => {
   test("should delete at the end of a paragraph", () => {
     const initialDoc = doc(p("foo"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("{Backspace}{Backspace}");
@@ -37,7 +37,7 @@ describe("deletion", () => {
   test("should allow typing after emptying a paragraph", () => {
     const initialDoc = doc(p("a"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("{Backspace}b");
@@ -50,7 +50,7 @@ describe("deletion", () => {
   test("should delete the character after the cursor", () => {
     const initialDoc = doc(p("Hello<cursor> World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("cursor");
     testEditor.type("{Delete}");
@@ -63,7 +63,7 @@ describe("deletion", () => {
   test("should throw when passed the removed { from, to } form", () => {
     const initialDoc = doc(p("Hello World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     expect(() => {
       // @ts-expect-error -- { from, to } was removed in favour of { anchor, head }
@@ -74,7 +74,7 @@ describe("deletion", () => {
   test("should delete a non-empty selection", () => {
     const initialDoc = doc(p("Hello<selStart> World<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Backspace}");
@@ -87,7 +87,7 @@ describe("deletion", () => {
   test("should let 'deleteSelection' handle a non-empty selection", () => {
     const initialDoc = doc(p("Hel<selStart>lo"), p("Wo<selEnd>rld"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
@@ -102,7 +102,7 @@ describe("deletion", () => {
   test("should let 'joinBackward' handle a block boundary", () => {
     const initialDoc = doc(p("ab"), p("<cursor>cd"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
@@ -117,7 +117,7 @@ describe("deletion", () => {
   test("should let 'joinForward' handle a block boundary", () => {
     const initialDoc = doc(p("ab<cursor>"), p("cd"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
@@ -132,7 +132,7 @@ describe("deletion", () => {
   test("should lift out of a blockquote", () => {
     const initialDoc = doc(blockquote(p("<cursor>ab")));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [keymap(baseKeymap)],
     });
 
@@ -147,7 +147,7 @@ describe("deletion", () => {
   test("should undo an input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         inputRules({
           rules: [
@@ -171,7 +171,7 @@ describe("deletion", () => {
   test("should throw for an unhandled selection spanning several DOM nodes", () => {
     const initialDoc = doc(p(strong("a<selStart>b"), "c<selEnd>d"));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
@@ -185,7 +185,7 @@ describe("deletion", () => {
   test("should throw for an unhandled selection with no text to delete", () => {
     const initialDoc = doc(p(img({ src: "image.png" })));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection({ anchor: 1, head: 2 });
 
@@ -200,7 +200,7 @@ describe("deletion", () => {
   test("should let ProseMirror delete an atom before the cursor", () => {
     const initialDoc = doc(p(img({ src: "image.png" })));
 
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
 
     testEditor.setSelection("end");
     testEditor.type("{Backspace}");

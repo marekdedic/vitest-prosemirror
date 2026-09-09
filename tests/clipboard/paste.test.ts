@@ -3,12 +3,12 @@ import type { EditorView } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
 import { describe, expect, test, vi } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, em, img, p, strong } from "../builders";
 
 describe("paste", () => {
   test("should paste plain text at the selection", () => {
-    const testEditor = new ProseMirrorTester(doc(p()));
+    const testEditor = renderProseMirror(doc(p()));
     testEditor.setSelection("start");
 
     testEditor.paste("hello");
@@ -17,7 +17,7 @@ describe("paste", () => {
   });
 
   test("should parse pasted HTML into marks", () => {
-    const testEditor = new ProseMirrorTester(doc(p()));
+    const testEditor = renderProseMirror(doc(p()));
     testEditor.setSelection("start");
 
     testEditor.paste({ html: "<p>a<strong>b</strong></p>" });
@@ -26,7 +26,7 @@ describe("paste", () => {
   });
 
   test("should prefer HTML when both flavours are present", () => {
-    const testEditor = new ProseMirrorTester(doc(p()));
+    const testEditor = renderProseMirror(doc(p()));
     testEditor.setSelection("start");
 
     testEditor.paste({ html: "<p><em>rich</em></p>", text: "plain" });
@@ -35,7 +35,7 @@ describe("paste", () => {
   });
 
   test("should paste the plain-text flavour when plainText is set", () => {
-    const testEditor = new ProseMirrorTester(doc(p()));
+    const testEditor = renderProseMirror(doc(p()));
     testEditor.setSelection("start");
 
     testEditor.paste({
@@ -48,7 +48,7 @@ describe("paste", () => {
   });
 
   test("should paste a ProseMirror node", () => {
-    const testEditor = new ProseMirrorTester(doc(p()));
+    const testEditor = renderProseMirror(doc(p()));
     testEditor.setSelection("start");
 
     testEditor.paste(p("a", strong("b")));
@@ -68,7 +68,7 @@ describe("paste", () => {
         return true;
       },
     );
-    const testEditor = new ProseMirrorTester(doc(p()), { handlePaste });
+    const testEditor = renderProseMirror(doc(p()), { handlePaste });
     testEditor.setSelection("start");
 
     testEditor.paste({ html: "<p>x</p>" });
@@ -97,7 +97,7 @@ describe("paste", () => {
         return true;
       },
     );
-    const testEditor = new ProseMirrorTester(doc(p()), { handlePaste });
+    const testEditor = renderProseMirror(doc(p()), { handlePaste });
     testEditor.setSelection("start");
 
     testEditor.paste({ files: [file] });
@@ -109,7 +109,7 @@ describe("paste", () => {
   });
 
   test("should apply transformPastedHTML", () => {
-    const testEditor = new ProseMirrorTester(doc(p()), {
+    const testEditor = renderProseMirror(doc(p()), {
       transformPastedHTML: (html: string): string =>
         html.replace("world", "there"),
     });
@@ -128,7 +128,7 @@ describe("paste", () => {
         return true;
       },
     });
-    const testEditor = new ProseMirrorTester(doc(p()), {
+    const testEditor = renderProseMirror(doc(p()), {
       plugins: [recordMeta],
     });
     testEditor.setSelection("start");

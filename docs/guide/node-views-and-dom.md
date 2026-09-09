@@ -96,7 +96,7 @@ Here's the whole loop against a todo-item node view whose checkbox toggles a
 `<input>` — exactly the pattern that works with `click`:
 
 ```ts
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 // A `todo` node with a `checked` attribute, rendered by TodoView below.
@@ -104,7 +104,7 @@ import { expect, test } from "vitest";
 // click listener that dispatches a setNodeAttribute transaction.)
 
 test("clicking the second checkbox toggles only the second item", () => {
-  const editor = new ProseMirrorTester(makeDoc(), { nodeViews: { todo } });
+  const editor = renderProseMirror(makeDoc(), { nodeViews: { todo } });
 
   const boxes = editor.elements('input[type="checkbox"]');
   editor.click(boxes[1]);
@@ -127,7 +127,7 @@ The `nodeViews` option is the direct way in, but node views are also just an
 works too, and is how many real editors register them:
 
 ```ts
-new ProseMirrorTester(doc, {
+renderProseMirror(doc, {
   plugins: [new Plugin({ props: { nodeViews: { todo } } })],
 });
 ```

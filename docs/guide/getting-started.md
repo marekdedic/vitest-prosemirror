@@ -51,16 +51,16 @@ per-test cleanup is what `vitest-prosemirror/setup` does, which is why it goes i
 
 ## Your first test
 
-Build a starting document, hand it to a `ProseMirrorTester`, and drive it like a
+Build a starting document, hand it to `renderProseMirror`, and drive it like a
 user:
 
 ```ts
 import { doc, p } from "prosemirror-test-builder";
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 test("typing inserts text at the selection", () => {
-  const editor = new ProseMirrorTester(doc(p("Hello")));
+  const editor = renderProseMirror(doc(p("Hello")));
 
   editor.setSelection("end");
   editor.type(" world");
@@ -82,4 +82,4 @@ form it accepts.
   input rules, and the clipboard.
 - [Assertions & snapshots](/guide/assertions) — the matchers and snapshot
   serializers you'll assert with.
-- [API reference](/guide/api) — the full `ProseMirrorTester` surface in one place.
+- [API reference](/guide/api) — the full `renderProseMirror` surface in one place.

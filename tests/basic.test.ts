@@ -1,7 +1,7 @@
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../src/index";
+import { renderProseMirror } from "../src/index";
 
 test("Parsing a document with an extension set", () => {
   const tree = basicSchema.nodes.doc.create(
@@ -12,7 +12,7 @@ test("Parsing a document with an extension set", () => {
     ),
   );
 
-  const testEditor = new ProseMirrorTester(tree);
+  const testEditor = renderProseMirror(tree);
 
   expect(testEditor.state.schema.spec.nodes.size).toBe(9);
   expect(testEditor.state.schema.spec.marks.size).toBe(4);

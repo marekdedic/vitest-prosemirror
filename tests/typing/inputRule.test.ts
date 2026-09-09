@@ -2,14 +2,14 @@ import { InputRule, inputRules } from "prosemirror-inputrules";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, p } from "../builders";
 
 describe("input rule", () => {
   test("should handle input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         inputRules({
           rules: [
@@ -32,7 +32,7 @@ describe("input rule", () => {
   test("should handle unfinished input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         inputRules({
           rules: [
@@ -55,7 +55,7 @@ describe("input rule", () => {
   test("should handle input rule with a character after", () => {
     const initialDoc = doc(p("Hello World"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         inputRules({
           rules: [

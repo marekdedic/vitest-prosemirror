@@ -1,20 +1,21 @@
 # API reference
 
-## `ProseMirrorTester`
+## `renderProseMirror`
 
-The main entry point. Construct one with the document you want to start from and,
-optionally, the same editor props you would pass to a real `EditorView`.
+The main entry point. Call it with the document you want to start from and,
+optionally, the same editor props you would pass to a real `EditorView`. It
+returns a `ProseMirrorEditor` handle for driving the editor.
 
 ```ts
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 
-const editor = new ProseMirrorTester(doc, options);
+const editor = renderProseMirror(doc, options);
 ```
 
-### Constructor
+### Signature
 
 ```ts
-new ProseMirrorTester(documentRoot: Node, options?: Partial<Options>)
+renderProseMirror(documentRoot: Node, options?: Partial<Options>): ProseMirrorEditor
 ```
 
 - `documentRoot` — the starting document, typically built with
@@ -34,7 +35,7 @@ pass to an `EditorView` — `nodeViews`, `markViews`, `editable`, `attributes`,
 | Option        | Type      | Default | Description                                                                                     |
 | ------------- | --------- | ------- | ----------------------------------------------------------------------------------------------- |
 | `plugins`     | `Plugin[]`| `[]`    | Routed into `EditorState.create`, the only form in which plugin state works.                    |
-| `autoCleanup` | `boolean` | `true`  | When `true`, the tester is destroyed automatically in an `afterEach` hook.                      |
+| `autoCleanup` | `boolean` | `true`  | When `true`, the editor is destroyed automatically in an `afterEach` hook.                      |
 | _…any other `EditorProps`_ | | | Spread straight into the `EditorView` constructor, for full config parity with production. |
 
 `state` is excluded because it is built from the `documentRoot` argument.
@@ -159,7 +160,7 @@ expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 ### `toHaveSelection(expected: TesterSelection)`
 
 Asserts the editor's selection matches. The received value may be an
-`EditorState` or a `ProseMirrorTester`.
+`EditorState` or a `ProseMirrorEditor`.
 
 ```ts
 expect(editor).toHaveSelection({ anchor: 1, head: 6 });
@@ -183,7 +184,7 @@ Anywhere a position `number` is accepted — a bare string, or either field of
 it, read off the document's tags:
 
 ```ts
-const editor = new ProseMirrorTester(doc(p("some<a>where<b>")));
+const editor = renderProseMirror(doc(p("some<a>where<b>")));
 editor.setSelection({ anchor: "a", head: "b" });
 ```
 

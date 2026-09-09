@@ -5,12 +5,12 @@ import { afterEach, expect } from "vitest";
 
 import { isEditorState } from "./isEditorState";
 import { isProseMirrorNode } from "./isProseMirrorNode";
-import { cleanupTesters, ProseMirrorTester } from "./ProseMirrorTester";
+import { cleanupEditors, ProseMirrorEditorImpl } from "./renderProseMirror";
 import { resolveSelection, type TesterSelection } from "./selection";
 import { stringifyEditorState } from "./stringifyEditorState";
 import { stringifyProseMirrorNode } from "./stringifyProseMirrorNode";
 
-afterEach(cleanupTesters);
+afterEach(cleanupEditors);
 
 expect.extend({
   toEqualProseMirrorNode(received: Node, expected: Node) {
@@ -37,11 +37,11 @@ expect.extend({
     };
   },
   toHaveSelection(
-    received: EditorState | ProseMirrorTester,
+    received: EditorState | ProseMirrorEditorImpl,
     expected: TesterSelection,
   ) {
     const state =
-      received instanceof ProseMirrorTester ? received.state : received;
+      received instanceof ProseMirrorEditorImpl ? received.state : received;
     const receivedSelection = state.selection;
     const expectedSelection = resolveSelection(state.doc, expected);
 
@@ -85,13 +85,13 @@ expect.addSnapshotSerializer({
 expect.addSnapshotSerializer({
   // Same leading-prefix trim as the node serializer above
   serialize: (
-    val: EditorState | ProseMirrorTester,
+    val: EditorState | ProseMirrorEditorImpl,
     _config,
     indentation,
   ): string => {
-    const state = val instanceof ProseMirrorTester ? val.state : val;
+    const state = val instanceof ProseMirrorEditorImpl ? val.state : val;
     return stringifyEditorState(state, indentation).slice(indentation.length);
   },
   test: (val: unknown): boolean =>
-    val instanceof ProseMirrorTester || isEditorState(val),
+    val instanceof ProseMirrorEditorImpl || isEditorState(val),
 });

@@ -3,7 +3,7 @@ import { DOMSerializer, type Node as ProseMirrorNode } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { parseHTML, ProseMirrorTester } from "../src/index";
+import { parseHTML, renderProseMirror } from "../src/index";
 import { stringifyProseMirrorNode } from "../src/stringifyProseMirrorNode";
 import { doc, p } from "./builders";
 
@@ -31,11 +31,11 @@ describe("BLNS", () => {
   // stable, so a second round-trip yields the same document as the first.
   describe("copy-paste", () => {
     const roundTrip = (document: ProseMirrorNode): ProseMirrorNode => {
-      const source = new ProseMirrorTester(document);
+      const source = renderProseMirror(document);
       source.setSelection("all");
       const clipboard = source.copy();
 
-      const target = new ProseMirrorTester(doc(p()));
+      const target = renderProseMirror(doc(p()));
       target.setSelection("start");
       target.paste(clipboard);
       return target.doc;

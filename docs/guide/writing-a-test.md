@@ -1,7 +1,7 @@
 # Writing a test
 
 Every `vitest-prosemirror` test has the same shape: build a starting document,
-hand it to a `ProseMirrorTester`, act on the editor, and assert on the result.
+hand it to `renderProseMirror`, act on the editor, and assert on the result.
 This page covers the three pieces you need for the "arrange" and "act" halves —
 building documents, the tester itself, and describing selections. Assertions get
 their own [chapter](/guide/assertions).
@@ -58,12 +58,12 @@ way.
 
 ## The tester
 
-`ProseMirrorTester` mounts a real `EditorView` on the document you give it:
+`renderProseMirror` mounts a real `EditorView` on the document you give it:
 
 ```ts
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 
-const editor = new ProseMirrorTester(document, options);
+const editor = renderProseMirror(document, options);
 ```
 
 The second argument is the same set of
@@ -78,7 +78,7 @@ app does. Two props are managed by the tester and can't be passed (`state` and
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
 
-const editor = new ProseMirrorTester(doc(p("Line one<cursor>")), {
+const editor = renderProseMirror(doc(p("Line one<cursor>")), {
   plugins: [keymap(baseKeymap)],
 });
 ```
@@ -102,10 +102,10 @@ teardown so the `afterEach` doesn't destroy it after the first test, and tear it
 down yourself:
 
 ```ts
-let editor: ProseMirrorTester;
+let editor: ProseMirrorEditor;
 
 beforeAll(() => {
-  editor = new ProseMirrorTester(doc(p("shared")), { autoCleanup: false });
+  editor = renderProseMirror(doc(p("shared")), { autoCleanup: false });
 });
 
 afterAll(() => {
@@ -141,7 +141,7 @@ Anywhere a position number is accepted — the bare form or either side of
 builder tags pay off:
 
 ```ts
-const editor = new ProseMirrorTester(doc(p("some<a>where<b>")));
+const editor = renderProseMirror(doc(p("some<a>where<b>")));
 
 editor.setSelection({ anchor: "a", head: "b" }); // select "where"
 editor.setSelection("a"); // just move the caret to the "a" tag
@@ -174,12 +174,12 @@ Arrange a document, act on the editor, assert on the document — the whole loop
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
 import { doc, p } from "prosemirror-test-builder";
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 test("Enter splits the paragraph at the caret", () => {
   // Arrange
-  const editor = new ProseMirrorTester(doc(p("one<cursor>two")), {
+  const editor = renderProseMirror(doc(p("one<cursor>two")), {
     plugins: [keymap(baseKeymap)],
   });
   editor.setSelection("cursor");

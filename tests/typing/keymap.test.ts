@@ -3,14 +3,14 @@ import { keymap } from "prosemirror-keymap";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { type ProseMirrorEditor, renderProseMirror } from "../../src/index";
 import { blockquote, codeBlock, doc, p, strong } from "../builders";
 
 describe("keymap", () => {
   test("should handle keybindings toggling marks", () => {
     const initialDoc = doc(p("<selStart>some text<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         keymap({
           "Mod-b": toggleMark(basicSchema.marks.strong),
@@ -29,7 +29,7 @@ describe("keymap", () => {
   test("should handle keybindings setting block type", () => {
     const initialDoc = doc(p("<selStart>some text<selEnd>"));
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         keymap({
           "Mod-b": setBlockType(basicSchema.nodes.code_block),
@@ -48,7 +48,7 @@ describe("keymap", () => {
   test("should apply a chord's modifier only to its own token", () => {
     const initialDoc = doc(p());
 
-    const testEditor = new ProseMirrorTester(initialDoc, {
+    const testEditor = renderProseMirror(initialDoc, {
       plugins: [
         keymap({
           "Mod-b": toggleMark(basicSchema.marks.strong),
@@ -65,8 +65,8 @@ describe("keymap", () => {
   });
 
   // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
-  const wrappingEditor = (): ProseMirrorTester =>
-    new ProseMirrorTester(doc(p("<selStart>some text<selEnd>")), {
+  const wrappingEditor = (): ProseMirrorEditor =>
+    renderProseMirror(doc(p("<selStart>some text<selEnd>")), {
       plugins: [
         keymap({
           B: wrapIn(basicSchema.nodes.blockquote),
@@ -95,7 +95,7 @@ describe("keymap", () => {
   });
 
   test("should not trigger a Shift-<letter> binding, as a browser does not", () => {
-    const testEditor = new ProseMirrorTester(doc(p()), {
+    const testEditor = renderProseMirror(doc(p()), {
       plugins: [
         keymap({
           "Shift-b": wrapIn(basicSchema.nodes.blockquote),

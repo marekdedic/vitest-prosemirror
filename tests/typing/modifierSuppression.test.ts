@@ -1,7 +1,7 @@
 import { Plugin } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
-import { ProseMirrorTester } from "../../src/index";
+import { renderProseMirror } from "../../src/index";
 import { doc, p } from "../builders";
 
 describe("modifier suppression", () => {
@@ -10,7 +10,7 @@ describe("modifier suppression", () => {
   test.each(["{Ctrl-b}", "{Meta-b}", "{Alt-b}"])(
     "should not type a character while a suppressing modifier is held (%s)",
     (chord) => {
-      const testEditor = new ProseMirrorTester(initialDoc);
+      const testEditor = renderProseMirror(initialDoc);
       testEditor.setSelection("end");
 
       testEditor.type(chord);
@@ -20,7 +20,7 @@ describe("modifier suppression", () => {
   );
 
   test("should type the uppercase letter while Shift is held", () => {
-    const testEditor = new ProseMirrorTester(initialDoc);
+    const testEditor = renderProseMirror(initialDoc);
     testEditor.setSelection("end");
 
     testEditor.type("{Shift-b}");
@@ -50,7 +50,7 @@ describe("modifier suppression", () => {
         },
       },
     });
-    const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
+    const testEditor = renderProseMirror(initialDoc, { plugins: [plugin] });
     testEditor.setSelection("end");
 
     testEditor.type("{Ctrl-b}");

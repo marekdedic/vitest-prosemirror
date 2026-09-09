@@ -57,7 +57,7 @@ export class DataTransferMock implements DataTransfer {
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- Mocking another method
   public setDragImage(): void {
     throw new Error(
-      "setDragImage is not supported: ProseMirrorTester models clipboard paste/copy, not drag-and-drop.",
+      "setDragImage is not supported: vitest-prosemirror models clipboard paste/copy, not drag-and-drop.",
     );
   }
 }

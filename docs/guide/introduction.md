@@ -31,11 +31,11 @@ still reading like a unit test.
 ```ts
 import { schema } from "prosemirror-schema-basic";
 import { doc, p } from "prosemirror-test-builder";
-import { ProseMirrorTester } from "vitest-prosemirror";
+import { renderProseMirror } from "vitest-prosemirror";
 import { expect, test } from "vitest";
 
 test("typing inserts text at the caret", () => {
-  const editor = new ProseMirrorTester(doc(p("Hello")));
+  const editor = renderProseMirror(doc(p("Hello")));
 
   editor.setSelection("end");
   editor.type(" world");
@@ -71,5 +71,5 @@ helpers and spells out the behavioural differences worth knowing before you star
   first test.
 - [Writing a test](/guide/writing-a-test) — the anatomy of a test: building
   documents, the tester's lifecycle, and describing selections.
-- [API reference](/guide/api) — the full `ProseMirrorTester` surface, the custom
+- [API reference](/guide/api) — the full `renderProseMirror` surface, the custom
   matchers and the standalone helpers.
