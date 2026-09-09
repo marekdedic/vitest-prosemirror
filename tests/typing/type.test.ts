@@ -5,13 +5,13 @@ import { describe, expect, test } from "vitest";
 import { ProseMirrorTester } from "../../src/index";
 import { br, doc, img, p, strong } from "../builders";
 
-describe("insertText", () => {
+describe("type", () => {
   test("should insert a single character into an empty paragraph", () => {
     const initialDoc = doc(p());
 
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("start");
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     const expectedDoc = doc(p("a"));
 
@@ -23,7 +23,7 @@ describe("insertText", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("end");
-    testEditor.insertText(" World!");
+    testEditor.type(" World!");
 
     const expectedDoc = doc(p("Hello World!"));
 
@@ -35,7 +35,7 @@ describe("insertText", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("cursor");
-    testEditor.insertText(" ");
+    testEditor.type(" ");
 
     const expectedDoc = doc(p("Hello world"));
 
@@ -50,7 +50,7 @@ describe("insertText", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("{Enter}");
+    testEditor.type("{Enter}");
 
     const expectedDoc = doc(p("Line one"), p());
 
@@ -63,7 +63,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Tab}");
+    testEditor.type("{Tab}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
   });
@@ -74,7 +74,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("{Shift}{Control}{Alt}{Meta}{CapsLock}");
+    testEditor.type("{Shift}{Control}{Alt}{Meta}{CapsLock}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
   });
@@ -91,7 +91,7 @@ describe("insertText", () => {
     testEditor.selectText("end");
 
     expect(() => {
-      testEditor.insertText(input);
+      testEditor.type(input);
     }).toThrow(`Cannot simulate the "${key}" key`);
   });
 
@@ -103,7 +103,7 @@ describe("insertText", () => {
     testEditor.selectText("end");
 
     expect(() => {
-      testEditor.insertText("{Ctrl-ArrowLeft}");
+      testEditor.type("{Ctrl-ArrowLeft}");
     }).toThrow('Cannot simulate the "ArrowLeft" key');
   });
 
@@ -113,7 +113,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     const expectedDoc = doc(p(img({ src: "image.png" }), "a"));
 
@@ -125,7 +125,7 @@ describe("insertText", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("start");
-    testEditor.insertText("H");
+    testEditor.type("H");
 
     const expectedDoc = doc(p("Hello"));
 
@@ -138,7 +138,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("cursor");
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     const expectedDoc = doc(p(img({ src: "image.png" }), "abc"));
 
@@ -151,7 +151,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     const expectedDoc = doc(p("Hello", br(), "a"));
 
@@ -164,7 +164,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("cursor");
-    testEditor.insertText("x");
+    testEditor.type("x");
 
     const expectedDoc = doc(p(strong("axb"), "cd"));
 
@@ -177,7 +177,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("there");
+    testEditor.type("there");
 
     const expectedDoc = doc(p("Hello there"));
 
@@ -190,7 +190,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("X");
+    testEditor.type("X");
 
     const expectedDoc = doc(p("Hello X"));
 
@@ -203,7 +203,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("H");
+    testEditor.type("H");
 
     const expectedDoc = doc(p("Hello"));
 
@@ -216,7 +216,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("b");
+    testEditor.type("b");
 
     const expectedDoc = doc(p("b"));
 
@@ -229,7 +229,7 @@ describe("insertText", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("X");
+    testEditor.type("X");
 
     const expectedDoc = doc(p(strong("aX")));
 
@@ -244,7 +244,7 @@ describe("insertText", () => {
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
 
     expect(() => {
-      testEditor.insertText("X");
+      testEditor.type("X");
     }).toThrow(
       "Cannot simulate deleting a range that is not inside a single text node",
     );
@@ -258,7 +258,7 @@ describe("insertText", () => {
     testEditor.selectText({ anchor: 1, head: 2 });
 
     expect(() => {
-      testEditor.insertText("a");
+      testEditor.type("a");
     }).toThrow(
       "Cannot simulate deleting a range that is not inside a single text node",
     );

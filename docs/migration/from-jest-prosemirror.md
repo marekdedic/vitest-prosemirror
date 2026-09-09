@@ -1,4 +1,4 @@
-# Migrating from jest-prosemirror
+# Migration from jest-prosemirror
 
 If you have tests written with
 [jest-prosemirror](https://remirror.io/docs/api/jest-prosemirror/), the concepts
@@ -56,7 +56,7 @@ test("typing inserts text", () => {
   const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
 
   editor.selectText("cursor");
-  editor.insertText(" world");
+  editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 });
@@ -79,7 +79,7 @@ start). You turn a tag into a selection **explicitly**, with
 const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
 
 editor.selectText("cursor"); // ← without this, typing lands at the start
-editor.insertText("!");
+editor.type("!");
 ```
 
 So every ported test that relied on a tag positioning the caret needs a
@@ -92,9 +92,9 @@ on.
 | jest-prosemirror                     | vitest-prosemirror                                        |
 | ------------------------------------ | --------------------------------------------------------- |
 | `createEditor(doc, options)`         | `new ProseMirrorTester(doc, options)`                     |
-| `.insertText("x")`                   | `editor.insertText("x")`                                  |
-| `.press("Enter")`                    | `editor.insertText("{Enter}")`                            |
-| `.shortcut("Mod-b")`                 | `editor.insertText("{Mod-b}")`                            |
+| `.insertText("x")`                   | `editor.type("x")`                                  |
+| `.press("Enter")`                    | `editor.type("{Enter}")`                            |
+| `.shortcut("Mod-b")`                 | `editor.type("{Mod-b}")`                            |
 | `.jumpTo(pos)` / `.jumpTo(a, b)`     | `editor.selectText(pos)` / `editor.selectText({ anchor, head })` |
 | `.command(cmd)`                      | `editor.command(cmd)`                                     |
 | `.paste(content)`                    | `editor.paste(content)`                                   |
@@ -104,7 +104,7 @@ on.
 | `doc`, `p` from `jest-prosemirror`   | `doc`, `p` from `prosemirror-test-builder`                |
 
 Keyboard input folds together: jest-prosemirror's separate `press` and `shortcut`
-become part of [`insertText`](/guide/simulating-input#special-keys)'s key syntax,
+become part of [`type`](/guide/simulating-input#special-keys)'s key syntax,
 so a keypress is `{Enter}` and a chord is `{Mod-b}`, interleavable with typed
 text in one call.
 
@@ -157,5 +157,5 @@ may behave differently — usually more correctly:
 
 - [Writing a test](/guide/writing-a-test) — the tester, documents and selections
   in full.
-- [Simulating input](/guide/simulating-input) — the complete `insertText` syntax,
+- [Simulating input](/guide/simulating-input) — the complete `type` syntax,
   commands and the clipboard.

@@ -14,7 +14,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("HelloWorld"));
 
@@ -27,7 +27,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("{Backspace}{Backspace}");
+    testEditor.type("{Backspace}{Backspace}");
 
     const expectedDoc = doc(p("f"));
 
@@ -40,7 +40,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("{Backspace}b");
+    testEditor.type("{Backspace}b");
 
     const expectedDoc = doc(p("b"));
 
@@ -53,7 +53,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Delete}");
+    testEditor.type("{Delete}");
 
     const expectedDoc = doc(p("HelloWorld"));
 
@@ -77,7 +77,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("Hello"));
 
@@ -92,7 +92,7 @@ describe("deletion", () => {
     });
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("Helrld"));
 
@@ -107,7 +107,7 @@ describe("deletion", () => {
     });
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("abcd"));
 
@@ -122,7 +122,7 @@ describe("deletion", () => {
     });
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Delete}");
+    testEditor.type("{Delete}");
 
     const expectedDoc = doc(p("abcd"));
 
@@ -137,7 +137,7 @@ describe("deletion", () => {
     });
 
     testEditor.selectText("cursor");
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("ab"));
 
@@ -161,7 +161,7 @@ describe("deletion", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("!!{Backspace}");
+    testEditor.type("!!{Backspace}");
 
     const expectedDoc = doc(p("Hello World!!"));
 
@@ -176,7 +176,7 @@ describe("deletion", () => {
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
 
     expect(() => {
-      testEditor.insertText("{Backspace}");
+      testEditor.type("{Backspace}");
     }).toThrow(
       "Cannot simulate deleting a range that is not inside a single text node",
     );
@@ -190,7 +190,7 @@ describe("deletion", () => {
     testEditor.selectText({ anchor: 1, head: 2 });
 
     expect(() => {
-      testEditor.insertText("{Backspace}");
+      testEditor.type("{Backspace}");
     }).toThrow(
       "Cannot simulate deleting a range that is not inside a single text node",
     );
@@ -203,7 +203,7 @@ describe("deletion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("{Backspace}");
+    testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p());
 

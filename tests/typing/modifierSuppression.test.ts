@@ -13,7 +13,7 @@ describe("modifier suppression", () => {
       const testEditor = new ProseMirrorTester(initialDoc);
       testEditor.selectText("end");
 
-      testEditor.insertText(chord);
+      testEditor.type(chord);
 
       expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
     },
@@ -23,7 +23,7 @@ describe("modifier suppression", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
     testEditor.selectText("end");
 
-    testEditor.insertText("{Shift-b}");
+    testEditor.type("{Shift-b}");
 
     const expectedDoc = doc(p("fooB"));
 
@@ -53,7 +53,7 @@ describe("modifier suppression", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("{Ctrl-b}");
+    testEditor.type("{Ctrl-b}");
 
     expect(events).toStrictEqual(["keydown", "keyup"]);
   });

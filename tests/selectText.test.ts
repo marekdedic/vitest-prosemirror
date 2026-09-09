@@ -20,7 +20,7 @@ describe("selectText", () => {
     });
 
     testEditor.selectText("all");
-    testEditor.insertText("{Mod-b}");
+    testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("first")), p(strong("second")));
 
@@ -39,7 +39,7 @@ describe("selectText", () => {
     });
 
     testEditor.selectText(TextSelection.create(initialDoc, 1, 5));
-    testEditor.insertText("{Mod-b}");
+    testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("some"), " text"));
 

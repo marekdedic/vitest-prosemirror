@@ -10,7 +10,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("end");
-    testEditor.insertText("{ArrowLeft}x");
+    testEditor.type("{ArrowLeft}x");
 
     const expectedDoc = doc(p("Hellxo"));
 
@@ -21,7 +21,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowRight}x");
+    testEditor.type("{ArrowRight}x");
 
     const expectedDoc = doc(p("Helxlo"));
 
@@ -32,7 +32,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{ArrowLeft}x");
+    testEditor.type("{ArrowLeft}x");
 
     const expectedDoc = doc(p("Hxello"));
 
@@ -43,7 +43,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowRight}x");
+    testEditor.type("{ArrowRight}x");
 
     const expectedDoc = doc(p("a👍xb"));
 
@@ -54,7 +54,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("a👍<caret>b")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowLeft}x");
+    testEditor.type("{ArrowLeft}x");
 
     const expectedDoc = doc(p("ax👍b"));
 
@@ -66,7 +66,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("a<caret>éb")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowRight}x");
+    testEditor.type("{ArrowRight}x");
 
     const expectedDoc = doc(p("aéxb"));
 
@@ -77,7 +77,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("a<caret>👨‍👩‍👧b")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowRight}x");
+    testEditor.type("{ArrowRight}x");
 
     const expectedDoc = doc(p("a👨‍👩‍👧xb"));
 
@@ -88,7 +88,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("Hello")));
 
     testEditor.selectText("start");
-    testEditor.insertText("{ArrowLeft}x");
+    testEditor.type("{ArrowLeft}x");
 
     const expectedDoc = doc(p("xHello"));
 
@@ -99,7 +99,7 @@ describe("caret motion", () => {
     const testEditor = new ProseMirrorTester(doc(p("ab<caret>"), p("cd")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{ArrowRight}x");
+    testEditor.type("{ArrowRight}x");
 
     const expectedDoc = doc(p("ab"), p("xcd"));
 

@@ -63,7 +63,7 @@ test("typing inserts text at the selection", () => {
   const editor = new ProseMirrorTester(doc(p("Hello")));
 
   editor.selectText("end");
-  editor.insertText(" world");
+  editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 });

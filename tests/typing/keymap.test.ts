@@ -19,7 +19,7 @@ describe("keymap", () => {
     });
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{Mod-b}");
+    testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("some text")));
 
@@ -38,7 +38,7 @@ describe("keymap", () => {
     });
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{Mod-b}");
+    testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(codeBlock("some text"));
 
@@ -57,7 +57,7 @@ describe("keymap", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("{Mod-b}bold{Mod-b} normal");
+    testEditor.type("{Mod-b}bold{Mod-b} normal");
 
     const expectedDoc = doc(p(strong("bold"), " normal"));
 
@@ -80,7 +80,7 @@ describe("keymap", () => {
     const testEditor = wrappingEditor();
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("{Shift-b}");
+    testEditor.type("{Shift-b}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
   });
@@ -89,7 +89,7 @@ describe("keymap", () => {
     const testEditor = wrappingEditor();
 
     testEditor.selectText({ anchor: "selStart", head: "selEnd" });
-    testEditor.insertText("B");
+    testEditor.type("B");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
   });
@@ -104,7 +104,7 @@ describe("keymap", () => {
     });
 
     testEditor.selectText("start");
-    testEditor.insertText("{Shift-b}");
+    testEditor.type("{Shift-b}");
 
     const expectedDoc = doc(p("B"));
 

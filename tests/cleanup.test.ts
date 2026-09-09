@@ -51,7 +51,7 @@ describe("destroy", () => {
     testEditor.destroy();
 
     expect(() => {
-      testEditor.insertText("x");
+      testEditor.type("x");
     }).toThrow(destroyedMessage);
     expect(() => {
       testEditor.selectText("end");

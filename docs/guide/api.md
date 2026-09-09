@@ -40,7 +40,7 @@ pass to an `EditorView` — `nodeViews`, `markViews`, `editable`, `attributes`,
 `state` is excluded because it is built from the `documentRoot` argument.
 `dispatchTransaction` is excluded on purpose: overriding it would replace the
 view's default state handling and desync the synthesised DOM edits that
-`insertText` relies on.
+`type` relies on.
 
 ### Reading the editor
 
@@ -57,14 +57,14 @@ desync ProseMirror's document view.
 
 ### Methods
 
-#### `insertText(text: string): void`
+#### `type(text: string): void`
 
 Types `text` into the editor at the current selection, driving ProseMirror's
 real input path. Plain characters are typed literally; special keys and chords go
 in `{…}` or `[…]` groups (`{Enter}`, `{Mod-b}`, `[KeyA]`).
 
 ```ts
-editor.insertText("Hello{Enter}world");
+editor.type("Hello{Enter}world");
 ```
 
 See [Simulating input](/guide/simulating-input#typing) for the full key syntax

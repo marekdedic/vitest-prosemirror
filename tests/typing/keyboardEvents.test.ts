@@ -49,7 +49,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     expect(events).toStrictEqual([
       { code: "KeyA", key: "a", keyCode: 65, type: "keydown" },
@@ -71,7 +71,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("a{Shift}");
+    testEditor.type("a{Shift}");
 
     expect(
       keydownEvents.map((event) => ({
@@ -93,7 +93,7 @@ describe("keyboard events", () => {
     });
     testEditor.selectText("end");
 
-    testEditor.insertText("{Enter}");
+    testEditor.type("{Enter}");
 
     // BaseKeymap handles Enter, so only the keypress is suppressed.
     expect(events).toStrictEqual([
@@ -137,7 +137,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("a");
+    testEditor.type("a");
 
     expect(charCodes).toStrictEqual([
       { charCode: 0, type: "keydown" },
@@ -151,7 +151,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("{Backspace}{ArrowLeft}{Escape}");
+    testEditor.type("{Backspace}{ArrowLeft}{Escape}");
 
     // Named keys produce no character, so they fire no keypress (their keyCode/code
     // identities are covered exhaustively in keyIdentity's own tests).
@@ -248,7 +248,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("{Shift-b}");
+    testEditor.type("{Shift-b}");
 
     expect(events).toStrictEqual(shiftedBEvents);
   });
@@ -258,7 +258,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
     testEditor.selectText("end");
 
-    testEditor.insertText("B");
+    testEditor.type("B");
 
     expect(events).toStrictEqual(shiftedBEvents);
   });
