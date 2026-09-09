@@ -9,7 +9,7 @@ describe("toHaveSelection", () => {
     expect.assertions(1);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText(4);
+    t.setSelection(4);
 
     expect(t).toHaveSelection(4);
   });
@@ -18,7 +18,7 @@ describe("toHaveSelection", () => {
     expect.assertions(1);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     expect(t).toHaveSelection({ anchor: 4, head: 7 });
   });
@@ -27,7 +27,7 @@ describe("toHaveSelection", () => {
     expect.assertions(1);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText("all");
+    t.setSelection("all");
 
     expect(t).toHaveSelection("all");
   });
@@ -37,7 +37,7 @@ describe("toHaveSelection", () => {
 
     const d = doc(p("foo<a>bar"));
     const t = new ProseMirrorTester(d);
-    t.selectText("a");
+    t.setSelection("a");
 
     expect(t).toHaveSelection("a");
   });
@@ -46,7 +46,7 @@ describe("toHaveSelection", () => {
     expect.assertions(1);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     expect(t.state).toHaveSelection({ anchor: 4, head: 7 });
   });
@@ -55,7 +55,7 @@ describe("toHaveSelection", () => {
     expect.assertions(4);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     expect(() => {
       expect(t).toHaveSelection({ anchor: 1, head: 2 });
@@ -70,7 +70,7 @@ describe("toHaveSelection", () => {
     expect.assertions(4);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     // Received selection renders at positions 4/7, the expected one at 1/2.
     expect(() => {
@@ -86,7 +86,7 @@ describe("toHaveSelection", () => {
     expect.assertions(4);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText(4);
+    t.setSelection(4);
 
     // Received cursor at position 4, expected cursor at position 2.
     expect(() => {
@@ -103,7 +103,7 @@ describe("toHaveSelection", () => {
 
     const d = doc(p("foobar"));
     const t = new ProseMirrorTester(d);
-    t.selectText(new AllSelection(d));
+    t.setSelection(new AllSelection(d));
 
     expect(() => {
       expect(t).toHaveSelection({ anchor: 1, head: 7 });
@@ -118,7 +118,7 @@ describe("toHaveSelection", () => {
     expect.assertions(4);
 
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     // The rejection prints the (matching) selection with its markers.
     expect(() => {

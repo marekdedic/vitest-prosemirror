@@ -13,7 +13,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("HelloWorld"));
@@ -26,7 +26,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Backspace}{Backspace}");
 
     const expectedDoc = doc(p("f"));
@@ -39,7 +39,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Backspace}b");
 
     const expectedDoc = doc(p("b"));
@@ -52,7 +52,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Delete}");
 
     const expectedDoc = doc(p("HelloWorld"));
@@ -67,7 +67,7 @@ describe("deletion", () => {
 
     expect(() => {
       // @ts-expect-error -- { from, to } was removed in favour of { anchor, head }
-      testEditor.selectText({ from: 6, to: 12 });
+      testEditor.setSelection({ from: 6, to: 12 });
     }).toThrow("use { anchor, head } instead");
   });
 
@@ -76,7 +76,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("Hello"));
@@ -91,7 +91,7 @@ describe("deletion", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("Helrld"));
@@ -106,7 +106,7 @@ describe("deletion", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("abcd"));
@@ -121,7 +121,7 @@ describe("deletion", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Delete}");
 
     const expectedDoc = doc(p("abcd"));
@@ -136,7 +136,7 @@ describe("deletion", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p("ab"));
@@ -160,7 +160,7 @@ describe("deletion", () => {
       ],
     });
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("!!{Backspace}");
 
     const expectedDoc = doc(p("Hello World!!"));
@@ -173,7 +173,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
     expect(() => {
       testEditor.type("{Backspace}");
@@ -187,7 +187,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.setSelection({ anchor: 1, head: 2 });
 
     expect(() => {
       testEditor.type("{Backspace}");
@@ -202,7 +202,7 @@ describe("deletion", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Backspace}");
 
     const expectedDoc = doc(p());

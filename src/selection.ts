@@ -31,7 +31,7 @@ const resolvePos = (doc: ProseMirrorNode, value: number | string): number => {
 
   const available = Object.keys(tags);
   throw new Error(
-    `selectText: no tag named "${value}" in the document. ${
+    `setSelection: no tag named "${value}" in the document. ${
       available.length > 0
         ? `Available tags: ${available.map((tag) => `"${tag}"`).join(", ")}.`
         : "The document has no tags."
@@ -68,7 +68,7 @@ export const resolveSelection = (
     "to" in selection
   ) {
     throw new Error(
-      "selectText no longer accepts { from, to } — use { anchor, head } instead. The values map directly: { from: a, to: b } becomes { anchor: a, head: b }.",
+      "setSelection no longer accepts { from, to } — use { anchor, head } instead. The values map directly: { from: a, to: b } becomes { anchor: a, head: b }.",
     );
   }
 
@@ -81,7 +81,7 @@ export const resolveSelection = (
   if (["all", "end", "start"].includes(selection)) {
     if (selection in tags) {
       throw new Error(
-        `selectText: "${selection}" is both a reserved selection and a tag in the document. Use { anchor, head } to select the tag, or rename the tag.`,
+        `setSelection: "${selection}" is both a reserved selection and a tag in the document. Use { anchor, head } to select the tag, or rename the tag.`,
       );
     }
 

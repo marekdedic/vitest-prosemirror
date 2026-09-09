@@ -30,7 +30,7 @@ test("state is a live getter, not a snapshot", () => {
 test("state reflects the selection", () => {
   const testEditor = makeTester();
 
-  testEditor.selectText({ anchor: 3, head: 7 });
+  testEditor.setSelection({ anchor: 3, head: 7 });
 
   expect(testEditor.state.selection).toBeInstanceOf(TextSelection);
   expect(testEditor.state.selection.from).toBe(3);

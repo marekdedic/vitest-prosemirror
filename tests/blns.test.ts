@@ -32,11 +32,11 @@ describe("BLNS", () => {
   describe("copy-paste", () => {
     const roundTrip = (document: ProseMirrorNode): ProseMirrorNode => {
       const source = new ProseMirrorTester(document);
-      source.selectText("all");
+      source.setSelection("all");
       const clipboard = source.copy();
 
       const target = new ProseMirrorTester(doc(p()));
-      target.selectText("start");
+      target.setSelection("start");
       target.paste(clipboard);
       return target.doc;
     };

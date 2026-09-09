@@ -7,7 +7,7 @@ describe("selection extension", () => {
   test("should extend the selection forward from a caret", () => {
     const testEditor = new ProseMirrorTester(doc(p("H<caret>ello")));
 
-    testEditor.selectText("caret");
+    testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}");
 
     expect(testEditor.state.selection.anchor).toBe(2);
@@ -17,7 +17,7 @@ describe("selection extension", () => {
   test("should extend the selection backward from a caret", () => {
     const testEditor = new ProseMirrorTester(doc(p("He<caret>llo")));
 
-    testEditor.selectText("caret");
+    testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowLeft}");
 
     expect(testEditor.state.selection.anchor).toBe(3);
@@ -27,7 +27,7 @@ describe("selection extension", () => {
   test("should extend over a whole grapheme cluster", () => {
     const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
 
-    testEditor.selectText("caret");
+    testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}");
 
     expect(testEditor.state.selection.from).toBe(2);
@@ -42,7 +42,7 @@ describe("selection extension", () => {
   test("should shrink the selection when the head moves back", () => {
     const testEditor = new ProseMirrorTester(doc(p("Hello")));
 
-    testEditor.selectText({ anchor: 2, head: 4 });
+    testEditor.setSelection({ anchor: 2, head: 4 });
     testEditor.type("{Shift-ArrowLeft}");
 
     expect(testEditor.state.selection.anchor).toBe(2);
@@ -52,7 +52,7 @@ describe("selection extension", () => {
   test("should replace the range built by repeated extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("<caret>Hello")));
 
-    testEditor.selectText("caret");
+    testEditor.setSelection("caret");
     testEditor.type("{Shift-ArrowRight}{Shift-ArrowRight}x");
 
     expect(testEditor.doc).toEqualProseMirrorNode(doc(p("xllo")));
@@ -60,7 +60,7 @@ describe("selection extension", () => {
 
   test("should throw for word motion and word extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("Hello")));
-    testEditor.selectText("start");
+    testEditor.setSelection("start");
 
     expect(() => {
       testEditor.type("{Ctrl-ArrowRight}");

@@ -10,7 +10,7 @@ describe("type", () => {
     const initialDoc = doc(p());
 
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText("start");
+    testEditor.setSelection("start");
     testEditor.type("a");
 
     const expectedDoc = doc(p("a"));
@@ -22,7 +22,7 @@ describe("type", () => {
     const initialDoc = doc(p("Hello"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type(" World!");
 
     const expectedDoc = doc(p("Hello World!"));
@@ -34,7 +34,7 @@ describe("type", () => {
     const initialDoc = doc(p("Hello<cursor>world"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type(" ");
 
     const expectedDoc = doc(p("Hello world"));
@@ -49,7 +49,7 @@ describe("type", () => {
       plugins: [keymap(baseKeymap)],
     });
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Enter}");
 
     const expectedDoc = doc(p("Line one"), p());
@@ -62,7 +62,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("{Tab}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
@@ -73,7 +73,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Shift}{Control}{Alt}{Meta}{CapsLock}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(initialDoc);
@@ -88,7 +88,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     expect(() => {
       testEditor.type(input);
@@ -100,7 +100,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     expect(() => {
       testEditor.type("{Ctrl-ArrowLeft}");
@@ -112,7 +112,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("a");
 
     const expectedDoc = doc(p(img({ src: "image.png" }), "a"));
@@ -124,7 +124,7 @@ describe("type", () => {
     const initialDoc = doc(p("ello"));
 
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText("start");
+    testEditor.setSelection("start");
     testEditor.type("H");
 
     const expectedDoc = doc(p("Hello"));
@@ -137,7 +137,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("a");
 
     const expectedDoc = doc(p(img({ src: "image.png" }), "abc"));
@@ -150,7 +150,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("a");
 
     const expectedDoc = doc(p("Hello", br(), "a"));
@@ -163,7 +163,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText("cursor");
+    testEditor.setSelection("cursor");
     testEditor.type("x");
 
     const expectedDoc = doc(p(strong("axb"), "cd"));
@@ -176,7 +176,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("there");
 
     const expectedDoc = doc(p("Hello there"));
@@ -189,7 +189,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("X");
 
     const expectedDoc = doc(p("Hello X"));
@@ -202,7 +202,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("H");
 
     const expectedDoc = doc(p("Hello"));
@@ -215,7 +215,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("b");
 
     const expectedDoc = doc(p("b"));
@@ -228,7 +228,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("X");
 
     const expectedDoc = doc(p(strong("aX")));
@@ -241,7 +241,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
     expect(() => {
       testEditor.type("X");
@@ -255,7 +255,7 @@ describe("type", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: 1, head: 2 });
+    testEditor.setSelection({ anchor: 1, head: 2 });
 
     expect(() => {
       testEditor.type("a");

@@ -27,17 +27,41 @@ The fix is a rename at every call site; there is no change to the arguments:
 + editor.type(
 ```
 
-## `selectText`'s `{ from, to }` is now `{ anchor, head }`
+## `selectText` is now `setSelection`
 
-The object form of `selectText` has been renamed from `{ from, to }` to
+The tester method `selectText` has been renamed to `setSelection`.
+
+```ts
+// before
+editor.selectText("end");
+editor.selectText({ anchor: "a", head: "b" });
+
+// after
+editor.setSelection("end");
+editor.setSelection({ anchor: "a", head: "b" });
+```
+
+The behaviour is unchanged — only the name is different.
+
+The fix is a rename at every call site; there is no change to the arguments:
+
+```ts
+// codemod-friendly find & replace
+- editor.selectText(
++ editor.setSelection(
+```
+
+## `setSelection`'s `{ from, to }` is now `{ anchor, head }`
+
+The object form of `setSelection` has been renamed from `{ from, to }` to
 `{ anchor, head }`.
 
 ```ts
 // before
-editor.selectText({ from: 3, to: 7 });
+editor.setSelection({ from: 3, to: 7 });
 
 // after
-editor.selectText({ anchor: 3, head: 7 });
+editor.setSelection({ anchor: 3, head: 7 });
 ```
 
 The behaviour is unchanged — the values already mapped straight to a selection's
