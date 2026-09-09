@@ -28,12 +28,18 @@ export default defineConfig({
           { link: "/guide/node-views-and-dom", text: "Node views & the DOM" },
           { link: "/guide/assertions", text: "Assertions & snapshots" },
           { link: "/guide/testing-parse-rules", text: "Testing parse rules" },
-          {
-            link: "/guide/migrating-from-jest-prosemirror",
-            text: "Migrating from jest-prosemirror",
-          },
         ],
         text: "Guide",
+      },
+      {
+        items: [
+          { link: "/migration/to-1.0", text: "Migration to 1.0" },
+          {
+            link: "/migration/from-jest-prosemirror",
+            text: "Migration from jest-prosemirror",
+          },
+        ],
+        text: "Migration",
       },
       {
         items: [{ link: "/guide/api", text: "API reference" }],

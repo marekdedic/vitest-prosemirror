@@ -1,4 +1,4 @@
-# Migrating from jest-prosemirror
+# Migration from jest-prosemirror
 
 If you have tests written with
 [jest-prosemirror](https://remirror.io/docs/api/jest-prosemirror/), the concepts

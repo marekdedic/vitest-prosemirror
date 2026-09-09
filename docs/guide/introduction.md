@@ -62,7 +62,7 @@ test("typing inserts text at the caret", () => {
 The API will feel familiar, but the behaviour is deliberately different:
 `vitest-prosemirror` runs the editor's real input, clipboard and DOM paths where
 jest-prosemirror often takes shortcuts. If you are porting a suite,
-[Migrating from jest-prosemirror](/guide/migrating-from-jest-prosemirror) maps the
+[Migration from jest-prosemirror](/migration/from-jest-prosemirror) maps the
 helpers and spells out the behavioural differences worth knowing before you start.
 
 ## Next steps
