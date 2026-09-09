@@ -9,7 +9,7 @@ import { doc, hr, p } from "./builders";
 describe("state snapshot serializer", () => {
   test("serializes a text selection with inline markers and a kind line", () => {
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     expect(t.state).toMatchInlineSnapshot(`
       doc(
@@ -21,7 +21,7 @@ describe("state snapshot serializer", () => {
 
   test("accepts the tester itself", () => {
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText({ anchor: 4, head: 7 });
+    t.setSelection({ anchor: 4, head: 7 });
 
     expect(t).toMatchInlineSnapshot(`
       doc(
@@ -33,7 +33,7 @@ describe("state snapshot serializer", () => {
 
   test("renders a collapsed cursor with a single marker", () => {
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText(4);
+    t.setSelection(4);
 
     expect(t.state).toMatchInlineSnapshot(`
       doc(
@@ -46,7 +46,7 @@ describe("state snapshot serializer", () => {
   test("names an AllSelection whose markers span the whole doc", () => {
     const d = doc(p("foobar"));
     const t = new ProseMirrorTester(d);
-    t.selectText(new AllSelection(d));
+    t.setSelection(new AllSelection(d));
 
     expect(t.state).toMatchInlineSnapshot(`
       doc(
@@ -61,7 +61,7 @@ describe("state snapshot serializer", () => {
   test("names a NodeSelection", () => {
     const d = doc(p("foo"), hr());
     const t = new ProseMirrorTester(d);
-    t.selectText(NodeSelection.create(d, 5));
+    t.setSelection(NodeSelection.create(d, 5));
 
     expect(t.state).toMatchInlineSnapshot(`
       doc(
@@ -76,7 +76,7 @@ describe("state snapshot serializer", () => {
 
   test("renders stored marks", () => {
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText(4);
+    t.setSelection(4);
     t.command(toggleMark(basicSchema.marks.strong));
 
     expect(t.state).toMatchInlineSnapshot(`
@@ -90,7 +90,7 @@ describe("state snapshot serializer", () => {
 
   test("renders stored marks losslessly, including attrs", () => {
     const t = new ProseMirrorTester(doc(p("foobar")));
-    t.selectText(4);
+    t.setSelection(4);
     t.command((state, dispatch) => {
       dispatch?.(
         state.tr.setStoredMarks([

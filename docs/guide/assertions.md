@@ -54,7 +54,7 @@ an `EditorState`, and the expected value is any
 [`TesterSelection`](/guide/writing-a-test#describing-selections):
 
 ```ts
-editor.selectText({ anchor: 4, head: 7 });
+editor.setSelection({ anchor: 4, head: 7 });
 
 expect(editor).toHaveSelection({ anchor: 4, head: 7 });
 expect(editor).toHaveSelection("all"); // fails — see below
@@ -122,7 +122,7 @@ markers in the document (`<cursor>` for a caret, `<anchor>` / `<head>` for a
 range) and as a trailing summary line naming its kind and range:
 
 ```ts
-editor.selectText({ anchor: 4, head: 7 });
+editor.setSelection({ anchor: 4, head: 7 });
 
 expect(editor.state).toMatchInlineSnapshot(`
   doc(

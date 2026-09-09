@@ -43,7 +43,7 @@ simplest way to guarantee that.
 
 The real advantage of the builder is inline **tags** — `<name>` markers you
 place directly in the text to record positions. They are stripped from the
-document but remembered, so you can point `selectText` at them by name instead
+document but remembered, so you can point `setSelection` at them by name instead
 of counting characters:
 
 ```ts
@@ -116,15 +116,15 @@ afterAll(() => {
 ## Describing selections
 
 Most actions happen at the selection, so you'll set it constantly with
-`selectText`. It accepts a small vocabulary of `TesterSelection` forms, from
+`setSelection`. It accepts a small vocabulary of `TesterSelection` forms, from
 coarse to precise:
 
 ```ts
-editor.selectText("all"); // the whole document
-editor.selectText("start"); // caret at the very start
-editor.selectText("end"); // caret at the very end
-editor.selectText(4); // caret at position 4
-editor.selectText({ anchor: 4, head: 7 }); // a range from 4 to 7
+editor.setSelection("all"); // the whole document
+editor.setSelection("start"); // caret at the very start
+editor.setSelection("end"); // caret at the very end
+editor.setSelection(4); // caret at position 4
+editor.setSelection({ anchor: 4, head: 7 }); // a range from 4 to 7
 ```
 
 `anchor` is the **fixed** end of a selection — where it began — and `head` is the
@@ -143,8 +143,8 @@ builder tags pay off:
 ```ts
 const editor = new ProseMirrorTester(doc(p("some<a>where<b>")));
 
-editor.selectText({ anchor: "a", head: "b" }); // select "where"
-editor.selectText("a"); // just move the caret to the "a" tag
+editor.setSelection({ anchor: "a", head: "b" }); // select "where"
+editor.setSelection("a"); // just move the caret to the "a" tag
 ```
 
 You can also hand it a ready-made ProseMirror
@@ -156,7 +156,7 @@ common one:
 ```ts
 import { NodeSelection } from "prosemirror-state";
 
-editor.selectText(NodeSelection.create(editor.doc, pos));
+editor.setSelection(NodeSelection.create(editor.doc, pos));
 ```
 
 The trap worth remembering: `NodeSelection.create` takes the position **directly
@@ -182,7 +182,7 @@ test("Enter splits the paragraph at the caret", () => {
   const editor = new ProseMirrorTester(doc(p("one<cursor>two")), {
     plugins: [keymap(baseKeymap)],
   });
-  editor.selectText("cursor");
+  editor.setSelection("cursor");
 
   // Act
   editor.type("{Enter}");

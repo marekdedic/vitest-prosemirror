@@ -11,7 +11,7 @@ describe("command", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);
 
@@ -25,7 +25,7 @@ describe("command", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
 
     // A horizontal_rule is a leaf and cannot contain the paragraph, so no
     // wrapping is possible and the command reports that it does not apply.
@@ -42,7 +42,7 @@ describe("command", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
 
     testEditor.type("x");
-    testEditor.selectText("all");
+    testEditor.setSelection("all");
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);
 

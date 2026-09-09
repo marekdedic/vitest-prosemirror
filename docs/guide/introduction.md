@@ -37,7 +37,7 @@ import { expect, test } from "vitest";
 test("typing inserts text at the caret", () => {
   const editor = new ProseMirrorTester(doc(p("Hello")));
 
-  editor.selectText("end");
+  editor.setSelection("end");
   editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));

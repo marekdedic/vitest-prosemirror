@@ -18,7 +18,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("some text")));
@@ -37,7 +37,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(codeBlock("some text"));
@@ -56,7 +56,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
     testEditor.type("{Mod-b}bold{Mod-b} normal");
 
     const expectedDoc = doc(p(strong("bold"), " normal"));
@@ -79,7 +79,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding triggered with Shift", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("{Shift-b}");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
@@ -88,7 +88,7 @@ describe("keymap", () => {
   test("should handle an uppercase-letter keybinding typed directly", () => {
     const testEditor = wrappingEditor();
 
-    testEditor.selectText({ anchor: "selStart", head: "selEnd" });
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
     testEditor.type("B");
 
     expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
@@ -103,7 +103,7 @@ describe("keymap", () => {
       ],
     });
 
-    testEditor.selectText("start");
+    testEditor.setSelection("start");
     testEditor.type("{Shift-b}");
 
     const expectedDoc = doc(p("B"));

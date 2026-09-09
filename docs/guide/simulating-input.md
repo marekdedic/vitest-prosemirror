@@ -119,7 +119,7 @@ depend on layout the headless DOM doesn't have:
 
 When you hit one of these, drive the behaviour a different way — bind it to a
 command and test that (see below), or set the selection directly with
-[`selectText`](/guide/writing-a-test#describing-selections).
+[`setSelection`](/guide/writing-a-test#describing-selections).
 
 ## Input rules
 
@@ -153,7 +153,7 @@ test("typing !! runs the input rule", () => {
     ],
   });
 
-  editor.selectText("cursor");
+  editor.setSelection("cursor");
   editor.type("!!");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello World‼")));
@@ -183,7 +183,7 @@ returns whether it applied:
 ```ts
 import { toggleMark } from "prosemirror-commands";
 
-editor.selectText({ anchor: "a", head: "b" });
+editor.setSelection({ anchor: "a", head: "b" });
 const applied = editor.command(toggleMark(schema.marks.strong));
 
 expect(applied).toBe(true);
@@ -200,7 +200,7 @@ const editor = new ProseMirrorTester(doc(p("<a>some text<b>")), {
   plugins: [keymap({ "Mod-b": toggleMark(schema.marks.strong) })],
 });
 
-editor.selectText({ anchor: "a", head: "b" });
+editor.setSelection({ anchor: "a", head: "b" });
 editor.type("{Mod-b}");
 
 expect(editor.doc).toEqualProseMirrorNode(doc(p(strong("some text"))));
@@ -241,7 +241,7 @@ editor.paste({ files: [new File([bytes], "cat.png", { type: "image/png" })] });
 returning `{ html, text }`:
 
 ```ts
-editor.selectText("all");
+editor.setSelection("all");
 const clipboard = editor.copy();
 ```
 

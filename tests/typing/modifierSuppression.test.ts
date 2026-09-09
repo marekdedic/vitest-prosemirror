@@ -11,7 +11,7 @@ describe("modifier suppression", () => {
     "should not type a character while a suppressing modifier is held (%s)",
     (chord) => {
       const testEditor = new ProseMirrorTester(initialDoc);
-      testEditor.selectText("end");
+      testEditor.setSelection("end");
 
       testEditor.type(chord);
 
@@ -21,7 +21,7 @@ describe("modifier suppression", () => {
 
   test("should type the uppercase letter while Shift is held", () => {
     const testEditor = new ProseMirrorTester(initialDoc);
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("{Shift-b}");
 
@@ -51,7 +51,7 @@ describe("modifier suppression", () => {
       },
     });
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("{Ctrl-b}");
 

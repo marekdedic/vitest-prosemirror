@@ -47,7 +47,7 @@ describe("keyboard events", () => {
   test("should set key, code and keyCode for a character key", () => {
     const { events, plugin } = recordEvents();
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("a");
 
@@ -69,7 +69,7 @@ describe("keyboard events", () => {
       },
     });
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("a{Shift}");
 
@@ -91,7 +91,7 @@ describe("keyboard events", () => {
     const testEditor = new ProseMirrorTester(initialDoc, {
       plugins: [plugin, keymap(baseKeymap)],
     });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("{Enter}");
 
@@ -135,7 +135,7 @@ describe("keyboard events", () => {
       },
     });
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("a");
 
@@ -149,7 +149,7 @@ describe("keyboard events", () => {
   test("should set the keyCode of named keys", () => {
     const { events, plugin } = recordEvents();
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("{Backspace}{ArrowLeft}{Escape}");
 
@@ -246,7 +246,7 @@ describe("keyboard events", () => {
   test("should report the uppercase key while Shift is held", () => {
     const { events, plugin } = recordShifted();
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("{Shift-b}");
 
@@ -256,7 +256,7 @@ describe("keyboard events", () => {
   test("should imply Shift when an uppercase letter is typed directly", () => {
     const { events, plugin } = recordShifted();
     const testEditor = new ProseMirrorTester(initialDoc, { plugins: [plugin] });
-    testEditor.selectText("end");
+    testEditor.setSelection("end");
 
     testEditor.type("B");
 

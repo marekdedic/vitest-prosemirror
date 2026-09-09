@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { ProseMirrorTester } from "../src/index";
 import { doc, p, strong } from "./builders";
 
-describe("selectText", () => {
+describe("setSelection", () => {
   test("should handle the 'all' selection", () => {
     const initialDoc = doc(p("first"), p("second"));
 
@@ -19,7 +19,7 @@ describe("selectText", () => {
       ],
     });
 
-    testEditor.selectText("all");
+    testEditor.setSelection("all");
     testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("first")), p(strong("second")));
@@ -38,7 +38,7 @@ describe("selectText", () => {
       ],
     });
 
-    testEditor.selectText(TextSelection.create(initialDoc, 1, 5));
+    testEditor.setSelection(TextSelection.create(initialDoc, 1, 5));
     testEditor.type("{Mod-b}");
 
     const expectedDoc = doc(p(strong("some"), " text"));

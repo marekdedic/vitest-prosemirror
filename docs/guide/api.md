@@ -20,7 +20,7 @@ new ProseMirrorTester(documentRoot: Node, options?: Partial<Options>)
 - `documentRoot` — the starting document, typically built with
   `prosemirror-test-builder`. Any selection tags (`<cursor>`, `<a>`, …) on it are
   recorded but do **not** set the initial selection — apply one with
-  [`selectText`](#selections) (e.g. `selectText("cursor")`).
+  [`setSelection`](#selections) (e.g. `setSelection("cursor")`).
 - `options` — `Options` (see below), all fields optional.
 
 ### Options
@@ -70,7 +70,7 @@ editor.type("Hello{Enter}world");
 See [Simulating input](/guide/simulating-input#typing) for the full key syntax
 and which keys are supported.
 
-#### `selectText(selection: TesterSelection): void`
+#### `setSelection(selection: TesterSelection): void`
 
 Sets the selection. See [selections](#selections) for the accepted forms.
 
@@ -167,7 +167,7 @@ expect(editor).toHaveSelection({ anchor: 1, head: 6 });
 
 ## Selections
 
-A `TesterSelection` — accepted by `selectText` and `toHaveSelection` — can be any
+A `TesterSelection` — accepted by `setSelection` and `toHaveSelection` — can be any
 of:
 
 | Form                          | Meaning                                                    |
@@ -184,7 +184,7 @@ it, read off the document's tags:
 
 ```ts
 const editor = new ProseMirrorTester(doc(p("some<a>where<b>")));
-editor.selectText({ anchor: "a", head: "b" });
+editor.setSelection({ anchor: "a", head: "b" });
 ```
 
 ## `parseHTML`

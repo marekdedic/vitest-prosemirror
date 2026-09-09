@@ -62,14 +62,14 @@ import { expect, test } from "vitest";
 test("typing inserts text at the selection", () => {
   const editor = new ProseMirrorTester(doc(p("Hello")));
 
-  editor.selectText("end");
+  editor.setSelection("end");
   editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 });
 ```
 
-`selectText` positions the caret before you type — here at the end of the
+`setSelection` positions the caret before you type — here at the end of the
 document. See
 [describing selections](/guide/writing-a-test#describing-selections) for every
 form it accepts.

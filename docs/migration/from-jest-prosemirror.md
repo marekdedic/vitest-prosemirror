@@ -44,7 +44,7 @@ test("typing inserts text", () => {
 ```
 
 `vitest-prosemirror` uses a plain object with getters — act, then read the state
-directly. There's no callback, and note the added `selectText("cursor")` (see
+directly. There's no callback, and note the added `setSelection("cursor")` (see
 the next section):
 
 ```ts
@@ -55,7 +55,7 @@ import { expect, test } from "vitest";
 test("typing inserts text", () => {
   const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
 
-  editor.selectText("cursor");
+  editor.setSelection("cursor");
   editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
@@ -73,18 +73,18 @@ types at the cursor.
 `vitest-prosemirror` does not do this. The tags are still recorded on the
 document, but the constructor leaves the selection at its default (the document
 start). You turn a tag into a selection **explicitly**, with
-[`selectText`](/guide/writing-a-test#describing-selections):
+[`setSelection`](/guide/writing-a-test#describing-selections):
 
 ```ts
 const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
 
-editor.selectText("cursor"); // ← without this, typing lands at the start
+editor.setSelection("cursor"); // ← without this, typing lands at the start
 editor.type("!");
 ```
 
 So every ported test that relied on a tag positioning the caret needs a
-`selectText(...)` call added after construction — `selectText("cursor")` for a
-`<cursor>`, `selectText({ anchor: "a", head: "b" })` for a tagged range, and so
+`setSelection(...)` call added after construction — `setSelection("cursor")` for a
+`<cursor>`, `setSelection({ anchor: "a", head: "b" })` for a tagged range, and so
 on.
 
 ## API mapping
@@ -95,7 +95,7 @@ on.
 | `.insertText("x")`                   | `editor.type("x")`                                  |
 | `.press("Enter")`                    | `editor.type("{Enter}")`                            |
 | `.shortcut("Mod-b")`                 | `editor.type("{Mod-b}")`                            |
-| `.jumpTo(pos)` / `.jumpTo(a, b)`     | `editor.selectText(pos)` / `editor.selectText({ anchor, head })` |
+| `.jumpTo(pos)` / `.jumpTo(a, b)`     | `editor.setSelection(pos)` / `editor.setSelection({ anchor, head })` |
 | `.command(cmd)`                      | `editor.command(cmd)`                                     |
 | `.paste(content)`                    | `editor.paste(content)`                                   |
 | `.fire({ event: "click", … })`       | `editor.click(target)`                                    |

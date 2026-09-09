@@ -136,7 +136,7 @@ export class ProseMirrorTester {
     paste(this.view, content);
   }
 
-  public selectText(selection: TesterSelection): void {
+  public setSelection(selection: TesterSelection): void {
     this.assertAlive();
     this.view.dispatch(
       this.view.state.tr.setSelection(resolveSelection(this.doc, selection)),
