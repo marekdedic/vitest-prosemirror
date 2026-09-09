@@ -17,12 +17,18 @@
   },
   "license": "MIT",
   "author": "Marek Dědič",
-  "sideEffects": true,
+  "sideEffects": [
+    "./dist/setup.js"
+  ],
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./setup": {
+      "types": "./dist/setup.d.ts",
+      "import": "./dist/setup.js"
     }
   },
   "module": "dist/index.js",

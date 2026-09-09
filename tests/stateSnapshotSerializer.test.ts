@@ -4,7 +4,6 @@ import { AllSelection, NodeSelection } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/ProseMirrorTester";
-import "../src/index";
 import { doc, hr, p } from "./builders";
 
 describe("state snapshot serializer", () => {

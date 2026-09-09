@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 
-import "../src/index";
 import { blockquote, doc, em, heading, p, strong } from "./builders";
 
 describe("snapshot serializer", () => {
