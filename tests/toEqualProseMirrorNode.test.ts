@@ -2,7 +2,6 @@ import { type Node, Schema } from "prosemirror-model";
 import { schema as basicSchema } from "prosemirror-schema-basic";
 import { describe, expect, test } from "vitest";
 
-import "../src/index";
 import { doc, p } from "./builders";
 
 const paragraph = (text: string): Node => doc(p(text));

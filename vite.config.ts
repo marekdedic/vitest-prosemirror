@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
 
-import { readFileSync, writeFileSync } from "fs";
+import { copyFileSync } from "fs";
 import dts from "unplugin-dts/vite";
 import { defineConfig } from "vite";
 
@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     lib: {
-      entry: "src/index",
+      entry: { index: "src/index", setup: "src/setup" },
       formats: ["es"],
     },
     minify: false,
@@ -25,18 +25,20 @@ export default defineConfig({
     target: "es2023",
   },
   plugins: [
-    dts({ bundleTypes: true }),
+    dts({
+      bundleTypes: true,
+      exclude: ["src/setup.ts", "src/matchers.d.ts", "node_modules/**"],
+    }),
     {
       closeBundle: (): void => {
-        let file = readFileSync("dist/vitest-prosemirror.d.ts", "utf8");
-        file = `import 'vitest';\n${file}`;
-        writeFileSync("dist/vitest-prosemirror.d.ts", file, "utf8");
+        copyFileSync("src/matchers.d.ts", "dist/setup.d.ts");
       },
-      name: "pure-import-fixer",
+      name: "setup-dts",
     },
   ],
   test: {
     environment: "jsdom",
     mockReset: true,
+    setupFiles: ["src/setup.ts"],
   },
 });

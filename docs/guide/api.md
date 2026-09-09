@@ -143,7 +143,8 @@ Tears the tester down. Called automatically when `autoCleanup` is `true`.
 
 ## Custom matchers
 
-Registered on `expect` when you import the package (via `setupFiles`). Because
+Registered on `expect` when `vitest-prosemirror/setup` is loaded (via
+`setupFiles`). Because
 these compare documents as `prosemirror-test-builder` source, failing assertions
 produce readable, code-shaped diffs.
 

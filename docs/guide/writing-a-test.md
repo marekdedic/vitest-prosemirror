@@ -92,7 +92,7 @@ these *after* acting, never before.
 
 A mounted tester attaches a node to `document.body` and installs some global
 mocks, so it has to be torn down between tests. You don't have to do this
-yourself: importing the package (via
+yourself: loading `vitest-prosemirror/setup` (via
 [`setupFiles`](/guide/getting-started#installation)) registers an `afterEach`
 hook that destroys every tester automatically.
 

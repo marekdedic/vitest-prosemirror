@@ -28,7 +28,7 @@ export default defineConfig({
 });
 ```
 
-Import `vitest-prosemirror` once from a
+Load `vitest-prosemirror/setup` once from a
 [setup file](https://vitest.dev/config/#setupfiles) so its custom matchers and
 snapshot serializers are registered for every test:
 
@@ -39,10 +39,15 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "jsdom",
-    setupFiles: ["vitest-prosemirror"],
+    setupFiles: ["vitest-prosemirror/setup"],
   },
 });
 ```
+
+The main `vitest-prosemirror` entry has no side effects — it only exports the
+API you import in your tests. Registering the matchers and the automatic
+per-test cleanup is what `vitest-prosemirror/setup` does, which is why it goes in
+`setupFiles` rather than being pulled in by importing the package.
 
 ## Your first test
 

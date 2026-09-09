@@ -2,7 +2,6 @@ import { AllSelection } from "prosemirror-state";
 import { describe, expect, test } from "vitest";
 
 import { ProseMirrorTester } from "../src/ProseMirrorTester";
-import "../src/index";
 import { doc, p } from "./builders";
 
 describe("toHaveSelection", () => {
