@@ -87,7 +87,9 @@ const makeDoc = (): ProseMirrorNode =>
 
 describe("node views", () => {
   test("ProseMirror builds the node views with a real getPos", () => {
-    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), {
+      editorProps: { nodeViews },
+    });
 
     const boxes = testEditor.elements('input[type="checkbox"]');
 
@@ -103,7 +105,9 @@ describe("node views", () => {
 
   test("update() runs when the document changes", () => {
     const updateSpy = vi.spyOn(TodoView.prototype, "update");
-    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), {
+      editorProps: { nodeViews },
+    });
 
     updateSpy.mockClear();
     testEditor.setSelection("start");
@@ -118,7 +122,9 @@ describe("node views", () => {
 
   test("destroy() runs when the tester is destroyed", () => {
     const destroySpy = vi.spyOn(TodoView.prototype, "destroy");
-    const testEditor = renderProseMirror(makeDoc(), { nodeViews });
+    const testEditor = renderProseMirror(makeDoc(), {
+      editorProps: { nodeViews },
+    });
 
     testEditor.destroy();
 
@@ -131,7 +137,9 @@ describe("node views", () => {
 
 describe("other EditorProps", () => {
   test("editable: () => false renders a non-editable editor", () => {
-    renderProseMirror(makeDoc(), { editable: (): false => false });
+    renderProseMirror(makeDoc(), {
+      editorProps: { editable: (): false => false },
+    });
 
     const editor = document.body.querySelector(".ProseMirror");
 
@@ -140,7 +148,9 @@ describe("other EditorProps", () => {
 
   test("attributes are applied to the editor DOM", () => {
     renderProseMirror(makeDoc(), {
-      attributes: { "aria-label": "My editor", class: "custom-editor" },
+      editorProps: {
+        attributes: { "aria-label": "My editor", class: "custom-editor" },
+      },
     });
 
     const editor = document.body.querySelector(".ProseMirror");

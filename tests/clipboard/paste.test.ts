@@ -68,7 +68,9 @@ describe("paste", () => {
         return true;
       },
     );
-    const testEditor = renderProseMirror(doc(p()), { handlePaste });
+    const testEditor = renderProseMirror(doc(p()), {
+      editorProps: { handlePaste },
+    });
     testEditor.setSelection("start");
 
     testEditor.paste({ html: "<p>x</p>" });
@@ -97,7 +99,9 @@ describe("paste", () => {
         return true;
       },
     );
-    const testEditor = renderProseMirror(doc(p()), { handlePaste });
+    const testEditor = renderProseMirror(doc(p()), {
+      editorProps: { handlePaste },
+    });
     testEditor.setSelection("start");
 
     testEditor.paste({ files: [file] });
@@ -110,8 +114,10 @@ describe("paste", () => {
 
   test("should apply transformPastedHTML", () => {
     const testEditor = renderProseMirror(doc(p()), {
-      transformPastedHTML: (html: string): string =>
-        html.replace("world", "there"),
+      editorProps: {
+        transformPastedHTML: (html: string): string =>
+          html.replace("world", "there"),
+      },
     });
     testEditor.setSelection("start");
 
@@ -129,7 +135,9 @@ describe("paste", () => {
       },
     });
     const testEditor = renderProseMirror(doc(p()), {
-      plugins: [recordMeta],
+      editorProps: {
+        plugins: [recordMeta],
+      },
     });
     testEditor.setSelection("start");
 

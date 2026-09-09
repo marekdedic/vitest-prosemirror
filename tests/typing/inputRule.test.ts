@@ -10,15 +10,17 @@ describe("input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        inputRules({
-          rules: [
-            new InputRule(/!!/u, (state, _, start, end) =>
-              state.tr.replaceWith(start, end, basicSchema.text("XX")),
-            ),
-          ],
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          inputRules({
+            rules: [
+              new InputRule(/!!/u, (state, _, start, end) =>
+                state.tr.replaceWith(start, end, basicSchema.text("XX")),
+              ),
+            ],
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("end");
@@ -33,15 +35,17 @@ describe("input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        inputRules({
-          rules: [
-            new InputRule(/!!/u, (state, _, start, end) =>
-              state.tr.replaceWith(start, end, basicSchema.text("XX")),
-            ),
-          ],
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          inputRules({
+            rules: [
+              new InputRule(/!!/u, (state, _, start, end) =>
+                state.tr.replaceWith(start, end, basicSchema.text("XX")),
+              ),
+            ],
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("end");
@@ -56,15 +60,17 @@ describe("input rule", () => {
     const initialDoc = doc(p("Hello World"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        inputRules({
-          rules: [
-            new InputRule(/!!/u, (state, _, start, end) =>
-              state.tr.replaceWith(start, end, basicSchema.text("XX")),
-            ),
-          ],
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          inputRules({
+            rules: [
+              new InputRule(/!!/u, (state, _, start, end) =>
+                state.tr.replaceWith(start, end, basicSchema.text("XX")),
+              ),
+            ],
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("end");

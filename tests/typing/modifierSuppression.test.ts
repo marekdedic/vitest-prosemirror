@@ -50,7 +50,9 @@ describe("modifier suppression", () => {
         },
       },
     });
-    const testEditor = renderProseMirror(initialDoc, { plugins: [plugin] });
+    const testEditor = renderProseMirror(initialDoc, {
+      editorProps: { plugins: [plugin] },
+    });
     testEditor.setSelection("end");
 
     testEditor.type("{Ctrl-b}");
