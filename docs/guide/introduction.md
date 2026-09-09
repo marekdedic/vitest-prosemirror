@@ -15,7 +15,7 @@ by hand skips all of that — exactly the layer most editor bugs live in.
 `vitest-prosemirror` instead mounts a real `EditorView` inside
 [jsdom](https://github.com/jsdom/jsdom) and drives it through the DOM:
 
-- `insertText` dispatches real `keydown` / `keypress` / `keyup` events and
+- `type` dispatches real `keydown` / `keypress` / `keyup` events and
   synthesises the DOM mutation a browser would make, which ProseMirror reads back
   through its own input path — so your keymaps, input rules and `handleTextInput`
   hooks fire.
@@ -38,7 +38,7 @@ test("typing inserts text at the caret", () => {
   const editor = new ProseMirrorTester(doc(p("Hello")));
 
   editor.selectText("end");
-  editor.insertText(" world");
+  editor.type(" world");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 });

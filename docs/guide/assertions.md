@@ -15,7 +15,7 @@ points at the node that differs.
 The workhorse. It asserts that two documents are structurally equal:
 
 ```ts
-editor.insertText("Hello world");
+editor.type("Hello world");
 
 expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello world")));
 ```

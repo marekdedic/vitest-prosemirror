@@ -20,7 +20,7 @@ features:
   - title: A real editor
     details: Mounts a genuine EditorView in jsdom, so plugins, keymaps, node views and input rules run exactly as they do in production.
   - title: Type like a user
-    details: insertText drives ProseMirror's real DOM input path — keydown, character insertion, deletion and caret motion — not synthetic transactions.
+    details: type drives ProseMirror's real DOM input path — keydown, character insertion, deletion and caret motion — not synthetic transactions.
   - title: Readable assertions
     details: toEqualProseMirrorNode and toHaveSelection compare documents as prosemirror-test-builder source, so failures read like the code you wrote.
 ---

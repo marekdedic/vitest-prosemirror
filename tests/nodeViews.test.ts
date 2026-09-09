@@ -107,7 +107,7 @@ describe("node views", () => {
 
     updateSpy.mockClear();
     testEditor.selectText("start");
-    testEditor.insertText("x");
+    testEditor.type("x");
 
     // eslint-disable-next-line vitest/prefer-called-with -- We assert that update ran at all; ProseMirror controls the exact node argument.
     expect(updateSpy).toHaveBeenCalled();

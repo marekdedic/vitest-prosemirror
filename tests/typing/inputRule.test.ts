@@ -22,7 +22,7 @@ describe("input rule", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("!!");
+    testEditor.type("!!");
 
     const expectedDoc = doc(p("Hello WorldXX"));
 
@@ -45,7 +45,7 @@ describe("input rule", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("!");
+    testEditor.type("!");
 
     const expectedDoc = doc(p("Hello World!"));
 
@@ -68,7 +68,7 @@ describe("input rule", () => {
     });
 
     testEditor.selectText("end");
-    testEditor.insertText("!!Y");
+    testEditor.type("!!Y");
 
     const expectedDoc = doc(p("Hello WorldXXY"));
 

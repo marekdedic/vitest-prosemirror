@@ -21,7 +21,7 @@ test("state is a live getter, not a snapshot", () => {
   const testEditor = makeTester("");
 
   const before = testEditor.state;
-  testEditor.insertText("a");
+  testEditor.type("a");
 
   expect(testEditor.state).not.toBe(before);
   expect(testEditor.state.doc).toEqualProseMirrorNode(doc(p("a")));

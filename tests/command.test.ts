@@ -41,7 +41,7 @@ describe("command", () => {
 
     const testEditor = new ProseMirrorTester(initialDoc);
 
-    testEditor.insertText("x");
+    testEditor.type("x");
     testEditor.selectText("all");
 
     expect(testEditor.command(toggleMark(basicSchema.marks.strong))).toBe(true);

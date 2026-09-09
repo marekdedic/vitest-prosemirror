@@ -9,7 +9,7 @@ describe("bidi caret motion", () => {
     testEditor.selectText("caret");
 
     expect(() => {
-      testEditor.insertText("{ArrowLeft}");
+      testEditor.type("{ArrowLeft}");
     }).toThrow("right-to-left");
   });
 
@@ -18,7 +18,7 @@ describe("bidi caret motion", () => {
     testEditor.selectText("caret");
 
     expect(() => {
-      testEditor.insertText("{ArrowRight}");
+      testEditor.type("{ArrowRight}");
     }).toThrow("right-to-left");
   });
 
@@ -27,7 +27,7 @@ describe("bidi caret motion", () => {
     testEditor.selectText("caret");
 
     expect(() => {
-      testEditor.insertText("{Shift-ArrowRight}");
+      testEditor.type("{Shift-ArrowRight}");
     }).toThrow("right-to-left");
   });
 
@@ -36,7 +36,7 @@ describe("bidi caret motion", () => {
     testEditor.selectText({ anchor: 1, head: 4 });
 
     expect(() => {
-      testEditor.insertText("{ArrowRight}");
+      testEditor.type("{ArrowRight}");
     }).toThrow("right-to-left");
   });
 
@@ -46,7 +46,7 @@ describe("bidi caret motion", () => {
 
     // Moving left stays inside the Latin text node, so it is unaffected.
     expect(() => {
-      testEditor.insertText("{ArrowLeft}x");
+      testEditor.type("{ArrowLeft}x");
     }).not.toThrow();
     expect(testEditor.doc).toEqualProseMirrorNode(doc(p("xabc", em("אבג"))));
   });

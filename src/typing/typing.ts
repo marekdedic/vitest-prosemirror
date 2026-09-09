@@ -37,7 +37,7 @@ const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
 
 const isLetter = (key: string): boolean => /^[a-z]$/iu.test(key);
 
-export function insertText(view: EditorView, text: string): void {
+export function type(view: EditorView, text: string): void {
   for (const token of tokenizeKeyboardInput(text)) {
     const { key, modifiers } = parseKeyChord(token);
     const character =

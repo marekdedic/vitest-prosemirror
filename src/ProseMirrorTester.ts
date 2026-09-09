@@ -9,7 +9,7 @@ import { click, element, elements } from "./domInteraction";
 import { mockRangeRects } from "./mockRangeRects";
 import { MutationObserverMock } from "./MutationObserverMock";
 import { resolveSelection, type TesterSelection } from "./selection";
-import { insertText } from "./typing/typing";
+import { type } from "./typing/typing";
 
 export interface Options extends Omit<
   DirectEditorProps,
@@ -131,11 +131,6 @@ export class ProseMirrorTester {
     return elements(this.view, selector);
   }
 
-  public insertText(text: string): void {
-    this.assertAlive();
-    insertText(this.view, text);
-  }
-
   public paste(content: PasteInput): void {
     this.assertAlive();
     paste(this.view, content);
@@ -146,6 +141,11 @@ export class ProseMirrorTester {
     this.view.dispatch(
       this.view.state.tr.setSelection(resolveSelection(this.doc, selection)),
     );
+  }
+
+  public type(text: string): void {
+    this.assertAlive();
+    type(this.view, text);
   }
 
   private assertAlive(): void {

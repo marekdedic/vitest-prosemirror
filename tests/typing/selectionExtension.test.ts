@@ -8,7 +8,7 @@ describe("selection extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("H<caret>ello")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{Shift-ArrowRight}");
+    testEditor.type("{Shift-ArrowRight}");
 
     expect(testEditor.state.selection.anchor).toBe(2);
     expect(testEditor.state.selection.head).toBe(3);
@@ -18,7 +18,7 @@ describe("selection extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("He<caret>llo")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{Shift-ArrowLeft}");
+    testEditor.type("{Shift-ArrowLeft}");
 
     expect(testEditor.state.selection.anchor).toBe(3);
     expect(testEditor.state.selection.head).toBe(2);
@@ -28,13 +28,13 @@ describe("selection extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("a<caret>👍b")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{Shift-ArrowRight}");
+    testEditor.type("{Shift-ArrowRight}");
 
     expect(testEditor.state.selection.from).toBe(2);
     expect(testEditor.state.selection.to).toBe(4);
 
     // Typing over the extended range replaces the whole emoji.
-    testEditor.insertText("x");
+    testEditor.type("x");
 
     expect(testEditor.doc).toEqualProseMirrorNode(doc(p("axb")));
   });
@@ -43,7 +43,7 @@ describe("selection extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("Hello")));
 
     testEditor.selectText({ anchor: 2, head: 4 });
-    testEditor.insertText("{Shift-ArrowLeft}");
+    testEditor.type("{Shift-ArrowLeft}");
 
     expect(testEditor.state.selection.anchor).toBe(2);
     expect(testEditor.state.selection.head).toBe(3);
@@ -53,7 +53,7 @@ describe("selection extension", () => {
     const testEditor = new ProseMirrorTester(doc(p("<caret>Hello")));
 
     testEditor.selectText("caret");
-    testEditor.insertText("{Shift-ArrowRight}{Shift-ArrowRight}x");
+    testEditor.type("{Shift-ArrowRight}{Shift-ArrowRight}x");
 
     expect(testEditor.doc).toEqualProseMirrorNode(doc(p("xllo")));
   });
@@ -63,10 +63,10 @@ describe("selection extension", () => {
     testEditor.selectText("start");
 
     expect(() => {
-      testEditor.insertText("{Ctrl-ArrowRight}");
+      testEditor.type("{Ctrl-ArrowRight}");
     }).toThrow('Cannot simulate the "ArrowRight" key');
     expect(() => {
-      testEditor.insertText("{Shift-Ctrl-ArrowRight}");
+      testEditor.type("{Shift-Ctrl-ArrowRight}");
     }).toThrow('Cannot simulate the "ArrowRight" key');
   });
 });

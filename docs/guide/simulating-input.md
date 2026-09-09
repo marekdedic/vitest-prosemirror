@@ -6,11 +6,11 @@ This page covers all three.
 
 ## Typing
 
-`insertText` types into the editor at the current selection. Plain text is typed
+`type` types into the editor at the current selection. Plain text is typed
 character by character:
 
 ```ts
-editor.insertText("Hello world");
+editor.type("Hello world");
 ```
 
 Each character dispatches a real `keydown` → `keypress` → `keyup` sequence and
@@ -25,9 +25,9 @@ be delimited with braces `{…}` or square brackets `[…]` — the parser treat
 two the same, so use whichever reads best:
 
 ```ts
-editor.insertText("Hello{Enter}world");
-editor.insertText("typo{Backspace}");
-editor.insertText("{ArrowLeft}{ArrowLeft}");
+editor.type("Hello{Enter}world");
+editor.type("typo{Backspace}");
+editor.type("{ArrowLeft}{ArrowLeft}");
 ```
 
 The one special form is a `Key<Letter>` group, which resolves to that letter —
@@ -36,22 +36,22 @@ key. It's conventionally written with brackets, but, like every group, either
 delimiter works:
 
 ```ts
-editor.insertText("[KeyH][KeyI]"); // types "hi"
+editor.type("[KeyH][KeyI]"); // types "hi"
 ```
 
 Groups and text can be mixed freely in one call, and a group can follow plain
 text with no separator:
 
 ```ts
-editor.insertText("first line{Enter}second line");
+editor.type("first line{Enter}second line");
 ```
 
 To type a literal delimiter, double the opener — a pair of `{` yields one `{`, and
 a pair of `[` yields one `[`:
 
 ```ts
-editor.insertText("{{"); // types a single {
-editor.insertText("[["); // types a single [
+editor.type("{{"); // types a single {
+editor.type("[["); // types a single [
 ```
 
 ### Modifiers and chords
@@ -59,8 +59,8 @@ editor.insertText("[["); // types a single [
 Combine a key with modifiers using `-`, just like a `prosemirror-keymap` binding:
 
 ```ts
-editor.insertText("{Mod-b}bold{Mod-b} not bold");
-editor.insertText("{Shift-ArrowRight}"); // extend the selection one grapheme
+editor.type("{Mod-b}bold{Mod-b} not bold");
+editor.type("{Shift-ArrowRight}"); // extend the selection one grapheme
 ```
 
 The modifier names match prosemirror-keymap: `Shift`, `Ctrl` (or `Control`),
@@ -123,7 +123,7 @@ command and test that (see below), or set the selection directly with
 
 ## Input rules
 
-Because `insertText` synthesises the DOM edit and lets ProseMirror read it back
+Because `type` synthesises the DOM edit and lets ProseMirror read it back
 through its own input path, [input rules](https://prosemirror.net/docs/ref/#inputrules)
 fire as you type: typing a rule's trigger runs the rule, exactly as it would in
 the browser.
@@ -154,7 +154,7 @@ test("typing !! runs the input rule", () => {
   });
 
   editor.selectText("cursor");
-  editor.insertText("!!");
+  editor.type("!!");
 
   expect(editor.doc).toEqualProseMirrorNode(doc(p("Hello World‼")));
 });
@@ -201,7 +201,7 @@ const editor = new ProseMirrorTester(doc(p("<a>some text<b>")), {
 });
 
 editor.selectText({ anchor: "a", head: "b" });
-editor.insertText("{Mod-b}");
+editor.type("{Mod-b}");
 
 expect(editor.doc).toEqualProseMirrorNode(doc(p(strong("some text"))));
 ```

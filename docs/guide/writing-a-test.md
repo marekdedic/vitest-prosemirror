@@ -185,7 +185,7 @@ test("Enter splits the paragraph at the caret", () => {
   editor.selectText("cursor");
 
   // Act
-  editor.insertText("{Enter}");
+  editor.type("{Enter}");
 
   // Assert
   expect(editor.doc).toEqualProseMirrorNode(doc(p("one"), p("two")));
@@ -194,6 +194,6 @@ test("Enter splits the paragraph at the caret", () => {
 
 ## Next steps
 
-- [Simulating input](/guide/simulating-input) — the full `insertText` key syntax,
+- [Simulating input](/guide/simulating-input) — the full `type` key syntax,
   running commands, and the clipboard.
 - [API reference](/guide/api) — every method, option and matcher in one place.
