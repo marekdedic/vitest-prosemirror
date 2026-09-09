@@ -15,24 +15,55 @@ implementation class, which is now internal.
 // before
 import { ProseMirrorTester } from "vitest-prosemirror";
 
-const editor = new ProseMirrorTester(doc(p("Hello<cursor>")), { plugins });
+const editor = new ProseMirrorTester(doc(p("Hello<cursor>")));
 
 // after
 import { renderProseMirror } from "vitest-prosemirror";
 
-const editor = renderProseMirror(doc(p("Hello<cursor>")), { plugins });
+const editor = renderProseMirror(doc(p("Hello<cursor>")));
 ```
 
-The arguments, options and returned editor are unchanged; `autoCleanup` and the
-automatic `afterEach` teardown behave exactly as before. Where you referenced the
-`ProseMirrorTester` type (e.g. a helper's return type), use `ProseMirrorEditor`
-instead:
+The document argument and returned editor are unchanged, and the automatic
+`afterEach` teardown behaves exactly as before. The options object is
+restructured — see [_`EditorProps` now nest under `editorProps`_](#editorprops-now-nest-under-editorprops)
+below. Where you referenced the `ProseMirrorTester` type (e.g. a helper's return
+type), use `ProseMirrorEditor` instead:
 
 ```ts
 // codemod-friendly find & replace
 - new ProseMirrorTester(
 + renderProseMirror(
 ```
+
+## `EditorProps` now nest under `editorProps`
+
+The `EditorProps` passed to the underlying `EditorView` (`plugins`, `nodeViews`,
+`editable`, `attributes`, `handleDOMEvents`, and so on) used to sit at the top
+level of the options object, mixed in with the tester's own `autoCleanup` flag.
+They now live under a dedicated `editorProps` key, cleanly separated from the
+tester options.
+
+```ts
+// before
+renderProseMirror(doc(p("Hello<cursor>")), {
+  plugins: [keymap(baseKeymap)],
+  nodeViews: { todo },
+  autoCleanup: false,
+});
+
+// after
+renderProseMirror(doc(p("Hello<cursor>")), {
+  editorProps: {
+    plugins: [keymap(baseKeymap)],
+    nodeViews: { todo },
+  },
+  autoCleanup: false,
+});
+```
+
+`autoCleanup` stays at the top level; every other option moves inside
+`editorProps`. Its behaviour, including that `plugins` is routed into
+`EditorState.create`, is otherwise unchanged.
 
 ## `insertText` is now `type`
 

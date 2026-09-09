@@ -12,11 +12,13 @@ describe("setSelection", () => {
     const initialDoc = doc(p("first"), p("second"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        keymap({
-          "Mod-b": toggleMark(basicSchema.marks.strong),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("all");
@@ -31,11 +33,13 @@ describe("setSelection", () => {
     const initialDoc = doc(p("some text"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        keymap({
-          "Mod-b": toggleMark(basicSchema.marks.strong),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection(TextSelection.create(initialDoc, 1, 5));

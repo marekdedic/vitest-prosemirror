@@ -104,7 +104,9 @@ import { expect, test } from "vitest";
 // click listener that dispatches a setNodeAttribute transaction.)
 
 test("clicking the second checkbox toggles only the second item", () => {
-  const editor = renderProseMirror(makeDoc(), { nodeViews: { todo } });
+  const editor = renderProseMirror(makeDoc(), {
+    editorProps: { nodeViews: { todo } },
+  });
 
   const boxes = editor.elements('input[type="checkbox"]');
   editor.click(boxes[1]);
@@ -128,7 +130,9 @@ works too, and is how many real editors register them:
 
 ```ts
 renderProseMirror(doc, {
-  plugins: [new Plugin({ props: { nodeViews: { todo } } })],
+  editorProps: {
+    plugins: [new Plugin({ props: { nodeViews: { todo } } })],
+  },
 });
 ```
 

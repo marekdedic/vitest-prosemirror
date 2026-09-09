@@ -88,7 +88,9 @@ describe("deletion", () => {
     const initialDoc = doc(p("Hel<selStart>lo"), p("Wo<selEnd>rld"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [keymap(baseKeymap)],
+      editorProps: {
+        plugins: [keymap(baseKeymap)],
+      },
     });
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
@@ -103,7 +105,9 @@ describe("deletion", () => {
     const initialDoc = doc(p("ab"), p("<cursor>cd"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [keymap(baseKeymap)],
+      editorProps: {
+        plugins: [keymap(baseKeymap)],
+      },
     });
 
     testEditor.setSelection("cursor");
@@ -118,7 +122,9 @@ describe("deletion", () => {
     const initialDoc = doc(p("ab<cursor>"), p("cd"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [keymap(baseKeymap)],
+      editorProps: {
+        plugins: [keymap(baseKeymap)],
+      },
     });
 
     testEditor.setSelection("cursor");
@@ -133,7 +139,9 @@ describe("deletion", () => {
     const initialDoc = doc(blockquote(p("<cursor>ab")));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [keymap(baseKeymap)],
+      editorProps: {
+        plugins: [keymap(baseKeymap)],
+      },
     });
 
     testEditor.setSelection("cursor");
@@ -148,16 +156,18 @@ describe("deletion", () => {
     const initialDoc = doc(p("Hello World"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        inputRules({
-          rules: [
-            new InputRule(/!!/u, (state, _, start, end) =>
-              state.tr.replaceWith(start, end, basicSchema.text("XX")),
-            ),
-          ],
-        }),
-        keymap({ Backspace: undoInputRule }),
-      ],
+      editorProps: {
+        plugins: [
+          inputRules({
+            rules: [
+              new InputRule(/!!/u, (state, _, start, end) =>
+                state.tr.replaceWith(start, end, basicSchema.text("XX")),
+              ),
+            ],
+          }),
+          keymap({ Backspace: undoInputRule }),
+        ],
+      },
     });
 
     testEditor.setSelection("end");

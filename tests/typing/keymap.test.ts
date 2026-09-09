@@ -11,11 +11,13 @@ describe("keymap", () => {
     const initialDoc = doc(p("<selStart>some text<selEnd>"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        keymap({
-          "Mod-b": toggleMark(basicSchema.marks.strong),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
@@ -30,11 +32,13 @@ describe("keymap", () => {
     const initialDoc = doc(p("<selStart>some text<selEnd>"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        keymap({
-          "Mod-b": setBlockType(basicSchema.nodes.code_block),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": setBlockType(basicSchema.nodes.code_block),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
@@ -49,11 +53,13 @@ describe("keymap", () => {
     const initialDoc = doc(p());
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [
-        keymap({
-          "Mod-b": toggleMark(basicSchema.marks.strong),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("end");
@@ -67,11 +73,13 @@ describe("keymap", () => {
   // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
   const wrappingEditor = (): ProseMirrorEditor =>
     renderProseMirror(doc(p("<selStart>some text<selEnd>")), {
-      plugins: [
-        keymap({
-          B: wrapIn(basicSchema.nodes.blockquote),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            B: wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
     });
 
   const wrappedDoc = doc(blockquote(p("some text")));
@@ -96,11 +104,13 @@ describe("keymap", () => {
 
   test("should not trigger a Shift-<letter> binding, as a browser does not", () => {
     const testEditor = renderProseMirror(doc(p()), {
-      plugins: [
-        keymap({
-          "Shift-b": wrapIn(basicSchema.nodes.blockquote),
-        }),
-      ],
+      editorProps: {
+        plugins: [
+          keymap({
+            "Shift-b": wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
     });
 
     testEditor.setSelection("start");

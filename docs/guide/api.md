@@ -26,17 +26,31 @@ renderProseMirror(documentRoot: Node, options?: Partial<Options>): ProseMirrorEd
 
 ### Options
 
-`Options` is every
+`Options` takes the editor props and tester configuration:
+
+| Option        | Type          | Default | Description                                                                 |
+| ------------- | ------------- | ------- | --------------------------------------------------------------------------- |
+| `editorProps` | `EditorProps` | `{}`    | The props passed to the `EditorView`. See below.                            |
+| `autoCleanup` | `boolean`     | `true`  | When `true`, the editor is destroyed automatically in an `afterEach` hook.  |
+
+`editorProps` is every
 [`EditorProps`](https://prosemirror.net/docs/ref/#view.EditorProps) an app can
 pass to an `EditorView` — `nodeViews`, `markViews`, `editable`, `attributes`,
 `handleDOMEvents`, the clipboard hooks, and so on — **except** `state` and
-`dispatchTransaction`, plus one tester-specific flag:
+`dispatchTransaction`. Everything in it is spread straight into the `EditorView`
+constructor, for full config parity with production, with one exception:
+`plugins` is routed into `EditorState.create` (the only form in which plugin
+state works).
 
-| Option        | Type      | Default | Description                                                                                     |
-| ------------- | --------- | ------- | ----------------------------------------------------------------------------------------------- |
-| `plugins`     | `Plugin[]`| `[]`    | Routed into `EditorState.create`, the only form in which plugin state works.                    |
-| `autoCleanup` | `boolean` | `true`  | When `true`, the editor is destroyed automatically in an `afterEach` hook.                      |
-| _…any other `EditorProps`_ | | | Spread straight into the `EditorView` constructor, for full config parity with production. |
+```ts
+renderProseMirror(doc(p("Line one<cursor>")), {
+  autoCleanup: false,
+  editorProps: {
+    plugins: [keymap(baseKeymap)],
+    nodeViews: { todo },
+  },
+});
+```
 
 `state` is excluded because it is built from the `documentRoot` argument.
 `dispatchTransaction` is excluded on purpose: overriding it would replace the

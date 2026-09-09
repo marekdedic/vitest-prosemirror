@@ -142,8 +142,9 @@ const { doc, paragraph: p } = builders(schema);
 
 test("typing !! runs the input rule", () => {
   const editor = renderProseMirror(doc(p("Hello World<cursor>")), {
-    plugins: [
-      inputRules({
+    editorProps: {
+      plugins: [
+        inputRules({
         rules: [
           new InputRule(/!!/u, (state, _match, start, end) =>
             state.tr.replaceWith(start, end, schema.text("‼")),
@@ -151,6 +152,7 @@ test("typing !! runs the input rule", () => {
         ],
       }),
     ],
+    },
   });
 
   editor.setSelection("cursor");
@@ -197,7 +199,9 @@ instead:
 import { keymap } from "prosemirror-keymap";
 
 const editor = renderProseMirror(doc(p("<a>some text<b>")), {
-  plugins: [keymap({ "Mod-b": toggleMark(schema.marks.strong) })],
+  editorProps: {
+    plugins: [keymap({ "Mod-b": toggleMark(schema.marks.strong) })],
+  },
 });
 
 editor.setSelection({ anchor: "a", head: "b" });

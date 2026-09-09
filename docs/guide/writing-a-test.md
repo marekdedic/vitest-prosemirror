@@ -66,20 +66,23 @@ import { renderProseMirror } from "vitest-prosemirror";
 const editor = renderProseMirror(document, options);
 ```
 
-The second argument is the same set of
+The second argument holds the tester options. The editor's own configuration
+goes under `editorProps` — the same set of
 [`EditorProps`](https://prosemirror.net/docs/ref/#view.EditorProps) you would
-pass to a production `EditorView` — `plugins`, `nodeViews`, `attributes`,
-`handleDOMEvents`, and so on — so your test configures the editor exactly as your
+pass to a production `EditorView` (`plugins`, `nodeViews`, `attributes`,
+`handleDOMEvents`, and so on), so your test configures the editor exactly as your
 app does. Two props are managed by the tester and can't be passed (`state` and
-`dispatchTransaction`), and one extra flag (`autoCleanup`) is added. See
-[Options](/guide/api#options) for the full list.
+`dispatchTransaction`). Alongside `editorProps`, the tester's own `autoCleanup`
+flag lives at the top level. See [Options](/guide/api#options) for the full list.
 
 ```ts
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
 
 const editor = renderProseMirror(doc(p("Line one<cursor>")), {
-  plugins: [keymap(baseKeymap)],
+  editorProps: {
+    plugins: [keymap(baseKeymap)],
+  },
 });
 ```
 
@@ -180,7 +183,9 @@ import { expect, test } from "vitest";
 test("Enter splits the paragraph at the caret", () => {
   // Arrange
   const editor = renderProseMirror(doc(p("one<cursor>two")), {
-    plugins: [keymap(baseKeymap)],
+    editorProps: {
+      plugins: [keymap(baseKeymap)],
+    },
   });
   editor.setSelection("cursor");
 

@@ -46,7 +46,9 @@ describe("type", () => {
     const initialDoc = doc(p("Line one"));
 
     const testEditor = renderProseMirror(initialDoc, {
-      plugins: [keymap(baseKeymap)],
+      editorProps: {
+        plugins: [keymap(baseKeymap)],
+      },
     });
 
     testEditor.setSelection("end");
