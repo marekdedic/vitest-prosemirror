@@ -14,8 +14,9 @@ npm install --save-dev vitest-prosemirror prosemirror-test-builder
 is what the examples throughout this guide use to write documents concisely
 (`doc(p("…"))`); it's optional, but recommended.
 
-The package uses jsdom, so make sure your Vitest config uses the `jsdom`
-environment:
+The package needs a DOM, so make sure your Vitest config uses a DOM
+environment — either [`jsdom`](https://github.com/jsdom/jsdom) or
+[`happy-dom`](https://github.com/capricorn86/happy-dom) works:
 
 ```ts
 // vitest.config.ts
@@ -23,7 +24,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
+    environment: "jsdom", // or "happy-dom"
   },
 });
 ```
@@ -38,7 +39,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
+    environment: "jsdom", // or "happy-dom"
     setupFiles: ["vitest-prosemirror/setup"],
   },
 });
