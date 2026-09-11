@@ -37,7 +37,7 @@ export default defineConfig({
     },
   ],
   test: {
-    environment: "jsdom",
+    environment: process.env["VITEST_ENVIRONMENT"] ?? "jsdom",
     mockReset: true,
     setupFiles: ["src/setup.ts"],
   },
