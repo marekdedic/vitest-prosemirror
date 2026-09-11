@@ -60,7 +60,7 @@ export function type(view: EditorView, text: string): void {
       shiftKey,
     };
 
-    const keydownEvent = new KeyboardEvent("keydown", eventInit);
+    const keydownEvent = keyboardEvent("keydown", eventInit);
     view.dispatchEvent(keydownEvent);
 
     // A cancelled keydown suppresses the keypress and the typing, but not the keyup.
@@ -72,7 +72,7 @@ export function type(view: EditorView, text: string): void {
         moveCaret(view, action.direction, action.extend);
       } else if (action.type === "type") {
         view.dispatchEvent(
-          new KeyboardEvent("keypress", {
+          keyboardEvent("keypress", {
             ...eventInit,
             // Keypress reports the code point of the character, not the key's virtual code.
             charCode: identity.charCode,
@@ -83,7 +83,7 @@ export function type(view: EditorView, text: string): void {
       }
     }
 
-    view.dispatchEvent(new KeyboardEvent("keyup", eventInit));
+    view.dispatchEvent(keyboardEvent("keyup", eventInit));
   }
 }
 
@@ -119,4 +119,20 @@ function keyAction(key: string, modifiers?: KeyboardModifiers): KeyAction {
     return { character: key, type: "type" };
   }
   throw new Error(`Cannot simulate the "${key}" key`);
+}
+
+function keyboardEvent(
+  eventType: string,
+  init: KeyboardEventInit,
+): KeyboardEvent {
+  const event = new KeyboardEvent(eventType, { ...init });
+  // Happy-dom's KeyboardEvent ignores the legacy `charCode` init, so re-apply it
+  if (!Object.hasOwn(event, "charCode")) {
+    Object.defineProperty(event, "charCode", {
+      configurable: true,
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- supporting deprecated charCode for legacy code that reads it.
+      value: init.charCode,
+    });
+  }
+  return event;
 }
