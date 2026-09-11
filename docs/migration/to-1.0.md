@@ -3,6 +3,65 @@
 The 1.0 release changes the public API. It contains breaking changes, each with
 a mechanical migration. This page lists them.
 
+## Matcher registration moved to a `vitest-prosemirror/setup` entrypoint
+
+Importing the main `vitest-prosemirror` entry no longer registers the custom
+matchers, snapshot serializers, and `afterEach` cleanup hook as import side
+effects. That setup now lives in a dedicated `vitest-prosemirror/setup`
+entrypoint, loaded once via
+[`setupFiles`](https://vitest.dev/config/#setupfiles) — matching the idiomatic
+Vitest pattern (as in `@testing-library/jest-dom`). The main entry is now a pure
+module that only re-exports the API.
+
+Point `setupFiles` at `vitest-prosemirror/setup` instead of
+`vitest-prosemirror`:
+
+```ts
+// before — vitest.config.ts
+export default defineConfig({
+  test: {
+    setupFiles: ["vitest-prosemirror"],
+  },
+});
+
+// after
+export default defineConfig({
+  test: {
+    setupFiles: ["vitest-prosemirror/setup"],
+  },
+});
+```
+
+If you instead relied on the side effect by importing the package for its effect
+in a test or setup file, repoint that import:
+
+```ts
+// before
+import "vitest-prosemirror";
+
+// after
+import "vitest-prosemirror/setup";
+```
+
+Value and type imports from `vitest-prosemirror` (`renderProseMirror`,
+`parseHTML`, `ProseMirrorEditor`, …) are unchanged — only the setup side effect
+moved.
+
+### Type checking
+
+The `declare module "vitest"` augmentation that types `toEqualProseMirrorNode`
+on `expect(...)` moved into the setup entry too. In order for the type checker to
+find these, list the setup entry in your `tsconfig.json`'s `types`:
+
+```jsonc
+// tsconfig.json
+{
+  "compilerOptions": {
+    "types": ["vitest-prosemirror/setup"]
+  }
+}
+```
+
 ## `new ProseMirrorTester(...)` is now `renderProseMirror(...)`
 
 The `ProseMirrorTester` class and its `new` constructor have been replaced by a
