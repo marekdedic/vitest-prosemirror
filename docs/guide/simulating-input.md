@@ -64,8 +64,8 @@ editor.type("{Shift-ArrowRight}"); // extend the selection one grapheme
 ```
 
 The modifier names match prosemirror-keymap: `Shift`, `Ctrl` (or `Control`),
-`Alt`, `Meta` (or `Cmd`), and `Mod`. Because jsdom reports no platform, **`Mod`
-resolves to `Ctrl`** (it would be `Meta` on macOS). A trailing `-` is the literal
+`Alt`, `Meta` (or `Cmd`), and `Mod`. Because the headless DOM reports no
+platform, **`Mod` resolves to `Ctrl`** (it would be `Meta` on macOS). A trailing `-` is the literal
 minus key, so `{Mod--}` is Ctrl-minus.
 
 A modifier on its own is a no-op — `{Shift}` presses and releases Shift without
@@ -108,8 +108,8 @@ So `{Enter}` only splits a paragraph if a keymap binds `Enter` (for example
 and rather than silently type the word "Enter" into your document, it throws
 `Cannot simulate the "Enter" key`.
 
-The same throw guards keys that jsdom genuinely can't reproduce, because they
-depend on layout the headless DOM doesn't have:
+The same throw guards keys a headless DOM genuinely can't reproduce, because they
+depend on layout it doesn't have:
 
 - **Vertical motion** (`ArrowUp` / `ArrowDown`) picks its target from the caret's
   on-screen x-coordinate.

@@ -81,8 +81,8 @@ editor.click(box); // the element is detached; the guard should make this a no-o
 ::: warning `click` and `handleClick`
 `click` **throws** if the editor configures any of `handleClick`,
 `handleClickOn`, `handleDoubleClick*` or `handleTripleClick*`. Those props run
-only after ProseMirror resolves the click to a document position, and jsdom has
-no layout — `posAtCoords` is always `null`, so ProseMirror's `mousedown` handler
+only after ProseMirror resolves the click to a document position, and a headless
+DOM has no layout — `posAtCoords` is always `null`, so ProseMirror's `mousedown` handler
 bails before reaching them. A click routed through them would be a silent no-op,
 so the tester refuses rather than let you write a test that passes for the wrong
 reason. Put the behaviour on the node view's own element (as below) and click

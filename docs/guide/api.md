@@ -139,7 +139,7 @@ listeners and `handleDOMEvents`.
 
 ::: warning
 `click` throws if any `handleClick*` / `handleDoubleClick*` / `handleTripleClick*`
-prop is configured: jsdom has no layout, so `posAtCoords` is always null and
+prop is configured: a headless DOM has no layout, so `posAtCoords` is always null and
 ProseMirror's `mousedown` handler bails before those props run.
 :::
 

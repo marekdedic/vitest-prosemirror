@@ -18,7 +18,7 @@ hero:
 
 features:
   - title: A real editor
-    details: Mounts a genuine EditorView in jsdom, so plugins, keymaps, node views and input rules run exactly as they do in production.
+    details: Mounts a genuine EditorView in a headless DOM, so plugins, keymaps, node views and input rules run exactly as they do in production.
   - title: Type like a user
     details: type drives ProseMirror's real DOM input path — keydown, character insertion, deletion and caret motion — not synthetic transactions.
   - title: Readable assertions

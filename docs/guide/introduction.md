@@ -12,8 +12,8 @@ views and paste handling only run when there is an `EditorView` translating DOM
 events into transactions. A test that builds a document and applies transactions
 by hand skips all of that — exactly the layer most editor bugs live in.
 
-`vitest-prosemirror` instead mounts a real `EditorView` inside
-[jsdom](https://github.com/jsdom/jsdom) and drives it through the DOM:
+`vitest-prosemirror` instead mounts a real `EditorView` inside a headless DOM
+environment and drives it through the DOM:
 
 - `type` dispatches real `keydown` / `keypress` / `keyup` events and
   synthesises the DOM mutation a browser would make, which ProseMirror reads back
@@ -47,15 +47,15 @@ test("typing inserts text at the caret", () => {
 ## What it is not
 
 - **Not a headless model harness.** It needs a DOM, so your Vitest
-  [environment](https://vitest.dev/config/#environment) must be `jsdom`. It is
-  meant for editor-behaviour tests, not for exercising a
+  [environment](https://vitest.dev/config/#environment) must be `jsdom` or
+  `happy-dom`. It is meant for editor-behaviour tests, not for exercising a
   schema in isolation — though the standalone
   [`parseHTML`](/guide/testing-parse-rules) helper covers testing `parseDOM`
   rules without a view.
-- **Not a browser.** jsdom has no layout, so anything that depends on real
-  geometry — vertical caret motion, word-wise cursor movement, coordinate-based
-  click handlers — cannot be reproduced. Where that matters, the tester throws a
-  clear error rather than quietly doing the wrong thing.
+- **Not a browser.** A headless DOM has no layout, so anything that depends on
+  real geometry — vertical caret motion, word-wise cursor movement,
+  coordinate-based click handlers — cannot be reproduced. Where that matters, the
+  tester throws a clear error rather than quietly doing the wrong thing.
 
 ## Coming from jest-prosemirror?
 

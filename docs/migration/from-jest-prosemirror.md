@@ -11,9 +11,8 @@ run). This page covers both.
 
 Swap the test-time dependency and point Vitest at a DOM environment:
 
-- Use the `jsdom`
-  [environment](https://vitest.dev/config/#environment) — the tester mounts a real
-  `EditorView`, so it needs a DOM.
+- Use the `jsdom` or `happy-dom` [environment](https://vitest.dev/config/#environment)
+  — the tester mounts a real `EditorView`, so it needs a DOM.
 - Register the package from a
   [setup file](/guide/getting-started#installation) so its matchers and snapshot
   serializers are available everywhere.
@@ -147,7 +146,7 @@ may behave differently — usually more correctly:
 - **Typing** synthesises the DOM edit a browser would make and lets ProseMirror
   read it back through its input path, so input rules and `handleTextInput` fire
   as they do in the browser.
-- **Keys that can't be reproduced in jsdom throw** instead of silently doing
+- **Keys that can't be reproduced in a headless DOM throw** instead of silently doing
   nothing. Vertical caret motion, word/line motion and layout-dependent keys have
   no faithful headless behaviour, so the tester refuses rather than pass a test
   for the wrong reason. See
