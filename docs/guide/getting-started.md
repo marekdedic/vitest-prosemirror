@@ -50,6 +50,20 @@ API you import in your tests. Registering the matchers and the automatic
 per-test cleanup is what `vitest-prosemirror/setup` does, which is why it goes in
 `setupFiles` rather than being pulled in by importing the package.
 
+The custom matchers (like `toEqualProseMirrorNode`) are typed by a module
+augmentation in `vitest-prosemirror/setup`. `setupFiles` loads it at test time,
+but the type checker won't see it from there, so list the setup entry in your
+`tsconfig.json`'s `types` as well:
+
+```jsonc
+// tsconfig.json
+{
+  "compilerOptions": {
+    "types": ["vitest-prosemirror/setup"]
+  }
+}
+```
+
 ## Your first test
 
 Build a starting document, hand it to `renderProseMirror`, and drive it like a
