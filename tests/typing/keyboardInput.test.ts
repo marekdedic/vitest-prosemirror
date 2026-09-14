@@ -38,6 +38,30 @@ test("Keyboard input tokenization", () => {
   expect(tokenizeKeyboardInput("{KeyF}")).toStrictEqual(["f"]);
 });
 
+test("Keyboard input chord keys with special characters", () => {
+  expect(tokenizeKeyboardInput("{Mod->}")).toStrictEqual(["Mod->"]);
+  expect(tokenizeKeyboardInput("{Shift-Mod->}")).toStrictEqual(["Shift-Mod->"]);
+  expect(tokenizeKeyboardInput("{Mod-Shift-\\\\}")).toStrictEqual([
+    "Mod-Shift-\\",
+  ]);
+  expect(tokenizeKeyboardInput("[Mod-Shift-\\\\]")).toStrictEqual([
+    "Mod-Shift-\\",
+  ]);
+});
+
+test("Keyboard input unterminated group", () => {
+  expect(() => tokenizeKeyboardInput("{Enter")).toThrow(
+    "Unterminated group in keyboard input",
+  );
+  expect(() => tokenizeKeyboardInput("[Enter")).toThrow(
+    "Unterminated group in keyboard input",
+  );
+  // A single trailing backslash escapes the closing brace, leaving the group open.
+  expect(() => tokenizeKeyboardInput("{Mod-Shift-\\}")).toThrow(
+    "Unterminated group in keyboard input",
+  );
+});
+
 test("Keyboard input invalid values", () => {
   expect(() => tokenizeKeyboardInput(">")).not.toThrow();
   expect(() => tokenizeKeyboardInput("{>}")).not.toThrow();

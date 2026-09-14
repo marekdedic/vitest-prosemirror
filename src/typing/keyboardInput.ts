@@ -3,29 +3,31 @@ export function tokenizeKeyboardInput(input: string): Array<string> {
 
   let currentGroupOpener: "[" | "{" | null = null;
   let group = "";
+  let escaped = false;
   for (const char of input) {
     if (currentGroupOpener !== null) {
-      if (["]", "}"].includes(char)) {
-        if (
-          group.endsWith("\\") &&
-          char === matchingBrace(currentGroupOpener)
-        ) {
-          group = group.slice(0, -2) + char;
-        } else if (char === matchingBrace(currentGroupOpener)) {
-          if (group.length === 4 && group.startsWith("Key")) {
-            output.push(group.slice(3).toLowerCase());
-          } else {
-            output.push(group);
-          }
-          currentGroupOpener = null;
-          group = "";
+      if (escaped) {
+        // A backslash escapes the group's own closing brace and another backslash, so a
+        // literal "}", "]" or "\" key can be written; any other "\X" stays literal.
+        group +=
+          char === matchingBrace(currentGroupOpener) || char === "\\"
+            ? char
+            : `\\${char}`;
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === matchingBrace(currentGroupOpener)) {
+        assertSupported(group);
+        if (group.length === 4 && group.startsWith("Key")) {
+          output.push(group.slice(3).toLowerCase());
         } else {
-          group += char;
+          output.push(group);
         }
+        currentGroupOpener = null;
+        group = "";
       } else if (group === "" && currentGroupOpener === char) {
         output.push(char);
         currentGroupOpener = null;
-        group = "";
       } else {
         group += char;
       }
@@ -36,12 +38,17 @@ export function tokenizeKeyboardInput(input: string): Array<string> {
     }
   }
 
-  output.forEach(assertSupported);
+  if (currentGroupOpener !== null) {
+    throw new Error("Unterminated group in keyboard input");
+  }
+
   return output;
 }
 
-function assertSupported(character: string): never | void {
-  if (/^\/.+/u.exec(character) || /.+>[\d]*\/?$/u.exec(character)) {
+// The press-and-hold / repeat / release forms of testing-library ("{key>}", "{key>5}",
+// "{key>5/}", "{/key}") are unsupported and throw on usage.
+function assertSupported(group: string): never | void {
+  if (/^\/.+/u.exec(group) || /.*[^-]>[\d]*\/?$/u.exec(group)) {
     throw new Error("Unsupported keyboard input");
   }
 }

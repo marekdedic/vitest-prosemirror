@@ -70,6 +70,50 @@ describe("keymap", () => {
     expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
   });
 
+  test("should handle a chord whose key is >", () => {
+    const testEditor = renderProseMirror(
+      doc(p("<selStart>some text<selEnd>")),
+      {
+        editorProps: {
+          plugins: [
+            keymap({
+              "Mod->": wrapIn(basicSchema.nodes.blockquote),
+            }),
+          ],
+        },
+      },
+    );
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod->}");
+
+    const expectedDoc = doc(blockquote(p("some text")));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should handle a chord whose key is a backslash", () => {
+    const testEditor = renderProseMirror(
+      doc(p("<selStart>some text<selEnd>")),
+      {
+        editorProps: {
+          plugins: [
+            keymap({
+              "Shift-Mod-\\": setBlockType(basicSchema.nodes.code_block),
+            }),
+          ],
+        },
+      },
+    );
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod-Shift-\\\\}");
+
+    const expectedDoc = doc(codeBlock("some text"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
   // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
   const wrappingEditor = (): ProseMirrorEditor =>
     renderProseMirror(doc(p("<selStart>some text<selEnd>")), {
