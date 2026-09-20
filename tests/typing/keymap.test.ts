@@ -1,0 +1,167 @@
+import { setBlockType, toggleMark, wrapIn } from "prosemirror-commands";
+import { keymap } from "prosemirror-keymap";
+import { schema as basicSchema } from "prosemirror-schema-basic";
+import { describe, expect, test } from "vitest";
+
+import { type ProseMirrorEditor, renderProseMirror } from "../../src/index";
+import { blockquote, codeBlock, doc, p, strong } from "../builders";
+
+describe("keymap", () => {
+  test("should handle keybindings toggling marks", () => {
+    const initialDoc = doc(p("<selStart>some text<selEnd>"));
+
+    const testEditor = renderProseMirror(initialDoc, {
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
+    });
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod-b}");
+
+    const expectedDoc = doc(p(strong("some text")));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should handle keybindings setting block type", () => {
+    const initialDoc = doc(p("<selStart>some text<selEnd>"));
+
+    const testEditor = renderProseMirror(initialDoc, {
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": setBlockType(basicSchema.nodes.code_block),
+          }),
+        ],
+      },
+    });
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod-b}");
+
+    const expectedDoc = doc(codeBlock("some text"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should apply a chord's modifier only to its own token", () => {
+    const initialDoc = doc(p());
+
+    const testEditor = renderProseMirror(initialDoc, {
+      editorProps: {
+        plugins: [
+          keymap({
+            "Mod-b": toggleMark(basicSchema.marks.strong),
+          }),
+        ],
+      },
+    });
+
+    testEditor.setSelection("end");
+    testEditor.type("{Mod-b}bold{Mod-b} normal");
+
+    const expectedDoc = doc(p(strong("bold"), " normal"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should handle a chord whose key is >", () => {
+    const testEditor = renderProseMirror(
+      doc(p("<selStart>some text<selEnd>")),
+      {
+        editorProps: {
+          plugins: [
+            keymap({
+              "Mod->": wrapIn(basicSchema.nodes.blockquote),
+            }),
+          ],
+        },
+      },
+    );
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod->}");
+
+    const expectedDoc = doc(blockquote(p("some text")));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  test("should handle a chord whose key is a backslash", () => {
+    const testEditor = renderProseMirror(
+      doc(p("<selStart>some text<selEnd>")),
+      {
+        editorProps: {
+          plugins: [
+            keymap({
+              "Shift-Mod-\\": setBlockType(basicSchema.nodes.code_block),
+            }),
+          ],
+        },
+      },
+    );
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Mod-Shift-\\\\}");
+
+    const expectedDoc = doc(codeBlock("some text"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+
+  // Shift-b produces the "B" key, so prosemirror-keymap binds it as the uppercase letter.
+  const wrappingEditor = (): ProseMirrorEditor =>
+    renderProseMirror(doc(p("<selStart>some text<selEnd>")), {
+      editorProps: {
+        plugins: [
+          keymap({
+            B: wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
+    });
+
+  const wrappedDoc = doc(blockquote(p("some text")));
+
+  test("should handle an uppercase-letter keybinding triggered with Shift", () => {
+    const testEditor = wrappingEditor();
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("{Shift-b}");
+
+    expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
+  });
+
+  test("should handle an uppercase-letter keybinding typed directly", () => {
+    const testEditor = wrappingEditor();
+
+    testEditor.setSelection({ anchor: "selStart", head: "selEnd" });
+    testEditor.type("B");
+
+    expect(testEditor.doc).toEqualProseMirrorNode(wrappedDoc);
+  });
+
+  test("should not trigger a Shift-<letter> binding, as a browser does not", () => {
+    const testEditor = renderProseMirror(doc(p()), {
+      editorProps: {
+        plugins: [
+          keymap({
+            "Shift-b": wrapIn(basicSchema.nodes.blockquote),
+          }),
+        ],
+      },
+    });
+
+    testEditor.setSelection("start");
+    testEditor.type("{Shift-b}");
+
+    const expectedDoc = doc(p("B"));
+
+    expect(testEditor.doc).toEqualProseMirrorNode(expectedDoc);
+  });
+});

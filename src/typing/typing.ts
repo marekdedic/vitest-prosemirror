@@ -1,0 +1,138 @@
+import type { EditorView } from "prosemirror-view";
+
+import {
+  backward,
+  deleteText,
+  forward,
+  moveCaret,
+  typeCharacter,
+} from "./domEditing";
+import { tokenizeKeyboardInput } from "./keyboardInput";
+import { type KeyboardModifiers, parseKeyChord } from "./keyChord";
+import { keyIdentity } from "./keyIdentity";
+
+type KeyAction =
+  | { character: string; type: "type" }
+  | { direction: -1 | 1; extend: boolean; type: "moveCaret" }
+  | { direction: -1 | 1; type: "delete" }
+  | { type: "ignore" };
+
+const ignoredKeys = new Set([
+  "Alt",
+  "CapsLock",
+  "Control",
+  "Meta",
+  "Shift",
+  "Tab",
+]);
+
+const hasModifiers = (modifiers?: KeyboardModifiers): boolean =>
+  modifiers !== undefined && Object.values(modifiers).includes(true);
+
+// A browser produces no character when Ctrl, Meta or Alt is held.
+const suppressesCharacter = (modifiers?: KeyboardModifiers): boolean =>
+  modifiers?.altKey === true ||
+  modifiers?.ctrlKey === true ||
+  modifiers?.metaKey === true;
+
+const isLetter = (key: string): boolean => /^[a-z]$/iu.test(key);
+
+export function type(view: EditorView, text: string): void {
+  for (const token of tokenizeKeyboardInput(text)) {
+    const { key, modifiers } = parseKeyChord(token);
+    const character =
+      isLetter(key) && modifiers.shiftKey === true ? key.toUpperCase() : key;
+    const shiftKey = isLetter(character)
+      ? character === character.toUpperCase()
+      : (modifiers.shiftKey ?? false);
+    const identity = keyIdentity(character);
+    // Only keypress carries a charCode, and browsers only fire it for keys producing a character.
+    const eventInit = {
+      bubbles: true,
+      cancelable: true,
+      charCode: 0,
+      code: identity.code,
+      composed: true,
+      key: identity.key,
+      keyCode: identity.keyCode,
+      location: identity.location,
+      ...modifiers,
+      shiftKey,
+    };
+
+    const keydownEvent = keyboardEvent("keydown", eventInit);
+    view.dispatchEvent(keydownEvent);
+
+    // A cancelled keydown suppresses the keypress and the typing, but not the keyup.
+    if (!keydownEvent.defaultPrevented) {
+      const action = keyAction(character, modifiers);
+      if (action.type === "delete") {
+        deleteText(view, action.direction);
+      } else if (action.type === "moveCaret") {
+        moveCaret(view, action.direction, action.extend);
+      } else if (action.type === "type") {
+        view.dispatchEvent(
+          keyboardEvent("keypress", {
+            ...eventInit,
+            // Keypress reports the code point of the character, not the key's virtual code.
+            charCode: identity.charCode,
+            keyCode: identity.charCode,
+          }),
+        );
+        typeCharacter(view, action.character);
+      }
+    }
+
+    view.dispatchEvent(keyboardEvent("keyup", eventInit));
+  }
+}
+
+// What a browser would do with a keydown no handler cancelled. Keys whose native effect
+// cannot be reproduced in jsdom throw rather than fall back to typing their own name.
+function keyAction(key: string, modifiers?: KeyboardModifiers): KeyAction {
+  if (ignoredKeys.has(key)) {
+    return { type: "ignore" };
+  }
+  if (key === "Backspace") {
+    return { direction: backward, type: "delete" };
+  }
+  if (key === "Delete") {
+    return { direction: forward, type: "delete" };
+  }
+  // Vertical motion picks its target from the caret's x-coordinate, which the zero-sized
+  // Range rects make unknowable, and Ctrl/Alt word motion is not simulable yet, so those
+  // fall through to the throw. Shift extends the selection; unmodified moves the caret.
+  if (key === "ArrowLeft" || key === "ArrowRight") {
+    const direction = key === "ArrowLeft" ? backward : forward;
+    if (!hasModifiers(modifiers)) {
+      return { direction, extend: false, type: "moveCaret" };
+    }
+    if (modifiers?.shiftKey === true && !suppressesCharacter(modifiers)) {
+      return { direction, extend: true, type: "moveCaret" };
+    }
+  }
+  // Multi-character tokens are key names; anything else is the character it produces.
+  if (key.length === 1) {
+    if (suppressesCharacter(modifiers)) {
+      return { type: "ignore" };
+    }
+    return { character: key, type: "type" };
+  }
+  throw new Error(`Cannot simulate the "${key}" key`);
+}
+
+function keyboardEvent(
+  eventType: string,
+  init: KeyboardEventInit,
+): KeyboardEvent {
+  const event = new KeyboardEvent(eventType, { ...init });
+  // Happy-dom's KeyboardEvent ignores the legacy `charCode` init, so re-apply it
+  if (!Object.hasOwn(event, "charCode")) {
+    Object.defineProperty(event, "charCode", {
+      configurable: true,
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- supporting deprecated charCode for legacy code that reads it.
+      value: init.charCode,
+    });
+  }
+  return event;
+}

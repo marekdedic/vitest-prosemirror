@@ -1,0 +1,141 @@
+---
+name: "CI"
+"on":
+  push:
+    branches: "*"
+  pull_request:
+
+env:
+  cache-version: 1
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v6
+        with:
+          path: "~/.npm"
+          key: >-
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{
+            hashFiles('package.json') }}
+          restore-keys: |
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm ci
+
+      - name: "Build"
+        run: |
+          npm run build
+
+      - name: "Check the built output"
+        run: |
+          npm run check
+
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        versions: [
+          {node: "20", vitest: "2", jsdom: "29"},
+          {node: "22", vitest: "3"},
+          {node: "24", vitest: "4"},
+          {node: "26", vitest: "5"},
+        ]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
+
+      - name: "Setup Node"
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.versions.node }}
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v6
+        with:
+          path: "~/.npm"
+          key: >-
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-node${{
+            matrix.versions.node }}-vitest${{ matrix.versions.vitest }}-${{
+            hashFiles('package.json') }}
+          restore-keys: |
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-node${{ matrix.versions.node }}-vitest${{ matrix.versions.vitest }}-
+            npm-test-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: >-
+          npm install
+          vitest@${{ matrix.versions.vitest }}
+          @vitest/coverage-v8@${{ matrix.versions.vitest }}
+          ${{ matrix.versions.jsdom && format('jsdom@{0}', matrix.versions.jsdom) || '' }}
+
+      - name: "Run tests"
+        run: |
+          npm test
+
+      - name: "Upload coverage results"
+        uses: codecov/codecov-action@v7.1.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v6
+        with:
+          path: "~/.npm"
+          key: >-
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{
+            hashFiles('package.json') }}
+          restore-keys: |
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm ci
+
+      - name: "Lint"
+        run: |
+          npm run lint
+
+  docs:
+    name: "Docs"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v6
+        with:
+          path: "~/.npm"
+          key: >-
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{
+            hashFiles('package.json') }}
+          restore-keys: |
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-${{ hashFiles('package.json') }}
+            npm-dependencies-${{ runner.os }}-${{ env.cache-version }}-
+
+      - name: "Install NPM dependencies"
+        run: |
+          npm ci
+
+      - name: "Build docs"
+        run: |
+          npm run docs:build
