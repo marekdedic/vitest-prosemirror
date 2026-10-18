@@ -28,6 +28,7 @@ export default defineConfig({
     dts({
       bundleTypes: true,
       exclude: ["src/setup.ts", "src/matchers.d.ts", "node_modules/**"],
+      include: ["src"],
     }),
     {
       closeBundle: (): void => {
