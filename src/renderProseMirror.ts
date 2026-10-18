@@ -18,7 +18,7 @@ export interface Options {
   editorProps: Omit<DirectEditorProps, "dispatchTransaction" | "state">;
 }
 
-const originalMutationObserver = global.MutationObserver;
+const originalMutationObserver = globalThis.MutationObserver;
 // All undestroyed editors, driving the MutationObserver refcount.
 const liveEditors = new Set<ProseMirrorEditorImpl>();
 // The subset the afterEach hook destroys -- opt-out editors stay out of it.
@@ -74,7 +74,7 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
       plugins,
     });
 
-    global.MutationObserver = MutationObserverMock;
+    globalThis.MutationObserver = MutationObserverMock;
     mockRangeRects();
 
     this.view = new EditorView(this.mountPoint, {
@@ -118,7 +118,7 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
     autoCleanupEditors.delete(this);
     liveEditors.delete(this);
     if (liveEditors.size === 0) {
-      global.MutationObserver = originalMutationObserver;
+      globalThis.MutationObserver = originalMutationObserver;
     }
   }
 
