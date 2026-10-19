@@ -10,6 +10,10 @@ import { paste, type PasteInput } from "./clipboard/paste";
 import { click, element, elements } from "./domInteraction";
 import { mockRangeRects } from "./mockRangeRects";
 import { MutationObserverMock } from "./MutationObserverMock";
+import {
+  installProseMirrorCSS,
+  uninstallProseMirrorCSS,
+} from "./proseMirrorCSS";
 import { resolveSelection, type TesterSelection } from "./selection";
 import { type } from "./typing/typing";
 
@@ -19,7 +23,7 @@ export interface Options {
 }
 
 const originalMutationObserver = globalThis.MutationObserver;
-// All undestroyed editors, driving the MutationObserver refcount.
+// All undestroyed editors, driving the MutationObserver and CSS refcount.
 const liveEditors = new Set<ProseMirrorEditorImpl>();
 // The subset the afterEach hook destroys -- opt-out editors stay out of it.
 const autoCleanupEditors = new Set<ProseMirrorEditorImpl>();
@@ -75,6 +79,7 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
     });
 
     globalThis.MutationObserver = MutationObserverMock;
+    installProseMirrorCSS();
     mockRangeRects();
 
     this.view = new EditorView(this.mountPoint, {
@@ -119,6 +124,7 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
     liveEditors.delete(this);
     if (liveEditors.size === 0) {
       globalThis.MutationObserver = originalMutationObserver;
+      uninstallProseMirrorCSS();
     }
   }
 

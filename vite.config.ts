@@ -38,8 +38,11 @@ export default defineConfig({
     },
   ],
   test: {
+    // Vitest empties CSS imports by default, `?raw` ones included; the tester
+    // injects prosemirror-view's stylesheet, so it needs the real contents.
+    css: { include: [/prosemirror-view\/style\/prosemirror\.css/u] },
     environment: process.env["VITEST_ENVIRONMENT"] ?? "jsdom",
     mockReset: true,
-    setupFiles: ["src/setup.ts"],
+    setupFiles: ["src/setup.ts", "tests/consoleGuard.ts"],
   },
 });
