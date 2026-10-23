@@ -12,7 +12,7 @@ export default defineConfig({
       formats: ["es"],
     },
     minify: false,
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         "prosemirror-model",
         "prosemirror-state",
