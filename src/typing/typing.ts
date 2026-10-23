@@ -75,7 +75,9 @@ export function type(view: EditorView, text: string): void {
           keyboardEvent("keypress", {
             ...eventInit,
             // Keypress reports the code point of the character, not the key's virtual code.
+            // eslint-disable-next-line @typescript-eslint/no-deprecated -- supporting deprecated charCode for legacy code that reads it.
             charCode: identity.charCode,
+            // eslint-disable-next-line @typescript-eslint/no-deprecated -- supporting deprecated keyCode for legacy code that reads it.
             keyCode: identity.charCode,
           }),
         );
