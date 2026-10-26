@@ -2,7 +2,6 @@ import type { EditorView } from "prosemirror-view";
 
 import { Selection, TextSelection } from "prosemirror-state";
 
-import { MutationObserverMock } from "../MutationObserverMock";
 import { containsRTL } from "./direction";
 import { characterDataAt } from "./dom";
 import { graphemeBoundary } from "./grapheme";
@@ -37,11 +36,8 @@ export function deleteText(view: EditorView, direction: -1 | 1): void {
     );
   }
 
-  const oldValue = target.data;
   target.data = target.data.slice(0, fromOffset) + target.data.slice(toOffset);
-  MutationObserverMock.createMutation(view.dom, [
-    { oldValue, target, type: "characterData" },
-  ]);
+  flushDOMChanges(view);
 }
 
 export function moveCaret(
@@ -74,7 +70,7 @@ export function moveCaret(
   );
 }
 
-// Edits the DOM the way a browser would and reports the resulting mutation, so that
+// Edits the DOM the way a browser would and flushes the resulting mutation, so that
 // ProseMirror's DOM observer picks the change up through its real input path.
 export function typeCharacter(view: EditorView, character: string): void {
   if (!view.state.selection.empty) {
@@ -88,12 +84,9 @@ export function typeCharacter(view: EditorView, character: string): void {
   const point = characterDataAt(node, domOffset);
   if (point !== null) {
     const { offset, target } = point;
-    const oldValue = target.data;
     target.data =
       target.data.slice(0, offset) + character + target.data.slice(offset);
-    MutationObserverMock.createMutation(view.dom, [
-      { oldValue, target, type: "characterData" },
-    ]);
+    flushDOMChanges(view);
     return;
   }
 
@@ -104,15 +97,22 @@ export function typeCharacter(view: EditorView, character: string): void {
   // .item() is null past the end of the list, where the character is simply appended.
   const nextSibling = node.childNodes.item(domOffset) as Node | null;
   node.insertBefore(textNode, nextSibling);
-  MutationObserverMock.createMutation(view.dom, [
-    {
-      addedNodes: [textNode],
-      nextSibling,
-      previousSibling: textNode.previousSibling,
-      target: node,
-      type: "childList",
-    },
-  ]);
+  flushDOMChanges(view);
+}
+
+// The DOM edit has already queued a real mutation record on ProseMirror's observer.
+// flush() drains it via takeRecords(), so ProseMirror reads the change synchronously
+// and the observer's asynchronous delivery never sees it a second time.
+function flushDOMChanges(view: EditorView): void {
+  const { domObserver } = view as unknown as {
+    domObserver?: { flush?(): void };
+  };
+  if (typeof domObserver?.flush !== "function") {
+    throw new Error(
+      "Cannot simulate typing: this prosemirror-view version has no DOMObserver.flush()",
+    );
+  }
+  domObserver.flush();
 }
 
 function graphemeStep(

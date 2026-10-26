@@ -3,12 +3,8 @@ import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { describe, expect, test } from "vitest";
 
 import { renderProseMirror } from "../src/index";
-import { MutationObserverMock } from "../src/MutationObserverMock";
 import { cleanupEditors } from "../src/renderProseMirror";
 import { doc, p } from "./builders";
-
-// Captured before any tester in this file replaces the global.
-const originalMutationObserver = global.MutationObserver;
 
 const makeDoc = (): ProseMirrorNode => doc(p("Hello"));
 
@@ -56,21 +52,6 @@ describe("destroy", () => {
     expect(() => {
       testEditor.setSelection("end");
     }).toThrow(destroyedMessage);
-  });
-
-  test("should restore global.MutationObserver only once the last tester is destroyed", () => {
-    const first = renderProseMirror(makeDoc());
-    const second = renderProseMirror(makeDoc());
-
-    expect(global.MutationObserver).toBe(MutationObserverMock);
-
-    first.destroy();
-
-    expect(global.MutationObserver).toBe(MutationObserverMock);
-
-    second.destroy();
-
-    expect(global.MutationObserver).toBe(originalMutationObserver);
   });
 });
 
