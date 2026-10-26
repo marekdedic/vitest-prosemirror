@@ -9,7 +9,6 @@ import { type Clipboard, copy } from "./clipboard/copy";
 import { paste, type PasteInput } from "./clipboard/paste";
 import { click, element, elements } from "./domInteraction";
 import { mockRangeRects } from "./mockRangeRects";
-import { MutationObserverMock } from "./MutationObserverMock";
 import {
   installProseMirrorCSS,
   uninstallProseMirrorCSS,
@@ -22,8 +21,7 @@ export interface Options {
   editorProps: Omit<DirectEditorProps, "dispatchTransaction" | "state">;
 }
 
-const originalMutationObserver = globalThis.MutationObserver;
-// All undestroyed editors, driving the MutationObserver and CSS refcount.
+// All undestroyed editors, driving the CSS refcount.
 const liveEditors = new Set<ProseMirrorEditorImpl>();
 // The subset the afterEach hook destroys -- opt-out editors stay out of it.
 const autoCleanupEditors = new Set<ProseMirrorEditorImpl>();
@@ -78,7 +76,6 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
       plugins,
     });
 
-    globalThis.MutationObserver = MutationObserverMock;
     installProseMirrorCSS();
     mockRangeRects();
 
@@ -123,7 +120,6 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
     autoCleanupEditors.delete(this);
     liveEditors.delete(this);
     if (liveEditors.size === 0) {
-      globalThis.MutationObserver = originalMutationObserver;
       uninstallProseMirrorCSS();
     }
   }
@@ -167,7 +163,7 @@ export class ProseMirrorEditorImpl implements ProseMirrorEditor {
 /**
  * Mount a ProseMirror `EditorView` on a jsdom node and return a
  * {@link ProseMirrorEditor} handle for driving it. Installs the mocks the
- * tester relies on (`MutationObserver`, range rects) and registers the editor
+ * tester relies on (range rects) and registers the editor
  * for automatic cleanup after each test unless `autoCleanup: false` is passed.
  */
 export const renderProseMirror = (
